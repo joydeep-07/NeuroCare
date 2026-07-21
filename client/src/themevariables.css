@@ -1,0 +1,92 @@
+/* ROOT – LIGHT MODE */
+:root {
+  /* Backgrounds */
+  --bg-main: #f8fbff;
+  --bg-secondary: #ffffff;
+  --bg-gradient: linear-gradient(
+    135deg,
+    #eff8ff,
+    #e0f2fe,
+    #dbeafe
+  );
+
+  /* Text */
+  --text-main: #1e293b;
+  --text-secondary: #64748b;
+
+  /* Primary Brand */
+  --accent-primary: #2563eb;
+  --accent-secondary: #0ea5e9;
+
+  /* Supporting Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Borders */
+  --border-light: #e2e8f0;
+
+  /* Cards */
+  --card-bg: #ffffff;
+
+  /* Shadows */
+  --shadow: rgba(37, 99, 235, 0.08);
+}
+
+/* DARK MODE */
+.dark {
+  /* Backgrounds */
+  --bg-main: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-gradient: linear-gradient(
+    135deg,
+    #0f172a,
+    #1e3a8a,
+    #0f766e
+  );
+
+  /* Text */
+  --text-main: #f8fafc;
+  --text-secondary: #cbd5e1;
+
+  /* Primary Brand */
+  --accent-primary: #60a5fa;
+  --accent-secondary: #38bdf8;
+
+  /* Supporting Colors */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+
+  /* Borders */
+  --border-light: #334155;
+
+  /* Cards */
+  --card-bg: #162033;
+
+  /* Shadows */
+  --shadow: rgba(96, 165, 250, 0.12);
+}
+
+
+/* ------------------------- SELECTION COLORS -----------------------  */
+
+::selection {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+::-moz-selection {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+.my-text::selection,
+.my-text::-moz-selection,
+input::selection,
+textarea::selection,
+input::-moz-selection,
+textarea::-moz-selection {
+  background: var(--accent-primary);
+  color: #fff;
+}
