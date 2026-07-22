@@ -18,7 +18,7 @@ const ThemeToggle = () => {
                  transition-all duration-300"
       aria-label="Toggle Theme"
     >
-      {mode === "light" ? <MdDarkMode size={22} /> : <MdLightMode size={22} />}
+      {mode === "light" ? <MdDarkMode size={18} /> : <MdLightMode size={18} />}
     </button>
   );
 };

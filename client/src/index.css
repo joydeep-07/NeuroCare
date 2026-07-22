@@ -10,3 +10,7 @@
 .font-heading{
   font-family: tenor;
 }
+
+button{
+  cursor: pointer;
+}

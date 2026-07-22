@@ -16,7 +16,7 @@ const App = () => {
  }, [mode]);
 
   return (
-    <div className="font-heading">
+    <div>
       <Root />
     </div>
   );
