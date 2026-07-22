@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 import { MdEmail, MdPassword } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
+import { Mail } from "lucide-react";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
@@ -66,15 +67,18 @@ const SignIn = () => {
                 </h1>
 
                 <p className="mt-3 text-[var(--text-secondary)] max-w-sm text-xs leading-relaxed">
-                  {otpSent
-                    ? "We've sent a secure 4-digit OTP to the email address below. Enter it to continue."
-                    : "Sign in with your email address. We'll send a secure 4-digit OTP to verify your identity."}
+                  {otpSent ? (
+                    <>
+                      We've sent a secure 4-digit OTP to{" "}
+                      <span className="font-medium text-[var(--accent-primary)]">
+                        {email}
+                      </span>
+                      . Enter it to continue.
+                    </>
+                  ) : (
+                    "Sign in with your email address. We'll send a secure 4-digit OTP to verify your identity."
+                  )}
                 </p>
-                {otpSent && (
-                  <p className="mt-2 break-all font-semibold text-[var(--accent-primary)]">
-                    {email}
-                  </p>
-                )}
               </div>
 
               {/* Form */}
