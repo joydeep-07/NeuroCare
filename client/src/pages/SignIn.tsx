@@ -63,17 +63,17 @@ const SignIn = () => {
               {/* Heading */}
               <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-medium font-heading text-[var(--text-main)]">
-                  {otpSent ? "Verify OTP" : "Sign In"}
+                  {otpSent ? "Email Verification" : "Sign In"}
                 </h1>
 
                 <p className="mt-3 text-[var(--text-secondary)] max-w-sm text-xs leading-relaxed">
                   {otpSent ? (
                     <>
-                      We've sent a secure 4-digit OTP to{" "}
+                      We've sent a secure 4 digit OTP to{" "}
                       <span className="font-medium text-[var(--accent-primary)]">
                         {email}
                       </span>
-                      . Enter it to continue.
+                      . Enter it to verify your Email.
                     </>
                   ) : (
                     "Sign in with your email address. We'll send a secure 4-digit OTP to verify your identity."
