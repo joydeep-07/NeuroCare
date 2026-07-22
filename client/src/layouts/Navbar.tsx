@@ -1,4 +1,5 @@
 import ThemeToggle from "../components/ThemeToggle";
+import UserDetails from "../components/UserDetails";
 
 const Navbar = () => {
   return (
@@ -16,7 +17,8 @@ const Navbar = () => {
         </ul>
         <div className="btn flex gap-6">
           <button>Login</button>
-          <ThemeToggle />
+          <UserDetails/>
+          {/* <ThemeToggle /> */}
         </div>
       </div>
     </nav>

@@ -7,10 +7,25 @@
   font-style: normal;
 }
 
-.font-heading{
+.font-heading {
   font-family: tenor;
 }
 
-button{
+* {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+
+  /* background-color: rgb(128, 77, 0,0.1); */
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+button {
   cursor: pointer;
 }
