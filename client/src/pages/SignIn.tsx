@@ -50,8 +50,8 @@ const SignIn = () => {
   const [otp, setOtp] = useState("");
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh] p-4 md:p-6">
-      <div className="w-full max-w-7xl h-[70vh] flex overflow-hidden rounded-3xl border border-[var(--border-light)] bg-[var(--bg-secondary)] shadow-2xl shadow-[var(--shadow)]">
+    <div className="flex justify-center items-center md:min-h-[80vh] p-4 md:p-6">
+      <div className="w-full max-w-7xl md:h-[70vh] flex overflow-hidden rounded-2xl border border-[var(--border-light)] shadow-2xl shadow-[var(--shadow)]">
         {/* Advertisement Section */}
         <div className="hidden md:flex w-2/5 items-center justify-center border-r border-[var(--border-light)] bg-[var(--card-bg)]">
           ADVERTISEMENT
@@ -59,19 +59,18 @@ const SignIn = () => {
 
         {/* Right Side */}
         <div className="flex flex-1 items-center justify-center bg-[var(--bg-secondary)] p-6 md:p-12">
-          <div className="w-full max-w-md">
+          <div className="w-full ">
             {/* Heading */}
-            <div className="mb-8 text-center">
-              <h1 className="text-4xl font-bold text-[var(--text-main)]">
-                {otpSent ? "Verify OTP" : "Welcome Back"}
+            <div className="mb-8">
+              <h1 className="text-3xl md:text-4xl font-medium font-heading text-[var(--text-main)]">
+                {otpSent ? "Verify OTP" : "Sign In"}
               </h1>
 
-              <p className="mt-3 text-[var(--text-secondary)]">
+              <p className="mt-3 text-[var(--text-secondary)] max-w-sm text-xs leading-relaxed">
                 {otpSent
-                  ? "We've sent a 4-digit OTP to"
-                  : "Sign in securely using Email OTP"}
+                  ? "We've sent a secure 4-digit OTP to the email address below. Enter it to continue."
+                  : "Sign in with your email address. We'll send a secure 4-digit OTP to verify your identity."}
               </p>
-
               {otpSent && (
                 <p className="mt-2 break-all font-semibold text-[var(--accent-primary)]">
                   {email}
@@ -102,15 +101,15 @@ const SignIn = () => {
 
                     <button
                       onClick={() => setOtpSent(true)}
-                      className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-[var(--bg-main)] shadow-lg transition-all duration-300"
+                      className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300"
                     >
-                      Send 4 Digit OTP
+                      Send OTP
                     </button>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex flex-col gap-3">
                     <TextField
                       fullWidth
                       label="Enter 4 Digit OTP"
@@ -133,20 +132,19 @@ const SignIn = () => {
                       }}
                     />
 
-                    <button className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-[var(--bg-main)] shadow-lg transition-all duration-300">
+                    <button className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300">
                       Verify & Sign In
                     </button>
-
-                    <button
-                      onClick={() => {
-                        setOtpSent(false);
-                        setOtp("");
-                      }}
-                      className="w-full text-center text-sm font-medium text-[var(--accent-primary)] transition hover:underline"
-                    >
-                      Change Email
-                    </button>
                   </div>
+                  <button
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp("");
+                    }}
+                    className="text-sm font-normal text-[var(--accent-primary)]"
+                  >
+                    Change Email
+                  </button>
                 </>
               )}
             </div>
