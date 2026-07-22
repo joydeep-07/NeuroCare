@@ -85,7 +85,7 @@ const Navbar = () => {
   return (
     <>
       {/* Desktop */}
-      <nav className="hidden lg:flex h-16 justify-between items-center border-b border-[var(--border-light)] px-16">
+      <nav className="hidden lg:flex h-16 justify-between items-center border-b border-[var(--border-light)]/30 shadow-xs px-16">
         <h1 className="font-heading text-2xl font-medium">
           <span className="text-[var(--accent-primary)]">NEURO</span>CARE
         </h1>
