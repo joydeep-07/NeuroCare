@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { gsap } from "gsap";
 
 import UserDetails from "../components/UserDetails";
+
+const navLinks = [
+  { name: "Home", path: "/" },
+  { name: "Profile", path: "/profile" },
+  { name: "Add Member", path: "/add/member" },
+];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -86,19 +93,46 @@ const Navbar = () => {
     <>
       {/* Desktop */}
       <nav className="hidden lg:flex h-16 justify-between items-center border-b border-[var(--border-light)]/30 shadow-xs px-16">
-        <h1 className="font-heading text-2xl font-medium">
-          <span className="text-[var(--accent-primary)]">NEURO</span>CARE
-        </h1>
+        <Link to="/">
+          <h1 className="font-heading text-2xl font-medium">
+            <span className="text-[var(--accent-primary)]">NEURO</span>CARE
+          </h1>
+        </Link>
 
         <div className="flex items-center gap-20">
-          <ul className="flex gap-10">
-            <li>Home</li>
-            <li>About</li>
-            <li>Contact</li>
+          <ul className="flex items-center gap-10">
+            {navLinks.map((route) => (
+              <li key={route.path}>
+                <NavLink
+                  to={route.path}
+                  className={({ isActive }) =>
+                    `font-medium transition-colors duration-200 ${
+                      isActive
+                        ? "text-[var(--accent-primary)]"
+                        : "hover:text-[var(--accent-primary)]"
+                    }`
+                  }
+                >
+                  {route.name}
+                </NavLink>
+              </li>
+            ))}
           </ul>
 
           <div className="flex items-center gap-6">
-            <button>Login</button>
+            <NavLink
+              to="/signin"
+              className={({ isActive }) =>
+                `font-medium transition-colors duration-200 ${
+                  isActive
+                    ? "text-[var(--accent-primary)]"
+                    : "hover:text-[var(--accent-primary)]"
+                }`
+              }
+            >
+              Sign In
+            </NavLink>
+
             <UserDetails />
           </div>
         </div>
@@ -110,9 +144,11 @@ const Navbar = () => {
           <Menu size={24} />
         </button>
 
-        <h1 className="font-heading text-xl font-medium">
-          <span className="text-[var(--accent-primary)]">NEURO</span>CARE
-        </h1>
+        <Link to="/">
+          <h1 className="font-heading text-xl font-medium">
+            <span className="text-[var(--accent-primary)]">NEURO</span>CARE
+          </h1>
+        </Link>
 
         <UserDetails />
       </nav>
@@ -141,17 +177,30 @@ const Navbar = () => {
         </div>
 
         <ul className="p-6 space-y-8 text-lg">
-          {["Home", "About", "Contact", "Login"].map((item, index) => (
-            <li
-              key={item}
-              ref={(el) => {
-                if (el) itemsRef.current[index] = el;
-              }}
-              className="cursor-pointer hover:text-[var(--accent-primary)] transition-colors"
-            >
-              {item}
-            </li>
-          ))}
+          {[...navLinks, { name: "Sign In", path: "/signin" }].map(
+            (route, index) => (
+              <li
+                key={route.path}
+                ref={(el) => {
+                  if (el) itemsRef.current[index] = el;
+                }}
+              >
+                <NavLink
+                  to={route.path}
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) =>
+                    `block font-medium transition-colors duration-200 ${
+                      isActive
+                        ? "text-[var(--accent-primary)]"
+                        : "hover:text-[var(--accent-primary)]"
+                    }`
+                  }
+                >
+                  {route.name}
+                </NavLink>
+              </li>
+            ),
+          )}
         </ul>
       </div>
     </>
