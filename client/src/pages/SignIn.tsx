@@ -2,9 +2,6 @@ import { useState } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 import { MdEmail, MdPassword } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebookSquare } from "react-icons/fa";
-import { IoLogoApple } from "react-icons/io5";
-import { BsTwitterX } from "react-icons/bs";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
@@ -157,26 +154,18 @@ const SignIn = () => {
               <div className="relative my-8">
                 <hr className="border-[var(--border-light)]" />
 
-                <span className="absolute left-1/2 -top-3 -translate-x-1/2 bg-[var(--bg-secondary)] px-4 text-xs font-semibold tracking-[0.35em] text-[var(--text-secondary)]">
+                <span className="absolute left-1/2 -top-3 -translate-x-1/2 bg-[var(--bg-secondary)] px-4 text-xs font-semibold tracking-widest text-[var(--text-secondary)]">
                   OR
                 </span>
               </div>
 
               {/* Social Buttons */}
-              <div className="grid grid-cols-4 gap-4">
-                <button className="group flex h-14 items-center justify-center rounded-sm border border-[var(--border-light)] bg-[var(--card-bg)] transition-all duration-300">
-                  <FcGoogle className="text-3xl transition-transform duration-300" />
-                </button>
-
-                <button className="group flex h-14 items-center justify-center rounded-sm border border-[var(--border-light)] bg-[var(--card-bg)] transition-all duration-300 ">
-                  <FaFacebookSquare className="text-3xl text-[#1877F2] transition-transform duration-300" />
-                </button>
-                <button className="group flex h-14 items-center justify-center rounded-sm border border-[var(--border-light)] bg-[var(--card-bg)] transition-all duration-300 ">
-                  <BsTwitterX className="text-3xl text-[var(--text-main)] transition-transform duration-300" />
-                </button>
-
-                <button className="group flex h-14 items-center justify-center rounded-sm border border-[var(--border-light)] bg-[var(--card-bg)] transition-all duration-300 ">
-                  <IoLogoApple className="text-3xl text-[var(--text-main)] transition-transform duration-300" />
+              <div className="w-full">
+                <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-sm border border-[var(--border-light)]/50 bg-[var(--card-bg)]/50 transition-all duration-300 hover:shadow-md cursor-pointer">
+                  <FcGoogle className="text-2xl" />
+                  <span className="font-normal text-[var(--text-primary)]">
+                    Continue with Google
+                  </span>
                 </button>
               </div>
 
