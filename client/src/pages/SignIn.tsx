@@ -2,7 +2,6 @@ import { useState } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 import { MdEmail, MdPassword } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
-import { Mail } from "lucide-react";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
