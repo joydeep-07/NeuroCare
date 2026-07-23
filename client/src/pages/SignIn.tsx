@@ -3,6 +3,8 @@ import { useForm, Controller } from "react-hook-form";
 import { TextField, InputAdornment } from "@mui/material";
 import { MdEmail, MdPassword } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
+import api from "../api/axios";
+import ENDPOINTS from "../api/endPoints";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
@@ -42,6 +44,7 @@ const textFieldStyles = {
 const SignIn = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
+  const [loading, setLoading] = useState(false);
 
   const {
     control,
@@ -70,15 +73,51 @@ const SignIn = () => {
     return () => clearInterval(timer);
   }, [otpSent, timeLeft]);
 
-  const onSubmitEmail = (data) => {
-    console.log("Form Data (Email):", data);
-    setOtpSent(true);
-    setTimeLeft(60);
+  const onSubmitEmail = async (data: { email: string }) => {
+    try {
+      setLoading(true);
+
+      const res = await api.post(ENDPOINTS.AUTH.SEND_OTP, {
+        email: data.email,
+      });
+
+      if (res.data.success) {
+        setOtpSent(true);
+        setTimeLeft(60);
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Failed to send OTP.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const onSubmitOtp = (data) => {
-    console.log("Form Data (OTP Verification):", data);
-  };
+ const onSubmitOtp = async (data: { otp: string }) => {
+   try {
+     setLoading(true);
+
+     const res = await api.post(ENDPOINTS.AUTH.VERIFY_OTP, {
+       email,
+       otp: data.otp,
+     });
+
+     if (res.data.success) {
+       localStorage.setItem("token", res.data.token);
+       localStorage.setItem("user", JSON.stringify(res.data.user));
+
+       alert("Login Successful");
+
+       console.log(res.data);
+
+       // Navigate after login
+       // navigate("/");
+     }
+   } catch (error: any) {
+     alert(error.response?.data?.message || "Invalid OTP.");
+   } finally {
+     setLoading(false);
+   }
+ };
 
   return (
     <div className="flex justify-center items-center md:min-h-[80vh] p-4 md:p-6">
@@ -153,9 +192,10 @@ const SignIn = () => {
 
                       <button
                         type="submit"
-                        className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300"
+                        disabled={loading}
+                        className="w-full rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Send OTP
+                        {loading ? "Sending..." : "Send OTP"}
                       </button>
                     </div>
                   </form>
@@ -204,9 +244,10 @@ const SignIn = () => {
 
                       <button
                         type="submit"
-                        className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300"
+                        disabled={loading}
+                        className="w-full rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Verify & Sign In
+                        {loading ? "Verifying..." : "Verify & Sign In"}
                       </button>
                     </div>
                     <div className="flex justify-between mt-3">
@@ -228,8 +269,16 @@ const SignIn = () => {
                       ) : (
                         <button
                           type="button"
-                          onClick={() => {
-                            setTimeLeft(60);
+                          onClick={async () => {
+                            try {
+                              await api.post(ENDPOINTS.AUTH.SEND_OTP, {
+                                email,
+                              });
+
+                              setTimeLeft(60);
+                            } catch (error) {
+                              console.log(error);
+                            }
                           }}
                           className="text-sm font-medium text-[var(--accent-primary)] hover:underline cursor-pointer"
                         >
