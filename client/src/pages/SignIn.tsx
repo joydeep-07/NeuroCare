@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { TextField, InputAdornment } from "@mui/material";
 import { MdEmail, MdPassword } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
@@ -12,10 +13,6 @@ const textFieldStyles = {
 
     "& fieldset": {
       borderColor: "var(--border-light)",
-    },
-
-    "&:hover fieldset": {
-      borderColor: "var(--accent-primary)",
     },
 
     "&.Mui-focused fieldset": {
@@ -44,15 +41,51 @@ const textFieldStyles = {
 
 const SignIn = () => {
   const [otpSent, setOtpSent] = useState(false);
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
+  const [timeLeft, setTimeLeft] = useState(60);
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      otp: "",
+    },
+  });
+
+  const email = watch("email");
+  const otp = watch("otp");
+
+  useEffect(() => {
+    if (!otpSent) return;
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [otpSent, timeLeft]);
+
+  const onSubmitEmail = (data) => {
+    console.log("Form Data (Email):", data);
+    setOtpSent(true);
+    setTimeLeft(60);
+  };
+
+  const onSubmitOtp = (data) => {
+    console.log("Form Data (OTP Verification):", data);
+  };
 
   return (
     <div className="flex justify-center items-center md:min-h-[80vh] p-4 md:p-6">
-      <div className="w-full max-w-7xl md:h-[70vh] flex overflow-hidden rounded-2xl border border-[var(--border-light)] shadow-2xl shadow-[var(--shadow)]">
+      <div className="w-full max-w-7xl md:h-[70vh] flex overflow-hidden rounded-2xl border border-[var(--border-light)]/50 shadow-2xl shadow-[var(--shadow)]">
         {/* Advertisement Section */}
-        <div className="hidden md:flex w-2/5 items-center justify-center border-r border-[var(--border-light)] bg-[var(--card-bg)]">
-          ADVERTISEMENT
+        <div className="hidden md:flex w-2/6 items-center justify-center border-r border-[var(--border-light)]/50 bg-[var(--card-bg)]">
+          <img className="w-sm rounded-lg" src="./poster.png" alt="" />
         </div>
 
         {/* Right Side */}
@@ -83,71 +116,128 @@ const SignIn = () => {
               {/* Form */}
               <div className="space-y-5">
                 {!otpSent ? (
-                  <>
+                  <form onSubmit={handleSubmit(onSubmitEmail)}>
                     <div className="flex flex-col gap-3">
-                      <TextField
-                        fullWidth
-                        label="Email Address"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        sx={textFieldStyles}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <MdEmail className="text-xl text-[var(--accent-primary)]" />
-                            </InputAdornment>
-                          ),
+                      <Controller
+                        name="email"
+                        control={control}
+                        rules={{
+                          required: "Email is required",
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: "Invalid email address",
+                          },
                         }}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            label="Enter your Email"
+                            type="email"
+                            onChange={(e) =>
+                              field.onChange(e.target.value.toLowerCase())
+                            }
+                            error={!!errors.email}
+                            helperText={errors.email?.message}
+                            sx={textFieldStyles}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <MdEmail className="text-xl text-[var(--accent-primary)]" />
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        )}
                       />
 
                       <button
-                        onClick={() => setOtpSent(true)}
+                        type="submit"
                         className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300"
                       >
                         Send OTP
                       </button>
                     </div>
-                  </>
+                  </form>
                 ) : (
-                  <>
-                    <div className="flex flex flex-col gap-3">
-                      <TextField
-                        fullWidth
-                        label="Enter 4 Digit OTP"
-                        placeholder="1234"
-                        value={otp}
-                        onChange={(e) =>
-                          setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))
-                        }
-                        sx={textFieldStyles}
-                        inputProps={{
-                          maxLength: 4,
-                          inputMode: "numeric",
+                  <form onSubmit={handleSubmit(onSubmitOtp)}>
+                    <div className="flex flex-col gap-3">
+                      <Controller
+                        name="otp"
+                        control={control}
+                        rules={{
+                          required: "OTP is required",
+                          minLength: {
+                            value: 4,
+                            message: "OTP must be 4 digits",
+                          },
                         }}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <MdPassword className="text-xl text-[var(--accent-primary)]" />
-                            </InputAdornment>
-                          ),
-                        }}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            label="Enter 4 Digit OTP"
+                            placeholder="1234"
+                            onChange={(e) => {
+                              const sanitized = e.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 4);
+                              field.onChange(sanitized);
+                            }}
+                            error={!!errors.otp}
+                            helperText={errors.otp?.message}
+                            sx={textFieldStyles}
+                            inputProps={{
+                              maxLength: 4,
+                              inputMode: "numeric",
+                            }}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <MdPassword className="text-xl text-[var(--accent-primary)]" />
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        )}
                       />
 
-                      <button className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300">
+                      <button
+                        type="submit"
+                        className="w-full cursor-pointer rounded-sm bg-[var(--accent-primary)] py-3.5 font-semibold text-white shadow-lg transition-all duration-300"
+                      >
                         Verify & Sign In
                       </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        setOtpSent(false);
-                        setOtp("");
-                      }}
-                      className="text-sm font-normal text-[var(--accent-primary)]"
-                    >
-                      Change Email
-                    </button>
-                  </>
+                    <div className="flex justify-between mt-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtpSent(false);
+                          setValue("otp", "");
+                        }}
+                        className="text-sm font-normal text-[var(--accent-primary)]"
+                      >
+                        Change Email
+                      </button>
+
+                      {timeLeft > 0 ? (
+                        <h5 className="text-xs text-[var(--text-secondary)]">
+                          {timeLeft}s
+                        </h5>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTimeLeft(60);
+                          }}
+                          className="text-sm font-medium text-[var(--accent-primary)] hover:underline cursor-pointer"
+                        >
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
+                  </form>
                 )}
               </div>
             </div>
@@ -164,7 +254,10 @@ const SignIn = () => {
 
               {/* Social Buttons */}
               <div className="w-full">
-                <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-sm border border-[var(--border-light)]/50 bg-[var(--card-bg)]/50 transition-all duration-300 hover:shadow-md cursor-pointer">
+                <button
+                  type="button"
+                  className="group flex h-14 w-full items-center justify-center gap-3 rounded-sm border border-[var(--border-light)]/50 bg-[var(--card-bg)]/50 transition-all duration-300 hover:shadow-md cursor-pointer"
+                >
                   <FcGoogle className="text-2xl" />
                   <span className="font-normal text-[var(--text-primary)]">
                     Continue with Google
