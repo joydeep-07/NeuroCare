@@ -1,23 +1,92 @@
-import { useState, useRef, useEffect } from "react";
-import { FaUser, FaCode } from "react-icons/fa";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaUser } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { IoAdd, IoReturnUpBackOutline } from "react-icons/io5";
 import ThemeToggle from "./ThemeToggle";
 import gsap from "gsap";
-import { useLayoutEffect } from "react";
+
+import api from "../api/axios";
+import ENDPOINTS from "../api/endPoints";
 
 const UserDetails = () => {
+  const navigate = useNavigate();
+
   const [open, setOpen] = useState(false);
+
+  const [user, setUser] = useState<any>(null);
+  const [members, setMembers] = useState<any[]>([]);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
+  // ===============================
+  // Load Logged In User
+  // ===============================
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const localUser = localStorage.getItem("user");
+
+        if (localUser) {
+          setUser(JSON.parse(localUser));
+        }
+
+        const profileRes = await api.get(ENDPOINTS.PROFILE.GET);
+
+        if (profileRes.data.success) {
+          setUser(profileRes.data.user);
+
+          localStorage.setItem("user", JSON.stringify(profileRes.data.user));
+        }
+
+        const memberRes = await api.get(ENDPOINTS.MEMBER.GET_ALL);
+
+        if (memberRes.data.success) {
+          setMembers(memberRes.data.members);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // ===============================
+  // Avatar
+  // ===============================
+  const userAvatar =
+    user?.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user?.fullName || user?.email || "User",
+    )}&background=1a73e8&color=ffffff&size=256`;
+
+  // ===============================
+  // Logout
+  // ===============================
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/signin");
+  };
+
+  // ===============================
+  // Mobile Drawer Animation
+  // ===============================
   useLayoutEffect(() => {
     if (window.innerWidth >= 768) return;
 
     if (open) {
-      gsap.set(drawerRef.current, { x: "100%" });
-      gsap.set(overlayRef.current, { opacity: 0 });
+      gsap.set(drawerRef.current, {
+        x: "100%",
+      });
+
+      gsap.set(overlayRef.current, {
+        opacity: 0,
+      });
 
       gsap.to(overlayRef.current, {
         opacity: 1,
@@ -33,6 +102,9 @@ const UserDetails = () => {
     }
   }, [open]);
 
+  // ===============================
+  // Close Drawer
+  // ===============================
   const closeDrawer = () => {
     if (window.innerWidth >= 768) {
       setOpen(false);
@@ -52,6 +124,9 @@ const UserDetails = () => {
     });
   };
 
+  // ===============================
+  // Close Desktop Dropdown
+  // ===============================
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -80,10 +155,18 @@ const UserDetails = () => {
         className="group relative cursor-pointer outline-none"
       >
         <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--card-bg)] shadow-[0_4px_18px_var(--shadow)] transition-all duration-300 ">
-          <FaUser
-            size={18}
-            className="text-[var(--text-secondary)] transition-colors duration-300 group-hover:text-[var(--text-main)]"
-          />
+          {user?.avatar ? (
+            <img
+              src={userAvatar}
+              alt="Avatar"
+              className="h-full w-full rounded-full object-cover"
+            />
+          ) : (
+            <FaUser
+              size={18}
+              className="text-[var(--text-secondary)] transition-colors duration-300 group-hover:text-[var(--text-main)]"
+            />
+          )}
 
           {/* Online Indicator */}
           <span className="absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full border-2 border-[var(--card-bg)] bg-[var(--success)]" />
@@ -99,19 +182,19 @@ const UserDetails = () => {
               {/* Header */}
               <div className="px-8 pt-6 pb-5">
                 <p className="text-center text-[15px] font-medium text-[var(--text-secondary)]">
-                  joydeeprnp8821@gmail.com
+                  {user?.email || "user@example.com"}
                 </p>
 
                 <div className="mt-6 flex justify-center">
                   <img
-                    src="https://i.pinimg.com/736x/2e/ae/fd/2eaefd75d164be0b17ef6f09749d0da8.jpg"
+                    src={userAvatar}
                     alt="Profile"
                     className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
                   />
                 </div>
 
                 <h2 className="mt-5 text-center text-4xl font-semibold text-[var(--text-main)]">
-                  Hi, Joydeep!
+                  Hi, {user?.fullName || user?.name || "User"}!
                 </h2>
 
                 <div className="mt-6 flex justify-center">
@@ -130,25 +213,33 @@ const UserDetails = () => {
                 </div>
 
                 <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
-                  <button className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)]/50 bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
-                      <img
-                        className="rounded-full h-11 w-11"
-                        src="https://i.pinimg.com/1200x/e6/ed/24/e6ed240b2f5367525acf1c9df1489fd6.jpg"
-                        alt=""
-                      />
-                    </div>
+                  {members.map((member, index) => (
+                    <button
+                      key={member._id || index}
+                      className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
+                    >
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)]/50 bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+                        <img
+                          className="rounded-full h-11 w-11 object-cover"
+                          src={
+                            member.avatar ||
+                            "https://i.pinimg.com/1200x/e6/ed/24/e6ed240b2f5367525acf1c9df1489fd6.jpg"
+                          }
+                          alt={member.fullName || "Member"}
+                        />
+                      </div>
 
-                    <div className="text-left">
-                      <p className="font-semibold text-[var(--text-main)]">
-                        Soumika Maji
-                      </p>
+                      <div className="text-left">
+                        <p className="font-semibold text-[var(--text-main)]">
+                          {member.fullName || member.name}
+                        </p>
 
-                      <p className="text-sm text-[var(--text-secondary)]">
-                        soumikamaji2005@gmail.com
-                      </p>
-                    </div>
-                  </button>
+                        <p className="text-sm text-[var(--text-secondary)]">
+                          {member.email}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
 
                   <button className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
@@ -158,7 +249,10 @@ const UserDetails = () => {
                     <span className="font-medium">Add another member</span>
                   </button>
 
-                  <button className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
+                  <button
+                    onClick={logout}
+                    className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
+                  >
                     <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--danger)]">
                       <FiLogOut />
                     </div>
@@ -198,19 +292,19 @@ const UserDetails = () => {
               </button>
               <div className="px-4 py-6">
                 <p className="text-center text-sm font-medium text-[var(--text-secondary)]">
-                  joydeeprnp8821@gmail.com
+                  {user?.email || "user@example.com"}
                 </p>
 
                 <div className="mt-6 flex justify-center">
                   <img
-                    src="https://i.pinimg.com/736x/2e/ae/fd/2eaefd75d164be0b17ef6f09749d0da8.jpg"
+                    src={userAvatar}
                     alt="Profile"
                     className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
                   />
                 </div>
 
                 <h2 className="mt-5 text-center text-3xl font-semibold">
-                  Hi, Joydeep!
+                  Hi, {user?.fullName || user?.name || "User"}!
                 </h2>
 
                 <div className="mt-6 flex justify-center">
@@ -228,20 +322,30 @@ const UserDetails = () => {
                   </div>
 
                   <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
-                    <button className="flex w-full items-center gap-4 px-5 py-5">
-                      <img
-                        src="https://i.pinimg.com/1200x/e6/ed/24/e6ed240b2f5367525acf1c9df1489fd6.jpg"
-                        className="h-11 w-11 rounded-full"
-                        alt=""
-                      />
+                    {members.map((member, index) => (
+                      <button
+                        key={member._id || index}
+                        className="flex w-full items-center gap-4 px-5 py-5"
+                      >
+                        <img
+                          src={
+                            member.avatar ||
+                            "https://i.pinimg.com/1200x/e6/ed/24/e6ed240b2f5367525acf1c9df1489fd6.jpg"
+                          }
+                          className="h-11 w-11 rounded-full object-cover"
+                          alt={member.fullName || "Member"}
+                        />
 
-                      <div className="text-left">
-                        <p className="font-semibold">Soumika Maji</p>
-                        <p className="text-sm text-[var(--text-secondary)]">
-                          soumikamaji2005@gmail.com
-                        </p>
-                      </div>
-                    </button>
+                        <div className="text-left">
+                          <p className="font-semibold">
+                            {member.fullName || member.name}
+                          </p>
+                          <p className="text-sm text-[var(--text-secondary)]">
+                            {member.email}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
 
                     <button className="flex w-full items-center gap-4 px-5 py-5">
                       <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)]">
@@ -251,14 +355,15 @@ const UserDetails = () => {
                       <span>Add another member</span>
                     </button>
 
-                    <button className="flex w-full items-center gap-4 px-5 py-5">
+                    <button
+                      onClick={logout}
+                      className="flex w-full items-center gap-4 px-5 py-5"
+                    >
                       <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)] text-[var(--danger)]">
                         <FiLogOut />
                       </div>
 
-                      <span className="text-[var(--danger)]">
-                        Sign out
-                      </span>
+                      <span className="text-[var(--danger)]">Sign out</span>
                     </button>
                   </div>
 

@@ -5,6 +5,7 @@ import { MdEmail, MdPassword } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
+import { useNavigate } from "react-router-dom";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
@@ -45,6 +46,7 @@ const SignIn = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const {
     control,
@@ -92,32 +94,46 @@ const SignIn = () => {
     }
   };
 
- const onSubmitOtp = async (data: { otp: string }) => {
-   try {
-     setLoading(true);
+const onSubmitOtp = async (data: { otp: string }) => {
+  try {
+    setLoading(true);
 
-     const res = await api.post(ENDPOINTS.AUTH.VERIFY_OTP, {
-       email,
-       otp: data.otp,
-     });
+    const res = await api.post(ENDPOINTS.AUTH.VERIFY_OTP, {
+      email,
+      otp: data.otp,
+    });
 
-     if (res.data.success) {
-       localStorage.setItem("token", res.data.token);
-       localStorage.setItem("user", JSON.stringify(res.data.user));
+    if (res.data.success) {
+      // Save authentication data
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("email", email);
+      localStorage.setItem("isLoggedIn", "true");
 
-       alert("Login Successful");
+      // Or save everything together
+      localStorage.setItem(
+        "auth",
+        JSON.stringify({
+          isLoggedIn: true,
+          token: res.data.token,
+          user: res.data.user,
+        }),
+      );
 
-       console.log(res.data);
+      console.log("Saved to localStorage:", {
+        token: res.data.token,
+        user: res.data.user,
+      });
 
-       // Navigate after login
-       // navigate("/");
-     }
-   } catch (error: any) {
-     alert(error.response?.data?.message || "Invalid OTP.");
-   } finally {
-     setLoading(false);
-   }
- };
+      alert("Login Successful");
+      navigate("/");
+    }
+  } catch (error: any) {
+    alert(error.response?.data?.message || "Invalid OTP.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex justify-center items-center md:min-h-[80vh] p-4 md:p-6">

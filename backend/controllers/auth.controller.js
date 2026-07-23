@@ -74,7 +74,12 @@ const verifyOTP = async (req, res) => {
       });
     }
 
-    if (savedOTP.otp !== otp) {
+    // console.log("Received OTP:", otp);
+    // console.log("Saved OTP:", savedOTP.otp);
+    // console.log("Type Received:", typeof otp);
+    // console.log("Type Saved:", typeof savedOTP.otp);
+
+    if (String(savedOTP.otp).trim() !== String(otp).trim()) {
       savedOTP.attempts += 1;
       await savedOTP.save();
 
@@ -84,7 +89,7 @@ const verifyOTP = async (req, res) => {
       });
     }
 
-    // Delete OTP after successful verification
+    // Delete OTP
     await OTP.deleteOne({
       _id: savedOTP._id,
     });
@@ -93,9 +98,7 @@ const verifyOTP = async (req, res) => {
       email: email.toLowerCase(),
     });
 
-    // ============================
-    // First Login → Create Account
-    // ============================
+    // First Login
     if (!user) {
       user = await User.create({
         email: email.toLowerCase(),
@@ -109,7 +112,6 @@ const verifyOTP = async (req, res) => {
       });
 
       user.family = family._id;
-
       await user.save();
     }
 
