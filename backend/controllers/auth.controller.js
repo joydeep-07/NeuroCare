@@ -56,6 +56,10 @@ const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
+    console.log("========== VERIFY OTP ==========");
+    console.log("Email:", email);
+    console.log("OTP:", otp);
+
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
@@ -67,17 +71,14 @@ const verifyOTP = async (req, res) => {
       email: email.toLowerCase(),
     });
 
+    console.log("Saved OTP:", savedOTP);
+
     if (!savedOTP) {
       return res.status(400).json({
         success: false,
         message: "OTP expired or not found.",
       });
     }
-
-    // console.log("Received OTP:", otp);
-    // console.log("Saved OTP:", savedOTP.otp);
-    // console.log("Type Received:", typeof otp);
-    // console.log("Type Saved:", typeof savedOTP.otp);
 
     if (String(savedOTP.otp).trim() !== String(otp).trim()) {
       savedOTP.attempts += 1;
@@ -89,21 +90,29 @@ const verifyOTP = async (req, res) => {
       });
     }
 
-    // Delete OTP
+    console.log("✅ OTP verified");
+
     await OTP.deleteOne({
       _id: savedOTP._id,
     });
+
+    console.log("✅ OTP deleted");
 
     let user = await User.findOne({
       email: email.toLowerCase(),
     });
 
-    // First Login
+    console.log("Existing User:", user);
+
     if (!user) {
+      console.log("🟡 Creating new user...");
+
       user = await User.create({
         email: email.toLowerCase(),
         provider: "otp",
       });
+
+      console.log("✅ User created:", user);
 
       const family = await Family.create({
         familyName: "My Family",
@@ -111,14 +120,22 @@ const verifyOTP = async (req, res) => {
         members: [user._id],
       });
 
+      console.log("✅ Family created:", family);
+
       user.family = family._id;
       await user.save();
+
+      console.log("✅ User updated with family");
     }
 
     user.lastLogin = new Date();
     await user.save();
 
+    console.log("✅ Last login updated");
+
     const token = generateToken(user._id);
+
+    console.log("✅ Token generated");
 
     return res.status(200).json({
       success: true,
@@ -128,11 +145,14 @@ const verifyOTP = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.log(error);
+    console.error("========== VERIFY OTP ERROR ==========");
+    console.error(error);
+    console.error("Message:", error.message);
+    console.error("Stack:", error.stack);
 
     return res.status(500).json({
       success: false,
-      message: "Something went wrong.",
+      message: error.message,
     });
   }
 };
