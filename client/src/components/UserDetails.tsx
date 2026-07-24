@@ -5,9 +5,9 @@ import { FiLogOut } from "react-icons/fi";
 import { IoAdd, IoReturnUpBackOutline } from "react-icons/io5";
 import ThemeToggle from "./ThemeToggle";
 import gsap from "gsap";
-import { useDispatch } from "react-redux";
-import { logout as logoutAction } from "../redux/authSlice";
-import type { AppDispatch } from "../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { logout as logoutAction, updateUser } from "../redux/authSlice";
+import type { AppDispatch, RootState } from "../redux/store";
 
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
@@ -16,9 +16,10 @@ const UserDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const [open, setOpen] = useState(false);
+  // Extract user from Redux store
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  const [user, setUser] = useState<any>(null);
+  const [open, setOpen] = useState(false);
   const [members, setMembers] = useState<any[]>([]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -26,23 +27,16 @@ const UserDetails = () => {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // ===============================
-  // Load Logged In User
+  // Load Logged In User / Profile
   // ===============================
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const localUser = localStorage.getItem("user");
-
-        if (localUser) {
-          setUser(JSON.parse(localUser));
-        }
-
         const profileRes = await api.get(ENDPOINTS.PROFILE.GET);
 
         if (profileRes.data.success) {
-          setUser(profileRes.data.user);
-
-          localStorage.setItem("user", JSON.stringify(profileRes.data.user));
+          // Update Redux state and localStorage simultaneously via slice action
+          dispatch(updateUser(profileRes.data.user));
         }
 
         const memberRes = await api.get(ENDPOINTS.MEMBER.GET_ALL);
@@ -56,7 +50,7 @@ const UserDetails = () => {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   // ===============================
   // Avatar
@@ -64,28 +58,26 @@ const UserDetails = () => {
   const userAvatar =
     user?.avatar ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user?.fullName || user?.email || "User",
+      user?.fullName || user?.name || user?.email || "User",
     )}&background=1a73e8&color=ffffff&size=256`;
 
   // ===============================
   // Logout
   // ===============================
- const logout = async () => {
-   try {
-     // Optional: notify backend to clear cookie/session
-     await api.post(ENDPOINTS.AUTH.LOGOUT);
-   } catch (err) {
-     console.log(err);
-   } finally {
-     dispatch(logoutAction());
+  const logout = async () => {
+    try {
+      await api.post(ENDPOINTS.AUTH.LOGOUT);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(logoutAction());
 
-     setOpen(false);
-     setUser(null);
-     setMembers([]);
+      setOpen(false);
+      setMembers([]);
 
-     navigate("/signin", { replace: true });
-   }
- };
+      navigate("/signin", { replace: true });
+    }
+  };
 
   // ===============================
   // Mobile Drawer Animation
@@ -192,7 +184,7 @@ const UserDetails = () => {
         <>
           {/* ================= Desktop Dropdown ================= */}
           <div className="hidden md:block">
-            <div className="absolute w-md right-0 mt-3 overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--card-bg)] text-[var(--text-main)] shadow-[0_20px_60px_var(--shadow)] transition-all duration-300">
+            <div className="absolute right-0 mt-3 w-md overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--card-bg)] text-[var(--text-main)] shadow-[0_20px_60px_var(--shadow)] transition-all duration-300">
               {/* Header */}
               <div className="px-8 pt-6 pb-5">
                 <p className="text-center text-[15px] font-medium text-[var(--text-secondary)]">
@@ -234,7 +226,7 @@ const UserDetails = () => {
                     >
                       <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)]/50 bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
                         <img
-                          className="rounded-full h-11 w-11 object-cover"
+                          className="h-11 w-11 rounded-full object-cover"
                           src={
                             member.avatar ||
                             "https://i.pinimg.com/1200x/e6/ed/24/e6ed240b2f5367525acf1c9df1489fd6.jpg"
@@ -296,7 +288,7 @@ const UserDetails = () => {
           <div className="md:hidden">
             <div
               ref={drawerRef}
-              className="fixed right-0 top-0 z-50 h-screen w-[100%] overflow-y-auto bg-[var(--card-bg)] shadow-2xl"
+              className="fixed top-0 right-0 z-50 h-screen w-[100%] overflow-y-auto bg-[var(--card-bg)] shadow-2xl"
             >
               <button className="absolute top-6 left-6" onClick={closeDrawer}>
                 <IoReturnUpBackOutline
@@ -381,7 +373,7 @@ const UserDetails = () => {
                     </button>
                   </div>
 
-                  <div className="pt-4 flex justify-center gap-4 text-sm text-[var(--text-secondary)]">
+                  <div className="flex justify-center gap-4 pt-4 text-sm text-[var(--text-secondary)]">
                     <button>Privacy Policy</button>
                     <span>•</span>
                     <button>Terms of Service</button>
