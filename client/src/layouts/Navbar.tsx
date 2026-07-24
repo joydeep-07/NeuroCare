@@ -2,17 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { gsap } from "gsap";
+import { useSelector } from "react-redux";
 
 import UserDetails from "../components/UserDetails";
+import type { RootState } from "../redux/store";
 
-const navLinks = [
-  { name: "Home", path: "/" },
-  { name: "Profile", path: "/profile" },
-  { name: "Add Member", path: "/add/member" },
-];
+const navLinks = [{ name: "Home", path: "/" }];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  );
 
   const drawerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -89,122 +91,173 @@ const Navbar = () => {
     }
   }, [open]);
 
-  return (
-    <>
-      {/* Desktop */}
-      <nav className="hidden lg:flex h-16 justify-between items-center border-b border-[var(--border-light)]/30 shadow-xs px-16">
-        <Link to="/">
-          <h1 className="font-heading text-2xl font-medium">
-            <span className="text-[var(--accent-primary)]">NEURO</span>CARE
-          </h1>
-        </Link>
+ return (
+   <>
+     {/* Desktop */}
+     <nav className="hidden lg:flex h-16 justify-between items-center border-b border-[var(--border-light)]/30 shadow-xs px-16">
+       <Link to="/">
+         <h1 className="font-heading text-2xl font-medium">
+           <span className="text-[var(--accent-primary)]">NEURO</span>CARE
+         </h1>
+       </Link>
 
-        <div className="flex items-center gap-20">
-          <ul className="flex items-center gap-10">
-            {navLinks.map((route) => (
-              <li key={route.path}>
-                <NavLink
-                  to={route.path}
-                  className={({ isActive }) =>
-                    `font-medium transition-colors duration-200 ${
-                      isActive
-                        ? "text-[var(--accent-primary)]"
-                        : "hover:text-[var(--accent-primary)]"
-                    }`
-                  }
-                >
-                  {route.name}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
+       <div className="flex items-center gap-20">
+         <ul className="flex items-center gap-10">
+           {navLinks.map((route) => (
+             <li key={route.path}>
+               <NavLink
+                 to={route.path}
+                 className={({ isActive }) =>
+                   `font-medium transition-colors duration-200 ${
+                     isActive
+                       ? "text-[var(--accent-primary)]"
+                       : "hover:text-[var(--accent-primary)]"
+                   }`
+                 }
+               >
+                 {route.name}
+               </NavLink>
+             </li>
+           ))}
 
-          <div className="flex items-center gap-6">
-            <NavLink
-              to="/signin"
-              className={({ isActive }) =>
-                `font-medium transition-colors duration-200 ${
-                  isActive
-                    ? "text-[var(--accent-primary)]"
-                    : "hover:text-[var(--accent-primary)]"
-                }`
-              }
-            >
-              Sign In
-            </NavLink>
+           {isAuthenticated && (
+             <>
+               <li>
+                 <NavLink
+                   to="/profile"
+                   className={({ isActive }) =>
+                     `font-medium transition-colors duration-200 ${
+                       isActive
+                         ? "text-[var(--accent-primary)]"
+                         : "hover:text-[var(--accent-primary)]"
+                     }`
+                   }
+                 >
+                   Profile
+                 </NavLink>
+               </li>
 
-            <UserDetails />
-          </div>
-        </div>
-      </nav>
+               <li>
+                 <NavLink
+                   to="/add/member"
+                   className={({ isActive }) =>
+                     `font-medium transition-colors duration-200 ${
+                       isActive
+                         ? "text-[var(--accent-primary)]"
+                         : "hover:text-[var(--accent-primary)]"
+                     }`
+                   }
+                 >
+                   Add Member
+                 </NavLink>
+               </li>
+             </>
+           )}
+         </ul>
 
-      {/* Mobile */}
-      <nav className="lg:hidden h-16 flex items-center justify-between px-5 border-b border-[var(--border-light)]">
-        <button onClick={() => setOpen(true)}>
-          <Menu size={24} />
-        </button>
+         <div className="flex items-center gap-6">
+           {!isAuthenticated ? (
+             <NavLink
+               to="/signin"
+               className={({ isActive }) =>
+                 `font-medium transition-colors duration-200 ${
+                   isActive
+                     ? "text-[var(--accent-primary)]"
+                     : "hover:text-[var(--accent-primary)]"
+                 }`
+               }
+             >
+               Sign In
+             </NavLink>
+           ) : (
+             <UserDetails />
+           )}
+         </div>
+       </div>
+     </nav>
 
-        <Link to="/">
-          <h1 className="font-heading text-xl font-medium">
-            <span className="text-[var(--accent-primary)]">NEURO</span>CARE
-          </h1>
-        </Link>
+     {/* Mobile */}
+     <nav className="lg:hidden h-16 flex items-center justify-between px-5 border-b border-[var(--border-light)]">
+       <button onClick={() => setOpen(true)}>
+         <Menu size={24} />
+       </button>
 
-        <UserDetails />
-      </nav>
+       <Link to="/">
+         <h1 className="font-heading text-xl font-medium">
+           <span className="text-[var(--accent-primary)]">NEURO</span>CARE
+         </h1>
+       </Link>
 
-      {/* Overlay */}
-      <div
-        ref={overlayRef}
-        onClick={() => setOpen(false)}
-        className="fixed inset-0 bg-black/40 hidden z-40"
-      />
+       {isAuthenticated ? (
+         <UserDetails />
+       ) : (
+         <NavLink
+           to="/signin"
+           className="font-medium hover:text-[var(--accent-primary)]"
+         >
+           Sign In
+         </NavLink>
+       )}
+     </nav>
 
-      {/* Drawer */}
-      <div
-        ref={drawerRef}
-        className="fixed left-0 top-0 h-screen w-72 bg-[var(--bg-main)] z-50 border-r border-[var(--border-light)]"
-        style={{ transform: "translateX(-100%)" }}
-      >
-        <div className="flex justify-between items-center h-16 px-6 border-b border-[var(--border-light)]">
-          <h2 className="font-heading text-xl">
-            <span className="text-[var(--accent-primary)]">NEURO</span>CARE
-          </h2>
+     {/* Overlay */}
+     <div
+       ref={overlayRef}
+       onClick={() => setOpen(false)}
+       className="fixed inset-0 bg-black/40 hidden z-40"
+     />
 
-          <button onClick={() => setOpen(false)}>
-            <X size={22} />
-          </button>
-        </div>
+     {/* Drawer */}
+     <div
+       ref={drawerRef}
+       className="fixed left-0 top-0 h-screen w-72 bg-[var(--bg-main)] z-50 border-r border-[var(--border-light)]"
+       style={{ transform: "translateX(-100%)" }}
+     >
+       <div className="flex justify-between items-center h-16 px-6 border-b border-[var(--border-light)]">
+         <h2 className="font-heading text-xl">
+           <span className="text-[var(--accent-primary)]">NEURO</span>CARE
+         </h2>
 
-        <ul className="p-6 space-y-8 text-lg">
-          {[...navLinks, { name: "Sign In", path: "/signin" }].map(
-            (route, index) => (
-              <li
-                key={route.path}
-                ref={(el) => {
-                  if (el) itemsRef.current[index] = el;
-                }}
-              >
-                <NavLink
-                  to={route.path}
-                  onClick={() => setOpen(false)}
-                  className={({ isActive }) =>
-                    `block font-medium transition-colors duration-200 ${
-                      isActive
-                        ? "text-[var(--accent-primary)]"
-                        : "hover:text-[var(--accent-primary)]"
-                    }`
-                  }
-                >
-                  {route.name}
-                </NavLink>
-              </li>
-            ),
-          )}
-        </ul>
-      </div>
-    </>
-  );
+         <button onClick={() => setOpen(false)}>
+           <X size={22} />
+         </button>
+       </div>
+
+       <ul className="p-6 space-y-8 text-lg">
+         {[
+           ...navLinks,
+           ...(isAuthenticated
+             ? [
+                 { name: "Profile", path: "/profile" },
+                 { name: "Add Member", path: "/add/member" },
+               ]
+             : [{ name: "Sign In", path: "/signin" }]),
+         ].map((route, index) => (
+           <li
+             key={route.path}
+             ref={(el) => {
+               if (el) itemsRef.current[index] = el;
+             }}
+           >
+             <NavLink
+               to={route.path}
+               onClick={() => setOpen(false)}
+               className={({ isActive }) =>
+                 `block font-medium transition-colors duration-200 ${
+                   isActive
+                     ? "text-[var(--accent-primary)]"
+                     : "hover:text-[var(--accent-primary)]"
+                 }`
+               }
+             >
+               {route.name}
+             </NavLink>
+           </li>
+         ))}
+       </ul>
+     </div>
+   </>
+ );
 };
 
 export default Navbar;

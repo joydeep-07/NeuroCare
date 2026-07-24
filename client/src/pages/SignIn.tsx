@@ -6,6 +6,8 @@ import { FcGoogle } from "react-icons/fc";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/authSlice";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
@@ -47,6 +49,7 @@ const SignIn = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const {
     control,
@@ -103,31 +106,19 @@ const onSubmitOtp = async (data: { otp: string }) => {
       otp: data.otp,
     });
 
-    if (res.data.success) {
-      // Save authentication data
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      localStorage.setItem("email", email);
-      localStorage.setItem("isLoggedIn", "true");
+   if (res.data.success) {
+     dispatch(
+       login({
+         token: res.data.token,
+         user: res.data.user,
+       }),
+     );
 
-      // Or save everything together
-      localStorage.setItem(
-        "auth",
-        JSON.stringify({
-          isLoggedIn: true,
-          token: res.data.token,
-          user: res.data.user,
-        }),
-      );
+     localStorage.setItem("email", email);
 
-      console.log("Saved to localStorage:", {
-        token: res.data.token,
-        user: res.data.user,
-      });
-
-      alert("Login Successful");
-      navigate("/");
-    }
+     alert("Login Successful");
+     navigate("/");
+   }
   } catch (error: any) {
     alert(error.response?.data?.message || "Invalid OTP.");
   } finally {
