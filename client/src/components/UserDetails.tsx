@@ -187,7 +187,7 @@ const UserDetails = () => {
         <>
           {/* ================= Desktop Dropdown ================= */}
           <div className="hidden md:block">
-            <div className="absolute right-0 mt-3 w-md overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--card-bg)] text-[var(--text-main)] shadow-[0_20px_60px_var(--shadow)] transition-all duration-300">
+            <div className="absolute right-0 z-[9999] mt-3 w-md overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--card-bg)] text-[var(--text-main)] shadow-[0_20px_60px_var(--shadow)] transition-all duration-300">
               {/* Header */}
               <div className="px-8 pt-6 pb-5">
                 <p className="text-center text-[15px] font-medium text-[var(--text-secondary)]">
@@ -216,7 +216,7 @@ const UserDetails = () => {
                 </div>
 
                 <h2 className="mt-5 text-center text-4xl font-semibold text-[var(--text-main)]">
-                  Hi, {user?.fullName || user?.name || "User"}!
+                  Hi, {(user?.fullName || user?.name || "User").split(" ")[0]} !
                 </h2>
 
                 <div className="mt-6 flex justify-center">
