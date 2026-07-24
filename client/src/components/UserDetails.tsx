@@ -5,12 +5,16 @@ import { FiLogOut } from "react-icons/fi";
 import { IoAdd, IoReturnUpBackOutline } from "react-icons/io5";
 import ThemeToggle from "./ThemeToggle";
 import gsap from "gsap";
+import { useDispatch } from "react-redux";
+import { logout as logoutAction } from "../redux/authSlice";
+import type { AppDispatch } from "../redux/store";
 
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 
 const UserDetails = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const [open, setOpen] = useState(false);
 
@@ -66,12 +70,22 @@ const UserDetails = () => {
   // ===============================
   // Logout
   // ===============================
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+ const logout = async () => {
+   try {
+     // Optional: notify backend to clear cookie/session
+     await api.post(ENDPOINTS.AUTH.LOGOUT);
+   } catch (err) {
+     console.log(err);
+   } finally {
+     dispatch(logoutAction());
 
-    navigate("/signin");
-  };
+     setOpen(false);
+     setUser(null);
+     setMembers([]);
+
+     navigate("/signin", { replace: true });
+   }
+ };
 
   // ===============================
   // Mobile Drawer Animation
