@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout as logoutAction, updateUser } from "../redux/authSlice";
 import type { AppDispatch, RootState } from "../redux/store";
 import { TbXboxXFilled } from "react-icons/tb";
+import { Link } from "react-router-dom";
 
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
@@ -219,7 +220,10 @@ const UserDetails = () => {
                 </h2>
 
                 <div className="mt-6 flex justify-center">
-                  <button className="h-12 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)]/50 px-8 text-sm font-medium transition-all duration-300 hover:bg-[var(--bg-main)]">
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="h-12 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)]/50 px-8 text-sm font-medium transition-all duration-300 hover:bg-[var(--bg-main)]"
+                  >
                     Manage your NeuroCare Account
                   </button>
                 </div>
@@ -306,7 +310,6 @@ const UserDetails = () => {
               className="fixed top-0 right-0 z-50 h-screen w-[100%] overflow-y-auto bg-[var(--card-bg)] shadow-2xl"
             >
               <button className="absolute top-6 right-6" onClick={closeDrawer}>
-               
                 <TbXboxXFilled
                   size={20}
                   className="text-[var(--text-secondary)] "
@@ -343,7 +346,13 @@ const UserDetails = () => {
                 </h2>
 
                 <div className="mt-6 flex justify-center">
-                  <button className="h-12 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] px-6 text-sm font-medium">
+                  <button
+                    onClick={() => {
+                      closeDrawer();
+                      navigate("/profile");
+                    }}
+                    className="h-12 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] px-6 text-sm font-medium"
+                  >
                     Manage your NeuroCare Account
                   </button>
                 </div>

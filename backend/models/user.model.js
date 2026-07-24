@@ -16,6 +16,64 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    phone: {
+      type: String,
+      default: "",
+    },
+
+    relationship: {
+      type: String,
+      default: "",
+    },
+
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],
+      default: "",
+    },
+
+    dateOfBirth: {
+      type: Date,
+      default: null,
+    },
+
+    bloodGroup: {
+      type: String,
+      default: "",
+    },
+
+    height: {
+      type: Number,
+      default: null,
+    },
+
+    weight: {
+      type: Number,
+      default: null,
+    },
+
+    illness: {
+      type: String,
+      default: "",
+    },
+
+    notes: {
+      type: String,
+      default: "",
+    },
+
+    medicalHistory: [
+      {
+        type: String,
+      },
+    ],
+
+    doctorRecommendations: [
+      {
+        type: String,
+      },
+    ],
+
     avatar: {
       type: String,
       default: "",

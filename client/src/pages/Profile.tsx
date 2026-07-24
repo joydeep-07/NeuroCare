@@ -1,8 +1,14 @@
+import CompleteProfileForm from "../components/CompleteProfileForm"
+import UserData from "../components/UserData"
 
 
 const Profile = () => {
   return (
-    <div>Profile</div>
+    <div>
+      <CompleteProfileForm/>
+
+      <UserData/>
+    </div>
   )
 }
 
