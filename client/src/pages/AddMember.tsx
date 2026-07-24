@@ -1,8 +1,13 @@
+import Members from "../components/Members"
+import NewMember from "../components/NewMember"
 
 
 const AddMember = () => {
   return (
-    <div>AddMember</div>
+    <div>
+      <NewMember/>
+      <Members/>
+    </div>
   )
 }
 

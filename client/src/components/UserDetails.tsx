@@ -244,14 +244,7 @@ const UserDetails = () => {
                       className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
                     >
                       <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)]/50 bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
-                        <img
-                          className="h-11 w-11 rounded-full object-cover"
-                          src={
-                            member.avatar ||
-                            "https://i.pinimg.com/1200x/e6/ed/24/e6ed240b2f5367525acf1c9df1489fd6.jpg"
-                          }
-                          alt={member.fullName || "Member"}
-                        />
+                        <div>{member.fullName.charAt(0).toUpperCase()}</div>
                       </div>
 
                       <div className="text-left">
