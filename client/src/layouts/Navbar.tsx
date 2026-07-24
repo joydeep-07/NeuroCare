@@ -97,7 +97,10 @@ const Navbar = () => {
      <nav className="hidden lg:flex h-16 justify-between items-center border-b border-[var(--border-light)]/30 shadow-xs px-16">
        <Link to="/">
          <h1 className="font-heading text-2xl font-medium">
-           <span className="text-[var(--accent-primary)]">NEURO</span>CARE
+           <span className="text-[var(--accent-primary)] font-medium font-heading">
+             NEURO
+           </span>
+           CARE
          </h1>
        </Link>
 
