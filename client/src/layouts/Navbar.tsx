@@ -186,8 +186,11 @@ const Navbar = () => {
        </button>
 
        <Link to="/">
-         <h1 className="font-heading text-xl font-medium">
-           <span className="text-[var(--accent-primary)]">NEURO</span>CARE
+         <h1 className="font-heading font-semibold text-xl">
+           <span className="text-[var(--accent-primary)] font-heading ">
+             NEURO
+           </span>
+           CARE
          </h1>
        </Link>
 
@@ -217,9 +220,12 @@ const Navbar = () => {
        style={{ transform: "translateX(-100%)" }}
      >
        <div className="flex justify-between items-center h-16 px-6 border-b border-[var(--border-light)]">
-         <h2 className="font-heading text-xl">
-           <span className="text-[var(--accent-primary)]">NEURO</span>CARE
-         </h2>
+         <h1 className="font-heading font-semibold text-lg">
+           <span className="text-[var(--accent-primary)] font-heading ">
+             NEURO
+           </span>
+           CARE
+         </h1>
 
          <button onClick={() => setOpen(false)}>
            <X size={22} />

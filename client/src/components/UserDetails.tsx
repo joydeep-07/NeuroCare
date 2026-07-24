@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaUserCircle } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
-import { IoAdd, IoReturnUpBackOutline } from "react-icons/io5";
+import { IoAdd } from "react-icons/io5";
 import ThemeToggle from "./ThemeToggle";
 import gsap from "gsap";
 import { useDispatch, useSelector } from "react-redux";
 import { logout as logoutAction, updateUser } from "../redux/authSlice";
 import type { AppDispatch, RootState } from "../redux/store";
+import { TbXboxXFilled } from "react-icons/tb";
 
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
+import { Cross, User } from "lucide-react";
 
 const UserDetails = () => {
   const navigate = useNavigate();
@@ -188,15 +190,28 @@ const UserDetails = () => {
               {/* Header */}
               <div className="px-8 pt-6 pb-5">
                 <p className="text-center text-[15px] font-medium text-[var(--text-secondary)]">
-                  {user?.email || "user@example.com"}
+                  {user?.email || "NO USER FOUND"}
                 </p>
 
                 <div className="mt-6 flex justify-center">
-                  <img
-                    src={userAvatar}
-                    alt="Profile"
-                    className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
-                  />
+                  {user?.avatar ? (
+                    <>
+                      <img
+                        src={userAvatar}
+                        alt="Profile"
+                        className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-24 w-24 flex justify-center items-center rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg">
+                        <FaUserCircle
+                          size={76}
+                          className="text-[var(--text-secondary)] "
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <h2 className="mt-5 text-center text-4xl font-semibold text-[var(--text-main)]">
@@ -290,10 +305,11 @@ const UserDetails = () => {
               ref={drawerRef}
               className="fixed top-0 right-0 z-50 h-screen w-[100%] overflow-y-auto bg-[var(--card-bg)] shadow-2xl"
             >
-              <button className="absolute top-6 left-6" onClick={closeDrawer}>
-                <IoReturnUpBackOutline
+              <button className="absolute top-6 right-6" onClick={closeDrawer}>
+               
+                <TbXboxXFilled
                   size={20}
-                  className="text-[var(--text-main)] "
+                  className="text-[var(--text-secondary)] "
                 />
               </button>
               <div className="px-4 py-6">
@@ -302,11 +318,24 @@ const UserDetails = () => {
                 </p>
 
                 <div className="mt-6 flex justify-center">
-                  <img
-                    src={userAvatar}
-                    alt="Profile"
-                    className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
-                  />
+                  {user?.avatar ? (
+                    <>
+                      <img
+                        src={userAvatar}
+                        alt="Profile"
+                        className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-24 w-24 flex justify-center items-center rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg">
+                        <FaUserCircle
+                          size={74}
+                          className="text-[var(--text-secondary)] "
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <h2 className="mt-5 text-center text-3xl font-semibold">
