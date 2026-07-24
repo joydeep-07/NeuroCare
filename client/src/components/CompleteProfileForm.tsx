@@ -45,6 +45,8 @@ const genders = ["Male", "Female", "Other"];
 const CompleteProfileForm = () => {
   const [loading, setLoading] = useState(true);
   const [isProfileCreated, setIsProfileCreated] = useState(false);
+  const [medicalHistoryText, setMedicalHistoryText] = useState("");
+  const [doctorRecommendationsText, setDoctorRecommendationsText] = useState("");
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -70,23 +72,31 @@ const CompleteProfileForm = () => {
         if (data.success && data.user) {
           const user = data.user;
 
-          setFormData({
-            fullName: user.fullName || "",
-            email: user.email || "",
-            phone: user.phone || "",
-            relationship: user.relationship || "",
-            gender: user.gender || "",
-            dateOfBirth: user.dateOfBirth
-              ? dayjs(user.dateOfBirth).format("YYYY-MM-DD")
-              : "",
-            bloodGroup: user.bloodGroup || "",
-            height: user.height || "",
-            weight: user.weight || "",
-            illness: user.illness || "",
-            notes: user.notes || "",
-            medicalHistory: user.medicalHistory || [],
-            doctorRecommendations: user.doctorRecommendations || [],
-          });
+        setFormData({
+          fullName: user.fullName || "",
+          email: user.email || "",
+          phone: user.phone || "",
+          relationship: user.relationship || "",
+          gender: user.gender || "",
+          dateOfBirth: user.dateOfBirth
+            ? dayjs(user.dateOfBirth).format("YYYY-MM-DD")
+            : "",
+          bloodGroup: user.bloodGroup || "",
+          height: user.height || "",
+          weight: user.weight || "",
+          illness: user.illness || "",
+          notes: user.notes || "",
+          medicalHistory: user.medicalHistory || [],
+          doctorRecommendations: user.doctorRecommendations || [],
+        });
+
+        // ADD THESE TWO LINES
+        setMedicalHistoryText((user.medicalHistory || []).join(", "));
+        setDoctorRecommendationsText(
+          (user.doctorRecommendations || []).join(", "),
+        );
+
+        setIsProfileCreated(!!user.fullName);
 
           setIsProfileCreated(!!user.fullName);
         }
@@ -120,7 +130,20 @@ const CompleteProfileForm = () => {
         ? ENDPOINTS.PROFILE.UPDATE
         : ENDPOINTS.PROFILE.COMPLETE;
 
-      const response = await api.put(endpoint, formData);
+     const payload = {
+       ...formData,
+       medicalHistory: medicalHistoryText
+         .split(",")
+         .map((item) => item.trim())
+         .filter(Boolean),
+
+       doctorRecommendations: doctorRecommendationsText
+         .split(",")
+         .map((item) => item.trim())
+         .filter(Boolean),
+     };
+
+     const response = await api.put(endpoint, payload);
 
       console.log(response.data);
 
@@ -138,9 +161,55 @@ const CompleteProfileForm = () => {
     );
   }
 
+  const inputSx = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "var(--card-bg)",
+      color: "var(--text-main)",
+      borderRadius: "12px",
+
+      "& fieldset": {
+        borderColor: "var(--border-light)",
+      },
+
+      "&:hover fieldset": {
+        borderColor: "var(--accent-primary)",
+      },
+
+      "&.Mui-focused fieldset": {
+        borderColor: "var(--accent-primary)",
+        borderWidth: "2px",
+      },
+    },
+
+    "& .MuiInputLabel-root": {
+      color: "var(--text-secondary)",
+    },
+
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "var(--accent-primary)",
+    },
+
+    "& .MuiOutlinedInput-input": {
+      color: "var(--text-main)",
+    },
+
+    "& .MuiSvgIcon-root": {
+      color: "var(--text-secondary)",
+    },
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto p-8 space-y-10">
-      <h2 className="text-3xl font-bold">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto rounded-2xl p-8 space-y-10"
+      style={{
+        background: "var(--card-bg)",
+        color: "var(--text-main)",
+        border: "1px solid var(--border-light)",
+        boxShadow: "0 8px 30px var(--shadow)",
+      }}
+    >
+      <h2 className="text-3xl font-bold" style={{ color: "var(--text-main)" }}>
         {isProfileCreated ? "Update Profile" : "Complete Your Profile"}
       </h2>
 
@@ -151,6 +220,7 @@ const CompleteProfileForm = () => {
           value={formData.fullName}
           onChange={handleChange}
           fullWidth
+          sx={inputSx}
         />
 
         <TextField
@@ -159,6 +229,7 @@ const CompleteProfileForm = () => {
           value={formData.email}
           onChange={handleChange}
           fullWidth
+          sx={inputSx}
         />
 
         <TextField
@@ -167,11 +238,11 @@ const CompleteProfileForm = () => {
           value={formData.phone}
           onChange={handleChange}
           fullWidth
+          sx={inputSx}
         />
 
-        <FormControl fullWidth>
+        <FormControl fullWidth sx={inputSx}>
           <InputLabel>Relationship</InputLabel>
-
           <Select
             name="relationship"
             value={formData.relationship}
@@ -186,9 +257,8 @@ const CompleteProfileForm = () => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth>
+        <FormControl fullWidth sx={inputSx}>
           <InputLabel>Gender</InputLabel>
-
           <Select
             name="gender"
             value={formData.gender}
@@ -216,14 +286,14 @@ const CompleteProfileForm = () => {
             slotProps={{
               textField: {
                 fullWidth: true,
+                sx: inputSx,
               },
             }}
           />
         </LocalizationProvider>
 
-        <FormControl fullWidth>
+        <FormControl fullWidth sx={inputSx}>
           <InputLabel>Blood Group</InputLabel>
-
           <Select
             name="bloodGroup"
             value={formData.bloodGroup}
@@ -245,6 +315,7 @@ const CompleteProfileForm = () => {
           value={formData.height}
           onChange={handleChange}
           fullWidth
+          sx={inputSx}
         />
 
         <TextField
@@ -254,6 +325,7 @@ const CompleteProfileForm = () => {
           value={formData.weight}
           onChange={handleChange}
           fullWidth
+          sx={inputSx}
         />
 
         <TextField
@@ -262,6 +334,7 @@ const CompleteProfileForm = () => {
           value={formData.illness}
           onChange={handleChange}
           fullWidth
+          sx={inputSx}
         />
       </div>
 
@@ -271,16 +344,9 @@ const CompleteProfileForm = () => {
           multiline
           rows={3}
           fullWidth
-          value={formData.medicalHistory.join(", ")}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              medicalHistory: e.target.value
-                .split(",")
-                .map((i) => i.trim())
-                .filter(Boolean),
-            })
-          }
+          sx={inputSx}
+          value={medicalHistoryText}
+          onChange={(e) => setMedicalHistoryText(e.target.value)}
         />
 
         <TextField
@@ -288,16 +354,9 @@ const CompleteProfileForm = () => {
           multiline
           rows={3}
           fullWidth
-          value={formData.doctorRecommendations.join(", ")}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              doctorRecommendations: e.target.value
-                .split(",")
-                .map((i) => i.trim())
-                .filter(Boolean),
-            })
-          }
+          sx={inputSx}
+          value={doctorRecommendationsText}
+          onChange={(e) => setDoctorRecommendationsText(e.target.value)}
         />
 
         <TextField
@@ -308,6 +367,7 @@ const CompleteProfileForm = () => {
           value={formData.notes}
           onChange={handleChange}
           fullWidth
+          sx={inputSx}
         />
 
         <div className="pt-2">
@@ -317,7 +377,18 @@ const CompleteProfileForm = () => {
             size="large"
             sx={{
               minWidth: 220,
-              height: 50,
+              height: 52,
+              borderRadius: "12px",
+              textTransform: "none",
+              fontSize: "1rem",
+              fontWeight: 600,
+              backgroundColor: "var(--accent-primary)",
+              color: "#fff",
+              boxShadow: "0 8px 20px var(--shadow)",
+
+              "&:hover": {
+                backgroundColor: "var(--accent-secondary)",
+              },
             }}
           >
             {isProfileCreated ? "Update Profile" : "Save Profile"}
