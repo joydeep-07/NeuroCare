@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const Family = require("../models/family.model");
+const FamilyMember = require("../models/familyMember.model");
 const OTP = require("../models/otp.model");
 
 const generateOTP = require("../utils/generateOTP");
@@ -16,11 +17,10 @@ const sendEmailOTP = async (req, res) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email is required",
+        message: "Email is required.",
       });
     }
 
-    // Remove previous OTP
     await OTP.deleteMany({
       email: email.toLowerCase(),
     });
@@ -40,7 +40,7 @@ const sendEmailOTP = async (req, res) => {
       message: "OTP sent successfully.",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     return res.status(500).json({
       success: false,
@@ -104,6 +104,9 @@ const verifyOTP = async (req, res) => {
 
     console.log("Existing User:", user);
 
+    // =====================================
+    // Create User if it doesn't exist
+    // =====================================
     if (!user) {
       console.log("🟡 Creating new user...");
 
@@ -113,7 +116,15 @@ const verifyOTP = async (req, res) => {
       });
 
       console.log("✅ User created:", user);
+    }
 
+    // =====================================
+    // Create Family only if user has none
+    // =====================================
+    // =====================================
+    // Create Family only if user has none
+    // =====================================
+    if (!user.family) {
       const family = await Family.create({
         familyName: "My Family",
         primaryMember: user._id,
@@ -125,14 +136,44 @@ const verifyOTP = async (req, res) => {
       user.family = family._id;
       await user.save();
 
-      console.log("✅ User updated with family");
+      console.log("✅ User linked with family");
+
+      // =====================================
+      // Create Self Family Member
+      // =====================================
+      const existingMember = await FamilyMember.findOne({
+        family: family._id,
+        user: user._id,
+      });
+
+      if (!existingMember) {
+        await FamilyMember.create({
+          family: family._id,
+          user: user._id,
+          addedBy: user._id,
+          relationship: "Self",
+        });
+
+        console.log("✅ Self FamilyMember created");
+      }
     }
 
+    // =====================================
+    // Update Last Login
+    // =====================================
     user.lastLogin = new Date();
     await user.save();
 
     console.log("✅ Last login updated");
 
+    // =====================================
+    // Populate Family
+    // =====================================
+    user = await User.findById(user._id).populate("family");
+
+    // =====================================
+    // Generate JWT
+    // =====================================
     const token = generateToken(user._id);
 
     console.log("✅ Token generated");
@@ -152,7 +193,7 @@ const verifyOTP = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Server Error",
     });
   }
 };

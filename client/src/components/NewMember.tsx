@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 
@@ -21,15 +22,6 @@ const NewMember = () => {
     email: "",
     phone: "",
     relationship: "",
-    gender: "",
-    dateOfBirth: "",
-    bloodGroup: "",
-    height: "",
-    weight: "",
-    illness: "",
-    medicalHistory: "",
-    doctorRecommendations: "",
-    notes: "",
   });
 
   const handleChange = (
@@ -47,31 +39,23 @@ const NewMember = () => {
     try {
       setLoading(true);
 
-      await api.post(ENDPOINTS.MEMBER.CREATE, {
-        ...formData,
-        height: formData.height ? Number(formData.height) : null,
-        weight: formData.weight ? Number(formData.weight) : null,
-        medicalHistory: formData.medicalHistory
-          ? formData.medicalHistory.split(",").map((item) => item.trim())
-          : [],
-        doctorRecommendations: formData.doctorRecommendations
-          ? formData.doctorRecommendations.split(",").map((item) => item.trim())
-          : [],
-      });
+      await api.post(ENDPOINTS.MEMBER.CREATE, formData);
 
-      alert("Member added successfully.");
+      alert("Family member added successfully.");
+
       navigate("/profile");
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Failed to add member.");
+
+      alert(error?.response?.data?.message || "Failed to add family member.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
-      <Paper className="rounded-2xl p-8">
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <Paper className="rounded-2xl p-8 shadow-md">
         <Typography variant="h4" fontWeight={700} mb={4}>
           Add Family Member
         </Typography>
@@ -81,6 +65,7 @@ const NewMember = () => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 gap-5 md:grid-cols-2"
         >
+          {" "}
           <TextField
             label="Full Name"
             name="fullName"
@@ -89,15 +74,15 @@ const NewMember = () => {
             required
             fullWidth
           />
-
           <TextField
             label="Email"
             name="email"
+            type="email"
             value={formData.email}
             onChange={handleChange}
+            required
             fullWidth
           />
-
           <TextField
             label="Phone"
             name="phone"
@@ -105,7 +90,6 @@ const NewMember = () => {
             onChange={handleChange}
             fullWidth
           />
-
           <TextField
             select
             label="Relationship"
@@ -124,103 +108,21 @@ const NewMember = () => {
             <MenuItem value="Daughter">Daughter</MenuItem>
             <MenuItem value="Grandfather">Grandfather</MenuItem>
             <MenuItem value="Grandmother">Grandmother</MenuItem>
+            <MenuItem value="Uncle">Uncle</MenuItem>
+            <MenuItem value="Aunt">Aunt</MenuItem>
+            <MenuItem value="Cousin">Cousin</MenuItem>
+            <MenuItem value="Friend">Friend</MenuItem>
             <MenuItem value="Other">Other</MenuItem>
           </TextField>
+          <div className="md:col-span-2 mt-4 flex justify-end gap-4">
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/profile")}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
 
-          <TextField
-            select
-            label="Gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            required
-            fullWidth
-          >
-            <MenuItem value="Male">Male</MenuItem>
-            <MenuItem value="Female">Female</MenuItem>
-            <MenuItem value="Other">Other</MenuItem>
-          </TextField>
-
-          <TextField
-            type="date"
-            name="dateOfBirth"
-            label="Date of Birth"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-            InputLabelProps={{ shrink: true }}
-            required
-            fullWidth
-          />
-
-          <TextField
-            label="Blood Group"
-            name="bloodGroup"
-            value={formData.bloodGroup}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            label="Height (cm)"
-            name="height"
-            type="number"
-            value={formData.height}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            label="Weight (kg)"
-            name="weight"
-            type="number"
-            value={formData.weight}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            className="md:col-span-2"
-            label="Illness"
-            name="illness"
-            value={formData.illness}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            className="md:col-span-2"
-            label="Medical History (comma separated)"
-            name="medicalHistory"
-            value={formData.medicalHistory}
-            onChange={handleChange}
-            multiline
-            rows={3}
-            fullWidth
-          />
-
-          <TextField
-            className="md:col-span-2"
-            label="Doctor Recommendations (comma separated)"
-            name="doctorRecommendations"
-            value={formData.doctorRecommendations}
-            onChange={handleChange}
-            multiline
-            rows={3}
-            fullWidth
-          />
-
-          <TextField
-            className="md:col-span-2"
-            label="Notes"
-            name="notes"
-            value={formData.notes}
-            onChange={handleChange}
-            multiline
-            rows={4}
-            fullWidth
-          />
-
-          <div className="md:col-span-2 flex justify-end">
             <Button
               variant="contained"
               type="submit"

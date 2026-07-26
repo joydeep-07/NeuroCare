@@ -243,17 +243,29 @@ const UserDetails = () => {
                       key={member._id || index}
                       className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
                     >
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)]/50 bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
-                        <div>{member.fullName.charAt(0).toUpperCase()}</div>
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]">
+                        {member.user?.avatar ? (
+                          <img
+                            src={member.user.avatar}
+                            alt={member.user.fullName}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="font-semibold text-[var(--text-secondary)]">
+                            {(member.user?.fullName || "?")
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        )}
                       </div>
 
                       <div className="text-left">
                         <p className="font-semibold text-[var(--text-main)]">
-                          {member.fullName || member.name}
+                          {member.user?.fullName || "Unknown User"}
                         </p>
 
                         <p className="text-sm text-[var(--text-secondary)]">
-                          {member.email}
+                          {member.user?.email || "-"}
                         </p>
                       </div>
                     </button>
@@ -366,19 +378,22 @@ const UserDetails = () => {
                       >
                         <img
                           src={
-                            member.avatar ||
-                            "https://i.pinimg.com/1200x/e6/ed/24/e6ed240b2f5367525acf1c9df1489fd6.jpg"
+                            member.user?.avatar ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                              member.user?.fullName || "User",
+                            )}`
                           }
                           className="h-11 w-11 rounded-full object-cover"
-                          alt={member.fullName || "Member"}
+                          alt={member.user?.fullName || "Member"}
                         />
 
                         <div className="text-left">
                           <p className="font-semibold">
-                            {member.fullName || member.name}
+                            {member.user?.fullName || "Unknown User"}
                           </p>
+
                           <p className="text-sm text-[var(--text-secondary)]">
-                            {member.email}
+                            {member.user?.email || "-"}
                           </p>
                         </div>
                       </button>

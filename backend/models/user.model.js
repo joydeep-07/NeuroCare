@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    familyRole: {
+      type: String,
+      default: "",
+    },
+
     phone: {
       type: String,
       default: "",
