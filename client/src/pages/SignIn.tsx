@@ -193,7 +193,7 @@ const SignIn = () => {
                     : "text-[var(--text-secondary)] hover:text-[var(--text-main)]"
                 }`}
               >
-                <Stethoscope size={16} /> Doctor OTP
+                <Stethoscope size={16} /> Doctor
               </button>
               <button
                 type="button"
