@@ -170,13 +170,13 @@ const SignIn = () => {
           </div>
         </div>
 
-        <div className="flex-1 p-6 md:p-10 flex flex-col justify-between">
+        <div className="flex-1 p-4 md:p-10 flex flex-col justify-between">
           <div>
-            <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-light)] mb-8">
+            <div className="grid grid-cols-3 gap-2 p-1.5 rounded-sm bg-[var(--bg-main)] border border-[var(--border-light)] mb-8">
               <button
                 type="button"
                 onClick={() => setActiveTab("patient")}
-                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-sm text-xs font-semibold transition-all ${
                   activeTab === "patient"
                     ? "bg-[var(--accent-primary)] text-white shadow-md"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-main)]"
@@ -187,7 +187,7 @@ const SignIn = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab("doctor")}
-                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-sm text-xs font-semibold transition-all ${
                   activeTab === "doctor"
                     ? "bg-emerald-600 text-white shadow-md"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-main)]"
@@ -198,7 +198,7 @@ const SignIn = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab("admin")}
-                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-sm text-xs font-semibold transition-all ${
                   activeTab === "admin"
                     ? "bg-amber-600 text-white shadow-md"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-main)]"
@@ -230,7 +230,7 @@ const SignIn = () => {
             {(activeTab === "patient" || activeTab === "doctor") && (
               <div>
                 {!otpSent ? (
-                  <form onSubmit={handleSubmit(onSubmitEmail)} className="space-y-4">
+                  <form onSubmit={handleSubmit(onSubmitEmail)} className=" flex flex-col gap-3">
                     <Controller
                       name="email"
                       control={control}
@@ -341,7 +341,7 @@ const SignIn = () => {
             )}
 
             {activeTab === "admin" && (
-              <form onSubmit={handleSubmit(onSubmitAdminPassword)} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmitAdminPassword)} className="flex flex-col gap-3">
                 <Controller
                   name="email"
                   control={control}
