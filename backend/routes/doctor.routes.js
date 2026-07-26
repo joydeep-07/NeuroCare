@@ -1,0 +1,22 @@
+const express = require("express");
+const {
+  getDoctors,
+  getDoctorById,
+  getDoctorDashboard,
+  updateAvailability,
+  completeConsultation,
+} = require("../controllers/doctor.controller");
+const { protect, authorize } = require("../middlewares/auth.middleware");
+
+const router = express.Router();
+
+// Public / Patient routes
+router.get("/", getDoctors);
+router.get("/:id", getDoctorById);
+
+// Doctor protected routes
+router.get("/portal/dashboard", protect, authorize("doctor"), getDoctorDashboard);
+router.put("/portal/availability", protect, authorize("doctor"), updateAvailability);
+router.put("/portal/consultation/:appointmentId", protect, authorize("doctor"), completeConsultation);
+
+module.exports = router;

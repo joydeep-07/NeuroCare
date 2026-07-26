@@ -16,11 +16,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-    familyRole: {
-      type: String,
-      default: "",
-    },
-
     phone: {
       type: String,
       default: "",
@@ -33,7 +28,7 @@ const userSchema = new mongoose.Schema(
 
     gender: {
       type: String,
-      enum: ["Male", "Female", "Other"],
+      enum: ["Male", "Female", "Other", null],
       default: null,
     },
 
@@ -86,8 +81,13 @@ const userSchema = new mongoose.Schema(
 
     provider: {
       type: String,
-      enum: ["otp", "google"],
+      enum: ["otp", "google", "password"],
       default: "otp",
+    },
+
+    password: {
+      type: String,
+      default: null,
     },
 
     googleId: {
@@ -98,6 +98,11 @@ const userSchema = new mongoose.Schema(
     isVerified: {
       type: Boolean,
       default: true,
+    },
+
+    isProfileComplete: {
+      type: Boolean,
+      default: false,
     },
 
     family: {
@@ -112,6 +117,74 @@ const userSchema = new mongoose.Schema(
       default: "patient",
     },
 
+    // Doctor Specific Fields
+    medicalRegNo: {
+      type: String,
+      default: "",
+    },
+
+    specialization: {
+      type: String,
+      default: "",
+    },
+
+    degree: {
+      type: String,
+      default: "",
+    },
+
+    hospital: {
+      type: String,
+      default: "",
+    },
+
+    department: {
+      type: String,
+      default: "",
+    },
+
+    yearsOfExperience: {
+      type: Number,
+      default: 0,
+    },
+
+    consultationFee: {
+      type: Number,
+      default: 0,
+    },
+
+    biography: {
+      type: String,
+      default: "",
+    },
+
+    rating: {
+      type: Number,
+      default: 4.8,
+    },
+
+    reviewsCount: {
+      type: Number,
+      default: 18,
+    },
+
+    location: {
+      type: String,
+      default: "New Delhi, India",
+    },
+
+    availability: [
+      {
+        day: { type: String },
+        slots: [{ type: String }],
+      },
+    ],
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
     lastLogin: {
       type: Date,
       default: Date.now,
@@ -123,3 +196,4 @@ const userSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("User", userSchema);
+

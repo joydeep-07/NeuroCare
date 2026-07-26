@@ -1,13 +1,19 @@
 const express = require("express");
-
-const { sendEmailOTP, verifyOTP } = require("../controllers/auth.controller");
+const {
+  sendEmailOTP,
+  verifyOTP,
+  adminLogin,
+  getMe,
+  completeProfile,
+} = require("../controllers/auth.controller");
+const { protect } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
-// Send OTP
 router.post("/send-otp", sendEmailOTP);
-
-// Verify OTP
 router.post("/verify-otp", verifyOTP);
+router.post("/admin/login", adminLogin);
+router.get("/me", protect, getMe);
+router.put("/complete-profile", protect, completeProfile);
 
 module.exports = router;

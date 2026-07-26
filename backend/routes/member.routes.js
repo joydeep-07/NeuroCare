@@ -1,6 +1,6 @@
 const express = require("express");
 
-const protect = require("../middlewares/auth.middleware");
+const { protect } = require("../middlewares/auth.middleware");
 
 const {
   addMember,
