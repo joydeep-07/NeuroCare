@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, Sparkles, ShieldAlert, Globe, User } from "lucide-react";
+import { Bot, User } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
+import { BiSolidSend } from "react-icons/bi";
 
 interface ChatMessage {
   id: string;
@@ -20,15 +21,15 @@ const PRESET_PILLS = [
   { label: "🌿 Lifestyle & Wellness", prompt: "Suggest daily habits to improve sleep quality and reduce work stress.", mode: "lifestyle" },
 ];
 
-const LANGUAGES = [
-  { id: "english", label: "English" },
-  { id: "hindi", label: "हिंदी (Hindi)" },
-  { id: "tamil", label: "தமிழ் (Tamil)" },
-  { id: "telugu", label: "తెలుగు (Telugu)" },
-  { id: "bengali", label: "বাংলা (Bengali)" },
-  { id: "marathi", label: "मराठी (Marathi)" },
-  { id: "gujarati", label: "ગુજરાતી (Gujarati)" },
-];
+// const LANGUAGES = [
+//   { id: "english", label: "English" },
+//   { id: "hindi", label: "हिंदी (Hindi)" },
+//   { id: "tamil", label: "தமிழ் (Tamil)" },
+//   { id: "telugu", label: "తెలుగు (Telugu)" },
+//   { id: "bengali", label: "বাংলা (Bengali)" },
+//   { id: "marathi", label: "मराठी (Marathi)" },
+//   { id: "gujarati", label: "ગુજરાતી (Gujarati)" },
+// ];
 
 const AiAssistant = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -97,9 +98,9 @@ const AiAssistant = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 md:py-12 space-y-6">
+    <div className="max-w-8xl mx-auto px-4 py-8 md:py-8 space-y-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-cyan-950 text-white shadow-2xl relative overflow-hidden">
+      {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-cyan-950 text-white shadow-2xl relative overflow-hidden">
         <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
         
         <div className="relative z-10">
@@ -112,7 +113,7 @@ const AiAssistant = () => {
           </p>
         </div>
 
-        {/* Language Selector */}
+       
         <div className="relative z-10 flex items-center gap-2 bg-white/10 backdrop-blur-md p-2 rounded-2xl border border-white/20">
           <Globe size={16} className="text-cyan-300 ml-2" />
           <select
@@ -127,7 +128,7 @@ const AiAssistant = () => {
             ))}
           </select>
         </div>
-      </div>
+      </div> */}
 
       {/* Preset Pills */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -135,7 +136,7 @@ const AiAssistant = () => {
           <button
             key={pill.label}
             onClick={() => handleSendMessage(pill.prompt, pill.mode)}
-            className="p-3.5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-light)] hover:border-[var(--accent-primary)] text-left transition-all shadow-xs hover:shadow-md group"
+            className="p-3.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] hover:border-[var(--accent-primary)] text-left transition-all shadow-xs hover:shadow-md group"
           >
             <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-[var(--accent-primary)] block">
               {pill.label}
@@ -147,105 +148,111 @@ const AiAssistant = () => {
         ))}
       </div>
 
-      {/* Chat Window */}
-      <div className="rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] shadow-xl flex flex-col h-[600px] overflow-hidden">
-        {/* Messages Body */}
-        <div className="flex-1 p-6 overflow-y-auto space-y-6">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-            >
-              {msg.sender === "ai" && (
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
-                  <Bot size={20} />
-                </div>
-              )}
+      <div className="flex gap-4">
+        <div className="left border border-[var(--border-light)]/50 rounded-lg flex justify-center items-center w-3/5">
+          <h1 className="uppercase">Some Advertisement</h1>
+        </div>
 
+        {/* Chat Window */}
+        <div className="rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 shadow-xl flex flex-col w-2/5 h-[600px] overflow-hidden">
+          {/* Messages Body */}
+          <div className="flex-1 p-6 overflow-y-auto space-y-6">
+            {messages.map((msg) => (
               <div
-                className={`max-w-2xl rounded-3xl p-5 text-xs md:text-sm leading-relaxed space-y-3 ${
-                  msg.sender === "user"
-                    ? "bg-[var(--accent-primary)] text-white font-medium rounded-tr-none shadow-md"
-                    : "bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-light)] rounded-tl-none shadow-xs"
-                }`}
+                key={msg.id}
+                className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
               >
-                {/* Triage / Specialty Tag Header if available */}
-                {msg.specialty && (
-                  <div className="flex flex-wrap gap-2 pb-3 border-b border-[var(--border-light)]">
-                    <span className="px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] text-xs font-bold">
-                      Specialty: {msg.specialty}
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        msg.triageLevel === "Emergency"
-                          ? "bg-red-500/10 text-red-500"
-                          : msg.triageLevel === "Urgent"
-                          ? "bg-amber-500/10 text-amber-500"
-                          : "bg-emerald-500/10 text-emerald-500"
-                      }`}
-                    >
-                      Priority: {msg.triageLevel}
-                    </span>
+                {msg.sender === "ai" && (
+                  <div className="w-10 h-10 rounded-full border border-[var(--border-light)]/50 text-[var(--text-secondary)] bg-[var(--bg-main)] flex items-center justify-center shrink-0 shadow-md">
+                    <h1 className="text-xs font-semibold tracking-widest">
+                      AI
+                    </h1>
                   </div>
                 )}
 
-                <div className="whitespace-pre-wrap font-sans">{msg.text}</div>
+                <div
+                  className={`max-w-2xl rounded-xl p-5 text-xs md:text-sm leading-relaxed space-y-3 ${
+                    msg.sender === "user"
+                      ? "bg-[var(--accent-primary)] text-white font-medium rounded-tr-none shadow-md"
+                      : "bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-light)]/50 rounded-tl-xs shadow-xs"
+                  }`}
+                >
+                  {/* Triage / Specialty Tag Header if available */}
+                  {msg.specialty && (
+                    <div className="flex flex-wrap gap-2 pb-3 border-b border-[var(--border-light)]">
+                      <span className="px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] text-xs font-bold">
+                        Specialty: {msg.specialty}
+                      </span>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          msg.triageLevel === "Emergency"
+                            ? "bg-red-500/10 text-red-500"
+                            : msg.triageLevel === "Urgent"
+                              ? "bg-amber-500/10 text-amber-500"
+                              : "bg-emerald-500/10 text-emerald-500"
+                        }`}
+                      >
+                        Priority: {msg.triageLevel}
+                      </span>
+                    </div>
+                  )}
 
-                <div className="text-[10px] opacity-60 text-right">{msg.timestamp}</div>
-              </div>
+                  <div className="whitespace-pre-wrap font-sans">
+                    {msg.text}
+                  </div>
 
-              {msg.sender === "user" && (
-                <div className="w-10 h-10 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-light)] text-[var(--text-main)] flex items-center justify-center shrink-0">
-                  <User size={20} />
+                  <div className="text-[10px] opacity-60 text-right">
+                    {msg.timestamp}
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
 
-          {loading && (
-            <div className="flex gap-3 items-center text-xs text-[var(--text-secondary)]">
-              <div className="w-10 h-10 rounded-2xl bg-cyan-600 text-white flex items-center justify-center shadow-md animate-pulse">
-                <Bot size={20} />
+                {msg.sender === "user" && (
+                  <div className="w-10 h-10 rounded-full bg-[var(--bg-main)] border border-[var(--border-light)]/50 text-[var(--text-secondary)] flex items-center justify-center shrink-0">
+                    <User size={20} />
+                  </div>
+                )}
               </div>
-              <span className="animate-pulse">NeuroCare AI is analyzing clinical rules...</span>
-            </div>
-          )}
+            ))}
 
-          <div ref={messagesEndRef} />
-        </div>
+            {loading && (
+              <div className="flex gap-3 items-center text-xs text-[var(--text-secondary)]">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-600 text-white flex items-center justify-center shadow-md animate-pulse">
+                  <Bot size={20} />
+                </div>
+                <span className="animate-pulse">
+                  NeuroCare AI is analyzing clinical rules...
+                </span>
+              </div>
+            )}
 
-        {/* Input Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-          className="p-4 bg-[var(--bg-secondary)] border-t border-[var(--border-light)] flex items-center gap-3"
-        >
-          <input
-            type="text"
-            placeholder="Ask about symptoms, medicines, lab reports, or health habits..."
-            value={inputPrompt}
-            onChange={(e) => setInputPrompt(e.target.value)}
-            className="flex-1 px-5 py-3.5 rounded-2xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)] transition-all"
-          />
+            <div ref={messagesEndRef} />
+          </div>
 
-          <button
-            type="submit"
-            disabled={loading || !inputPrompt.trim()}
-            className="p-3.5 rounded-2xl bg-[var(--accent-primary)] text-white shadow-md hover:opacity-90 transition-all disabled:opacity-50"
+          {/* Input Bar */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+            className="p-4 bg-[var(--bg-secondary)] border-t border-[var(--border-light)] flex items-center gap-3"
           >
-            <Send size={18} />
-          </button>
-        </form>
-      </div>
+            <input
+              type="text"
+              placeholder="Ask about symptoms, medicines, lab reports, or health habits..."
+              value={inputPrompt}
+              onChange={(e) => setInputPrompt(e.target.value)}
+              className="flex-1 px-5 py-3.5 rounded-full border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--text-secondary)]/30 transition-all"
+            />
 
-      {/* Mandatory Clinical Disclaimer Banner */}
-      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-3">
-        <ShieldAlert size={20} className="shrink-0 mt-0.5 text-amber-600" />
-        <p>
-          <strong>Medical Disclaimer</strong>: NeuroCare AI provides educational insights and health guidance only. It is not a substitute for professional medical diagnosis, advice, or treatment. In a medical emergency, call emergency services immediately.
-        </p>
+            <button
+              type="submit"
+              disabled={loading || !inputPrompt.trim()}
+              className="p-3 rounded-full bg-[var(--accent-primary)] text-white shadow-md hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              <BiSolidSend size={16}/>
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
