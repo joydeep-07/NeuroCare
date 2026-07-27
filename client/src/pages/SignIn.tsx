@@ -150,13 +150,10 @@ const SignIn = () => {
           <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-8">
-              <div className="h-10 w-10 rounded-xl bg-cyan-500/20 backdrop-blur-md flex items-center justify-center font-bold text-cyan-400 border border-cyan-400/30">
-                NC
-              </div>
-              <h2 className="font-heading text-2xl font-bold tracking-tight">NeuroCare AI</h2>
+              <h2 className="font-heading text-2xl font-bold tracking-tight">NeuroCare</h2>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight font-heading mb-4">
-              Unified Healthcare Ecosystem
+            <h1 className="text-3xl md:text-3xl font-bold leading-tight font-heading mb-4">
+              Centralized Healthcare Ecosystem
             </h1>
             <p className="text-cyan-200/80 text-sm leading-relaxed">
               Empowering patients, certified medical practitioners, and hospital administrators with AI-driven clinical workflow automation.
