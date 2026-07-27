@@ -78,17 +78,20 @@ const Navbar = () => {
       {/* Desktop Navigation */}
       <nav className="sticky top-0 z-30 hidden lg:flex h-16 justify-between items-center px-8 bg-[var(--bg-secondary)]/80 backdrop-blur-md border-b border-[var(--border-light)]/60 shadow-xs">
         <Link to="/" className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
-            NC
-          </div>
-          <h1 className="font-heading text-xl font-bold tracking-tight">
-            <span className="text-[var(--accent-primary)] font-heading">NEURO</span>
-            <span className="text-[var(--text-main)]">CARE</span>
+          <h1 className="font-heading text-xl tracking-tight">
+            <span className="text-[var(--accent-primary)]  font-heading">
+              NEURO
+            </span>
+            <span className="text-[var(--text-main)]  font-heading">CARE</span>
           </h1>
           {user?.role && user.role !== "patient" && (
-            <span className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-              user.role === "admin" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-            }`}>
+            <span
+              className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                user.role === "admin"
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                  : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+              }`}
+            >
               {user.role}
             </span>
           )}
@@ -133,15 +136,15 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       <nav className="sticky top-0 z-30 lg:hidden h-16 flex items-center justify-between px-5 bg-[var(--bg-secondary)]/90 backdrop-blur-md border-b border-[var(--border-light)]">
-        <button onClick={() => setOpen(true)} className="p-2 text-[var(--text-main)]">
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 text-[var(--text-main)]"
+        >
           <Menu size={24} />
         </button>
 
         <Link to="/" className="flex items-center gap-1.5">
-          <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
-            NC
-          </div>
-          <h1 className="font-heading font-bold text-lg">
+          <h1 className="font-heading text-lg">
             <span className="text-[var(--accent-primary)]">NEURO</span>
             <span>CARE</span>
           </h1>
@@ -152,7 +155,10 @@ const Navbar = () => {
           {isAuthenticated ? (
             <UserDetails />
           ) : (
-            <NavLink to="/signin" className="text-sm font-semibold text-[var(--accent-primary)]">
+            <NavLink
+              to="/signin"
+              className="text-sm font-semibold text-[var(--accent-primary)]"
+            >
               Sign In
             </NavLink>
           )}
@@ -174,15 +180,15 @@ const Navbar = () => {
       >
         <div className="flex justify-between items-center h-16 px-6 border-b border-[var(--border-light)]">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
-              NC
-            </div>
-            <h1 className="font-heading font-bold text-lg">
+            <h1 className="font-heading text-lg">
               <span className="text-[var(--accent-primary)]">NEURO</span>CARE
             </h1>
           </div>
 
-          <button onClick={() => setOpen(false)} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-main)]">
+          <button
+            onClick={() => setOpen(false)}
+            className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-main)]"
+          >
             <X size={22} />
           </button>
         </div>
