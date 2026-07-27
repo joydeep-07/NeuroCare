@@ -3,7 +3,7 @@ const User = require("../models/user.model");
 const DEFAULT_DOCTORS = [
   {
     fullName: "Dr. Rajesh Sharma",
-    email: "rajesh.sharma@neurocare.com",
+    email: "joydeeprnp8821@gmail.com",
     phone: "+91 98112 34567",
     medicalRegNo: "MCI-2012-98421",
     specialization: "Neurology",
@@ -12,8 +12,10 @@ const DEFAULT_DOCTORS = [
     department: "Department of Neurosciences",
     yearsOfExperience: 16,
     consultationFee: 1200,
-    biography: "Dr. Rajesh Sharma is a leading Neurologist with extensive expertise in stroke management, epilepsy, movement disorders, and neuro-rehabilitation.",
-    avatar: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400",
+    biography:
+      "Dr. Rajesh Sharma is a leading Neurologist with extensive expertise in stroke management, epilepsy, movement disorders, and neuro-rehabilitation.",
+    avatar:
+      "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400",
     location: "New Delhi, India",
     rating: 4.9,
     reviewsCount: 42,
@@ -27,7 +29,7 @@ const DEFAULT_DOCTORS = [
   },
   {
     fullName: "Dr. Ananya Sen",
-    email: "ananya.sen@neurocare.com",
+    email: "joydeeprnp8822@gmail.com",
     phone: "+91 98765 11223",
     medicalRegNo: "MCI-2015-44312",
     specialization: "Cardiology",
@@ -36,8 +38,10 @@ const DEFAULT_DOCTORS = [
     department: "Cardiovascular & Heart Institute",
     yearsOfExperience: 12,
     consultationFee: 1500,
-    biography: "Dr. Ananya Sen specializes in interventional cardiology, heart failure management, and preventive cardiac wellness.",
-    avatar: "https://images.unsplash.com/photo-1594824813566-78a933758f46?w=400",
+    biography:
+      "Dr. Ananya Sen specializes in interventional cardiology, heart failure management, and preventive cardiac wellness.",
+    avatar:
+      "https://i.pinimg.com/736x/ad/6c/b0/ad6cb07e44a5e63ffc89d7723b181052.jpg",
     location: "Mumbai, India",
     rating: 4.8,
     reviewsCount: 38,
@@ -51,7 +55,7 @@ const DEFAULT_DOCTORS = [
   },
   {
     fullName: "Dr. Vikram Patel",
-    email: "vikram.patel@neurocare.com",
+    email: "joydeeprnp8823@gmail.com",
     phone: "+91 98220 99887",
     medicalRegNo: "MCI-2010-77812",
     specialization: "Orthopedics",
@@ -60,8 +64,10 @@ const DEFAULT_DOCTORS = [
     department: "Department of Orthopedics & Spine",
     yearsOfExperience: 18,
     consultationFee: 1000,
-    biography: "Dr. Vikram Patel is a renowned orthopedic surgeon specializing in robotic joint replacement, arthroscopy, and spine care.",
-    avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400",
+    biography:
+      "Dr. Vikram Patel is a renowned orthopedic surgeon specializing in robotic joint replacement, arthroscopy, and spine care.",
+    avatar:
+      "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400",
     location: "Bengaluru, India",
     rating: 4.9,
     reviewsCount: 56,
@@ -75,7 +81,7 @@ const DEFAULT_DOCTORS = [
   },
   {
     fullName: "Dr. Priya Nair",
-    email: "priya.nair@neurocare.com",
+    email: "joydeeprnp8824@gmail.com",
     phone: "+91 97441 55667",
     medicalRegNo: "MCI-2018-12998",
     specialization: "Dermatology",
@@ -84,7 +90,8 @@ const DEFAULT_DOCTORS = [
     department: "Department of Dermatology & Aesthetics",
     yearsOfExperience: 8,
     consultationFee: 800,
-    biography: "Dr. Priya Nair provides expert clinical dermatology, trichology, and advanced aesthetic skin treatments.",
+    biography:
+      "Dr. Priya Nair provides expert clinical dermatology, trichology, and advanced aesthetic skin treatments.",
     avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",
     location: "Chennai, India",
     rating: 4.7,
