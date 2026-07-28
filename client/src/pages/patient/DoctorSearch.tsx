@@ -79,16 +79,24 @@ const DoctorSearch = () => {
             Discover Top Doctors & Request Appointments
           </h1>
           <p className="text-cyan-100/80 text-sm md:text-base leading-relaxed">
-            Search qualified healthcare experts by symptoms, medical specialty, hospital, or city. Submit your request for swift administrative confirmation.
+            Search qualified healthcare experts by symptoms, medical specialty,
+            hospital, or city. Submit your request for swift administrative
+            confirmation.
           </p>
         </div>
       </div>
 
       {/* Search & Specialty Bar */}
       <div className="p-6 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] shadow-lg space-y-6">
-        <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-2">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex flex-col md:flex-row gap-2"
+        >
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={20} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Search by doctor name, symptoms (e.g. migraine, chest pain), or hospital..."
@@ -128,15 +136,24 @@ const DoctorSearch = () => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-64 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] animate-pulse" />
+              <div
+                key={i}
+                className="h-64 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] animate-pulse"
+              />
             ))}
           </div>
         ) : doctors.length === 0 ? (
           <div className="text-center py-16 p-8 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)]">
-            <Stethoscope size={48} className="mx-auto text-[var(--text-secondary)] mb-4" />
-            <h3 className="text-xl font-bold text-[var(--text-main)] font-heading">No Doctors Found</h3>
+            <Stethoscope
+              size={48}
+              className="mx-auto text-[var(--text-secondary)] mb-4"
+            />
+            <h3 className="text-xl font-bold text-[var(--text-main)] font-heading">
+              No Doctors Found
+            </h3>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Try refining your search query or selecting a different medical specialty.
+              Try refining your search query or selecting a different medical
+              specialty.
             </p>
           </div>
         ) : (
@@ -147,41 +164,54 @@ const DoctorSearch = () => {
                 className="group rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 p-6 shadow-sm hover:shadow-xl hover:border-[var(--accent-primary)]/40 transition-all flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex gap-4 items-start mb-4">
+                  <div className="flex gap-4 items-center mb-4">
                     <img
                       src={
                         doctor.avatar ||
-                        "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400"
+                        "https://i.pinimg.com/1200x/5d/90/30/5d90305c3e338f4b17a52fd8dccf83b8.jpg"
                       }
                       alt={doctor.fullName}
                       className="w-16 h-16 rounded-full object-top object-cover border border-[var(--border-light)] shadow-xs"
                     />
                     <div className="flex-1">
-                      <div className="flex items-center gap-1.5 text-amber-500 font-semibold text-xs mb-1">
+                      {/* <div className="flex items-center gap-1.5 text-amber-500 font-semibold text-xs mb-1">
                         <Star size={14} className="fill-amber-500" />
                         <span>{doctor.rating || 4.8}</span>
                         <span className="text-[var(--text-secondary)]">({doctor.reviewsCount || 18} reviews)</span>
-                      </div>
-                      <h3 className="text-lg font-bold text-[var(--text-main)] font-heading leading-snug">
+                      </div> */}
+                      <h3 className="text-xl font-bold text-[var(--text-main)] font-heading leading-snug">
                         {doctor.fullName}
                       </h3>
-                      <p className="text-xs font-semibold text-[var(--accent-primary)]">{doctor.specialization}</p>
+                      <p className="text-xs font-semibold text-[var(--accent-primary)]">
+                        {doctor.specialization}
+                      </p>
                     </div>
                   </div>
 
-                  <p className="text-xs text-[var(--text-secondary)] mb-4 line-clamp-3 text-justify">{doctor.biography}</p>
+                  <p className="text-xs text-[var(--text-secondary)] mb-4 line-clamp-3 text-justify">
+                    {doctor.biography}
+                  </p>
 
                   <div className="space-y-2 text-xs text-[var(--text-secondary)] mb-6 pt-3 border-t border-[var(--border-light)]">
                     <div className="flex items-center gap-2">
-                      <Building size={14} className="text-[var(--accent-primary)] shrink-0" />
+                      <Building
+                        size={14}
+                        className="text-[var(--accent-primary)] shrink-0"
+                      />
                       <span className="truncate">{doctor.hospital}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin size={14} className="text-[var(--accent-primary)] shrink-0" />
+                      <MapPin
+                        size={14}
+                        className="text-[var(--accent-primary)] shrink-0"
+                      />
                       <span>{doctor.location || "New Delhi, India"}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-[var(--accent-primary)] shrink-0" />
+                      <Calendar
+                        size={14}
+                        className="text-[var(--accent-primary)] shrink-0"
+                      />
                       <span>{doctor.yearsOfExperience} Years Experience</span>
                     </div>
                   </div>
@@ -189,8 +219,12 @@ const DoctorSearch = () => {
 
                 <div className="flex items-center justify-between pt-4 border-t border-[var(--border-light)]">
                   <div>
-                    <span className="text-xs text-[var(--text-secondary)] block">Consultation Fee</span>
-                    <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">₹{doctor.consultationFee}</span>
+                    <span className="text-xs text-[var(--text-secondary)] block">
+                      Consultation Fee
+                    </span>
+                    <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                      ₹{doctor.consultationFee}
+                    </span>
                   </div>
 
                   <button

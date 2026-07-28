@@ -101,8 +101,12 @@ const createDoctor = async (req, res) => {
       department: department || specialization,
       yearsOfExperience: Number(yearsOfExperience) || 5,
       consultationFee: Number(consultationFee) || 500,
-      biography: biography || `Dr. ${fullName} is a distinguished specialist in ${specialization} at ${hospital}.`,
-      avatar: avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400",
+      biography:
+        biography ||
+        `Dr. ${fullName} is a distinguished specialist in ${specialization} at ${hospital}.`,
+      avatar:
+        avatar ||
+        "https://i.pinimg.com/1200x/5d/90/30/5d90305c3e338f4b17a52fd8dccf83b8.jpg",
       location: location || "New Delhi, India",
       availability: defaultAvailability,
       provider: "otp",
