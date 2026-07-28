@@ -44,17 +44,25 @@ const sendEmailOTP = async (req, res) => {
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
-    await sendOTP(cleanEmail, otp);
+    let delivery;
+    try {
+      delivery = await sendOTP(cleanEmail, otp);
+    } catch (deliveryError) {
+      await OTP.deleteMany({ email: cleanEmail });
+      throw deliveryError;
+    }
 
     return res.status(200).json({
       success: true,
-      message: `Verification code sent to ${cleanEmail}`,
+      message: delivery?.delivered === false
+        ? "SMTP is not configured. Use the development OTP printed in the backend terminal."
+        : `Verification code sent to ${cleanEmail}`,
     });
   } catch (error) {
     console.error("sendEmailOTP error:", error);
     return res.status(500).json({
       success: false,
-      message: "Failed to process OTP request.",
+      message: "Unable to send the verification code. Please check the email address and try again.",
     });
   }
 };
@@ -83,6 +91,16 @@ const verifyOTP = async (req, res) => {
       });
     }
 
+    if (savedOTP.expiresAt <= new Date()) {
+      await OTP.deleteOne({ _id: savedOTP._id });
+      return res.status(400).json({ success: false, message: "Verification code has expired. Please request a new code." });
+    }
+
+    if (savedOTP.attempts >= 5) {
+      await OTP.deleteOne({ _id: savedOTP._id });
+      return res.status(429).json({ success: false, message: "Too many invalid attempts. Please request a new code." });
+    }
+
     if (String(savedOTP.otp).trim() !== String(otp).trim()) {
       savedOTP.attempts += 1;
       await savedOTP.save();
@@ -95,6 +113,12 @@ const verifyOTP = async (req, res) => {
     await OTP.deleteOne({ _id: savedOTP._id });
 
     let user = await User.findOne({ email: cleanEmail });
+
+    // Clear the malformed geo value created by earlier schema versions. It has
+    // a Point type but no [longitude, latitude] tuple and breaks 2dsphere writes.
+    if (user?.coordinates?.type === "Point" && !Array.isArray(user.coordinates.coordinates)) {
+      user.coordinates = undefined;
+    }
 
     // Handle Doctor target role validation
     if (targetRole === "doctor") {

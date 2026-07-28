@@ -2,6 +2,9 @@ const User = require("../models/user.model");
 const Family = require("../models/family.model");
 const FamilyMember = require("../models/familyMember.model");
 
+const RELATIONSHIPS = new Set(["Father", "Mother", "Son", "Daughter", "Brother", "Sister", "Grandfather", "Grandmother", "Grandson", "Granddaughter", "Guardian", "Spouse", "Other"]);
+const INVERSE_RELATIONSHIP = { Father: "Son/Daughter", Mother: "Son/Daughter", Son: "Father/Mother", Daughter: "Father/Mother", Brother: "Brother/Sister", Sister: "Brother/Sister", Grandfather: "Grandson/Granddaughter", Grandmother: "Grandson/Granddaughter", Grandson: "Grandfather/Grandmother", Granddaughter: "Grandfather/Grandmother", Guardian: "Other", Spouse: "Spouse", Other: "Other" };
+
 // =======================================
 // Add Family Member (with Auto-Link Detection)
 // =======================================
@@ -29,6 +32,9 @@ const addMember = async (req, res) => {
         success: false,
         message: "Email address is required to add a family member.",
       });
+    }
+    if (relationship && !RELATIONSHIPS.has(relationship)) {
+      return res.status(400).json({ success: false, message: "Please choose a supported family relationship." });
     }
 
     const cleanEmail = email.toLowerCase().trim();
@@ -106,20 +112,11 @@ const addMember = async (req, res) => {
           user: req.user._id,
         });
 
-        const inverseRelationshipMap = {
-          Father: "Child",
-          Mother: "Child",
-          Son: "Parent",
-          Daughter: "Parent",
-          Spouse: "Spouse",
-          Brother: "Sibling",
-          Sister: "Sibling",
-        };
-
-        const inverseRel = inverseRelationshipMap[relationship] || "Family Member";
+        const inverseRel = INVERSE_RELATIONSHIP[relationship] || "Other";
 
         if (targetExistingLink) {
           targetExistingLink.isActive = true;
+          targetExistingLink.relationship = inverseRel;
           await targetExistingLink.save();
         } else {
           await FamilyMember.create({
@@ -129,6 +126,10 @@ const addMember = async (req, res) => {
             relationship: inverseRel,
             isActive: true,
           });
+        }
+        if (!targetFamilyObj.members.some((id) => String(id) === String(req.user._id))) {
+          targetFamilyObj.members.push(req.user._id);
+          await targetFamilyObj.save();
         }
       }
     } else {
@@ -322,7 +323,15 @@ const updateMember = async (req, res) => {
     } = req.body;
 
     if (relationship) {
+      if (!RELATIONSHIPS.has(relationship)) return res.status(400).json({ success: false, message: "Please choose a supported family relationship." });
       member.relationship = relationship;
+      const linkedUser = await User.findById(member.user).select("family");
+      if (linkedUser?.family) {
+        await FamilyMember.updateOne(
+          { family: linkedUser.family, user: req.user._id, isActive: true },
+          { $set: { relationship: INVERSE_RELATIONSHIP[relationship] || "Other" } },
+        );
+      }
     }
 
     // Protection rule: Linked registered users can ONLY manage their own personal profile
@@ -395,6 +404,16 @@ const deleteMember = async (req, res) => {
     await Family.findByIdAndUpdate(req.user.family._id, {
       $pull: { members: member.user },
     });
+
+    // A relationship is an edge shared by two users; remove the reciprocal edge too.
+    const targetUser = await User.findById(member.user).select("family");
+    if (targetUser?.family) {
+      await FamilyMember.updateOne(
+        { family: targetUser.family, user: req.user._id, isActive: true },
+        { $set: { isActive: false } },
+      );
+      await Family.findByIdAndUpdate(targetUser.family, { $pull: { members: req.user._id } });
+    }
 
     return res.status(200).json({
       success: true,

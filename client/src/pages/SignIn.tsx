@@ -30,6 +30,7 @@ const SignIn = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [statusMsg, setStatusMsg] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -52,6 +53,7 @@ const SignIn = () => {
   useEffect(() => {
     setOtpSent(false);
     setErrorMsg("");
+    setStatusMsg("");
     setValue("otp", "");
     setValue("password", "");
   }, [activeTab, setValue]);
@@ -75,6 +77,7 @@ const SignIn = () => {
       if (res.data.success) {
         setOtpSent(true);
         setTimeLeft(60);
+        setStatusMsg(res.data.message);
       }
     } catch (error: any) {
       setErrorMsg(error.response?.data?.message || "Failed to send OTP.");
@@ -221,6 +224,11 @@ const SignIn = () => {
             {errorMsg && (
               <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium">
                 {errorMsg}
+              </div>
+            )}
+            {statusMsg && !errorMsg && (
+              <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-medium">
+                {statusMsg}
               </div>
             )}
 

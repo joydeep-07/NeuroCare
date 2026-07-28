@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 
 const connectDB = require("./db/connectDB");
 const seedInitialData = require("./utils/seedDoctors");
+const { notFound, errorHandler } = require("./middlewares/error.middleware");
 
 dotenv.config();
 
@@ -42,6 +43,9 @@ app.get("/", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

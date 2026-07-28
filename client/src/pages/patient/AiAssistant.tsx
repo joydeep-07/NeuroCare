@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, User, Plus, MessageSquare, Menu, X, Trash2, MessageSquarePlus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Bot, User, MessageSquare, Trash2, MessageSquarePlus } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import { BiSolidSend } from "react-icons/bi";
@@ -12,6 +13,19 @@ interface ChatMessage {
   specialty?: string;
   triageLevel?: string;
   timestamp: string;
+  doctors?: DoctorRecommendation[];
+}
+
+interface DoctorRecommendation {
+  id: string;
+  name: string;
+  specialization: string;
+  hospital: string;
+  rating: number;
+  yearsOfExperience: number;
+  consultationFee: number;
+  location: string;
+  availability: { day: string; slots: string[] }[];
 }
 
 interface ChatSession {
@@ -49,6 +63,7 @@ const PRESET_PILLS = [
 ];
 
 const AiAssistant = () => {
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState<ChatSession[]>([
     {
       id: "session-1",
@@ -69,7 +84,7 @@ const AiAssistant = () => {
   ]);
 
   const [activeSessionId, setActiveSessionId] = useState<string>("session-1");
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen] = useState<boolean>(true);
   const [inputPrompt, setInputPrompt] = useState("");
   const [selectedLanguage] = useState("english");
   const [loading, setLoading] = useState(false);
@@ -155,6 +170,7 @@ const AiAssistant = () => {
         {
           prompt: textToSend,
           mode: mode || "general",
+          sessionId: activeSessionId,
           language: selectedLanguage !== "english" ? selectedLanguage : null,
         },
       );
@@ -167,6 +183,7 @@ const AiAssistant = () => {
           mode: res.data.mode,
           specialty: res.data.suggestedSpecialty,
           triageLevel: res.data.triageLevel,
+          doctors: res.data.doctors || [],
           timestamp: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -259,7 +276,7 @@ const AiAssistant = () => {
             {PRESET_PILLS.map((pill) => (
               <button
                 key={pill.label}
-                // onClick={() => handleSendMessage(pill.prompt, pill.mode)}
+                onClick={() => handleSendMessage(pill.prompt, pill.mode)}
                 className="p-2.5 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] text-left transition-all shadow-xs group"
               >
                 <span className="text-[11px] font-semibold tracking-wider text-[var(--text-main)]/90 block">
@@ -315,6 +332,24 @@ const AiAssistant = () => {
                 )}
 
                 <div className="whitespace-pre-wrap font-sans">{msg.text}</div>
+
+                {msg.doctors && msg.doctors.length > 0 && (
+                  <div className="grid gap-2 pt-2">
+                    {msg.doctors.map((doctor) => (
+                      <div key={doctor.id} className="rounded-lg border border-[var(--border-light)] bg-[var(--card-bg)] p-3 text-[11px] shadow-sm">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-bold text-[var(--text-main)]">{doctor.name}</p>
+                            <p className="text-[var(--accent-primary)]">{doctor.specialization}</p>
+                            <p className="text-[var(--text-secondary)]">{doctor.hospital} · {doctor.location}</p>
+                          </div>
+                          <button onClick={() => navigate(`/doctors?doctor=${doctor.id}`)} className="shrink-0 rounded-md bg-[var(--accent-primary)] px-3 py-1.5 text-white font-semibold">Book</button>
+                        </div>
+                        <p className="mt-2 text-[var(--text-secondary)]">★ {doctor.rating} · {doctor.yearsOfExperience} yrs · ₹{doctor.consultationFee} · {doctor.availability?.[0] ? `${doctor.availability[0].day}: ${doctor.availability[0].slots.join(", ")}` : "Availability on request"}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="text-[10px] opacity-60 text-right">
                   {msg.timestamp}

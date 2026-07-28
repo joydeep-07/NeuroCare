@@ -7,18 +7,20 @@ const sendOTP = async (email, otp) => {
   console.log(`========================================`);
 
   if (!process.env.EMAIL || !process.env.EMAIL_PASSWORD) {
-    console.log("[NeuroCare OTP Service] SMTP credentials missing in .env - using console fallback code");
-    return;
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Email delivery is not configured. Please contact support.");
+    }
+    console.log("[NeuroCare OTP Service] SMTP credentials missing; development-only console fallback is active.");
+    return { delivered: false, mode: "development" };
   }
 
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
 
     const mailOptions = {
       from: `"NeuroCare Platform" <${process.env.EMAIL}>`,
@@ -44,11 +46,9 @@ const sendOTP = async (email, otp) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error("[NeuroCare OTP Service Error]:", error.message);
-    // Silent fail over to console OTP for seamless dev testing
-  }
+  // Do not report a successful OTP request when SMTP rejects it.
+  await transporter.sendMail(mailOptions);
+  return { delivered: true, mode: "email" };
 };
 
 module.exports = sendOTP;

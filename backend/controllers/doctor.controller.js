@@ -6,7 +6,7 @@ const Appointment = require("../models/appointment.model");
 // =======================================
 const getDoctors = async (req, res) => {
   try {
-    const { query, specialty, hospital, location } = req.query;
+    const { query, specialty, hospital, location, city, state, availability } = req.query;
 
     const filter = {
       role: "doctor",
@@ -24,6 +24,9 @@ const getDoctors = async (req, res) => {
     if (location) {
       filter.location = { $regex: location, $options: "i" };
     }
+    if (city) filter.city = { $regex: city, $options: "i" };
+    if (state) filter.state = { $regex: state, $options: "i" };
+    if (availability) filter.availability = { $elemMatch: { day: { $regex: availability, $options: "i" } } };
 
     if (query) {
       filter.$or = [
