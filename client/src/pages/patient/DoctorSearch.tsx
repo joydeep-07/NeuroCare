@@ -144,7 +144,7 @@ const DoctorSearch = () => {
             {doctors.map((doctor) => (
               <div
                 key={doctor._id}
-                className="group rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] p-6 shadow-sm hover:shadow-xl hover:border-[var(--accent-primary)]/40 transition-all flex flex-col justify-between"
+                className="group rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 p-6 shadow-sm hover:shadow-xl hover:border-[var(--accent-primary)]/40 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex gap-4 items-start mb-4">
@@ -154,7 +154,7 @@ const DoctorSearch = () => {
                         "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400"
                       }
                       alt={doctor.fullName}
-                      className="w-16 h-16 rounded-2xl object-cover border border-[var(--border-light)] shadow-xs"
+                      className="w-16 h-16 rounded-full object-top object-cover border border-[var(--border-light)] shadow-xs"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5 text-amber-500 font-semibold text-xs mb-1">
@@ -169,7 +169,7 @@ const DoctorSearch = () => {
                     </div>
                   </div>
 
-                  <p className="text-xs text-[var(--text-secondary)] mb-4 line-clamp-2">{doctor.biography}</p>
+                  <p className="text-xs text-[var(--text-secondary)] mb-4 line-clamp-3 text-justify">{doctor.biography}</p>
 
                   <div className="space-y-2 text-xs text-[var(--text-secondary)] mb-6 pt-3 border-t border-[var(--border-light)]">
                     <div className="flex items-center gap-2">
@@ -195,7 +195,7 @@ const DoctorSearch = () => {
 
                   <button
                     onClick={() => setSelectedDoctorForBooking(doctor)}
-                    className="px-5 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white text-xs font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5"
+                    className="px-5 py-2.5 rounded-sm bg-[var(--accent-primary)] text-white text-xs font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5"
                   >
                     Request Appointment <ArrowRight size={14} />
                   </button>
