@@ -13,16 +13,19 @@ const generateAppointmentId = () => {
 // =======================================
 const requestAppointment = async (req, res) => {
   try {
-    const { doctorId, familyMemberId, symptoms, reason, uploadedReports, requestedDate } = req.body;
+    const { doctorId, familyMemberId, symptoms, reason, uploadedReports, requestedDate, preferredTime } = req.body;
 
-    if (!doctorId || !symptoms) {
+    if (req.user.role !== "patient") {
+      return res.status(403).json({ success: false, message: "Only patient accounts can book appointments." });
+    }
+    if (!doctorId || !symptoms || !requestedDate || !preferredTime) {
       return res.status(400).json({
         success: false,
-        message: "Doctor ID and Symptoms are required.",
+        message: "Doctor, symptoms, appointment date, and an available time slot are required.",
       });
     }
 
-    const doctor = await User.findOne({ _id: doctorId, role: "doctor" });
+    const doctor = await User.findOne({ _id: doctorId, role: "doctor", isActive: true });
     if (!doctor) {
       return res.status(404).json({
         success: false,
@@ -30,8 +33,23 @@ const requestAppointment = async (req, res) => {
       });
     }
 
+    const appointmentDate = new Date(`${requestedDate}T00:00:00`);
+    if (Number.isNaN(appointmentDate.getTime()) || appointmentDate < new Date(new Date().setHours(0, 0, 0, 0))) {
+      return res.status(400).json({ success: false, message: "Please choose a valid future appointment date." });
+    }
+    const weekday = appointmentDate.toLocaleDateString("en-US", { weekday: "long" });
+    const schedule = doctor.availability.find((item) => item.day === weekday);
+    if (!schedule?.slots.includes(preferredTime)) {
+      return res.status(400).json({ success: false, message: "That time is not available for the selected doctor." });
+    }
+    const occupied = await Appointment.exists({ doctor: doctor._id, confirmedDate: requestedDate, confirmedTime: preferredTime, status: { $nin: ["Cancelled", "Rejected"] } });
+    if (occupied) return res.status(409).json({ success: false, message: "That time slot was just booked. Please select another slot." });
+
     let familyMember = null;
     if (familyMemberId) {
+      const FamilyMember = require("../models/familyMember.model");
+      const relation = await FamilyMember.findOne({ family: req.user.family, user: familyMemberId, isActive: true });
+      if (!relation) return res.status(403).json({ success: false, message: "You can only book for members of your own family." });
       familyMember = await User.findById(familyMemberId);
     }
 
@@ -47,7 +65,9 @@ const requestAppointment = async (req, res) => {
       symptoms,
       reason: reason || "",
       uploadedReports: uploadedReports || [],
-      requestedDate: requestedDate ? new Date(requestedDate) : new Date(),
+      requestedDate: appointmentDate,
+      confirmedDate: requestedDate,
+      confirmedTime: preferredTime,
       status: "Pending Approval",
     });
 
@@ -114,6 +134,11 @@ const getAppointmentById = async (req, res) => {
 
     if (!appointment) {
       return res.status(404).json({ success: false, message: "Appointment not found." });
+    }
+
+    const isParticipant = String(appointment.patient._id) === String(req.user._id) || String(appointment.doctor._id) === String(req.user._id);
+    if (req.user.role !== "admin" && !isParticipant) {
+      return res.status(403).json({ success: false, message: "You are not allowed to view this appointment." });
     }
 
     return res.status(200).json({

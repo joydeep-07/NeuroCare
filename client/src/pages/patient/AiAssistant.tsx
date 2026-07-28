@@ -99,7 +99,27 @@ const AiAssistant = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  const handleNewChat = () => {
+  useEffect(() => {
+    const loadConversations = async () => {
+      try {
+        const response = await api.get(ENDPOINTS.AI.CONVERSATIONS);
+        if (!response.data.success || response.data.conversations.length === 0) return;
+        const stored = response.data.conversations.map((conversation: any) => ({
+          id: conversation._id,
+          title: conversation.title,
+          createdAt: new Date(conversation.createdAt).toLocaleDateString(),
+          messages: conversation.messages.map((message: any) => ({ id: message._id, sender: message.role === "assistant" ? "ai" : "user", text: message.content, specialty: message.specialty, triageLevel: message.triageLevel, doctors: message.doctors, timestamp: new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })),
+        }));
+        setSessions(stored);
+        setActiveSessionId(stored[0].id);
+      } catch {
+        // Keep the local welcome state when the user has no stored conversations yet.
+      }
+    };
+    loadConversations();
+  }, []);
+
+  const handleNewChat = async () => {
     const newId = `session-${Date.now()}`;
     const newSession: ChatSession = {
       id: newId,
@@ -117,8 +137,16 @@ const AiAssistant = () => {
       ],
       createdAt: new Date().toLocaleDateString(),
     };
+    try {
+      const response = await api.post(ENDPOINTS.AI.CONVERSATIONS);
+      if (response.data.success) {
+        newSession.id = response.data.conversation._id;
+      }
+    } catch {
+      // The initial message can still be used; it will be persisted on first send.
+    }
     setSessions((prev) => [newSession, ...prev]);
-    setActiveSessionId(newId);
+    setActiveSessionId(newSession.id);
   };
 
   const handleDeleteSession = (e: React.MouseEvent, id: string) => {
@@ -166,7 +194,7 @@ const AiAssistant = () => {
 
     try {
       const res = await api.post(
-        `${ENDPOINTS.AUTH.SEND_OTP.replace("/auth/send-otp", "")}/ai/chat`,
+        ENDPOINTS.AI.CHAT,
         {
           prompt: textToSend,
           mode: mode || "general",
@@ -193,10 +221,11 @@ const AiAssistant = () => {
         setSessions((prev) =>
           prev.map((s) =>
             s.id === activeSessionId
-              ? { ...s, messages: [...s.messages, aiMessage] }
-              : s,
+              ? { ...s, id: res.data.conversationId || s.id, messages: [...s.messages, aiMessage] }
+            : s,
           ),
         );
+        if (res.data.conversationId && res.data.conversationId !== activeSessionId) setActiveSessionId(res.data.conversationId);
       }
     } catch {
       const errorMessage: ChatMessage = {

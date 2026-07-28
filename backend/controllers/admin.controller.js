@@ -182,6 +182,20 @@ const scheduleAppointment = async (req, res) => {
     if (adminInstructions !== undefined) appointment.adminInstructions = adminInstructions;
 
     const targetStatus = status || "Confirmed";
+    const activeStatuses = ["Pending Approval", "Confirmed", "Rescheduled", "Checked In", "In Consultation"];
+    const targetDate = confirmedDate || appointment.confirmedDate;
+    const targetTime = confirmedTime || appointment.confirmedTime;
+    if (activeStatuses.includes(targetStatus)) {
+      if (!targetDate || !targetTime) return res.status(400).json({ success: false, message: "A date and time are required for an active appointment." });
+      const conflict = await Appointment.exists({
+        _id: { $ne: appointment._id },
+        doctor: appointment.doctor._id,
+        confirmedDate: targetDate,
+        confirmedTime: targetTime,
+        status: { $in: activeStatuses },
+      });
+      if (conflict) return res.status(409).json({ success: false, message: "The selected doctor already has an appointment at that time." });
+    }
     appointment.status = targetStatus;
 
     await appointment.save();

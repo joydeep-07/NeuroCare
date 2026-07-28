@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Calendar, FileText, User, Stethoscope, AlertCircle } from "lucide-react";
+import { X, Stethoscope, AlertCircle } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 
@@ -36,12 +36,20 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
   const [requestedDate, setRequestedDate] = useState(
     new Date(Date.now() + 86400000).toISOString().split("T")[0]
   );
+  const [preferredTime, setPreferredTime] = useState("");
   const [familyMemberId, setFamilyMemberId] = useState("");
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [reportTitle, setReportTitle] = useState("");
   const [reportUrl, setReportUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  const selectedDay = new Date(`${requestedDate}T00:00:00`).toLocaleDateString("en-US", { weekday: "long" });
+  const availableSlots = doctor.availability?.find((item) => item.day === selectedDay)?.slots || [];
+
+  useEffect(() => {
+    setPreferredTime(availableSlots[0] || "");
+  }, [requestedDate, doctor._id]);
 
   useEffect(() => {
     const fetchFamily = async () => {
@@ -59,8 +67,8 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!symptoms.trim()) {
-      setErrorMsg("Please describe your symptoms or reason for consultation.");
+    if (!symptoms.trim() || !preferredTime) {
+      setErrorMsg("Please describe your symptoms and select an available time slot.");
       return;
     }
 
@@ -77,6 +85,7 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
         symptoms,
         reason,
         requestedDate,
+        preferredTime,
         familyMemberId: familyMemberId || null,
         uploadedReports,
       });
@@ -169,6 +178,25 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
               onChange={(e) => setRequestedDate(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)]"
             />
+            </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+              Available Time Slot <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={preferredTime}
+              onChange={(e) => setPreferredTime(e.target.value)}
+              disabled={availableSlots.length === 0}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)] disabled:opacity-60"
+              required
+            >
+              {availableSlots.length === 0 ? (
+                <option value="">No slots available on {selectedDay}</option>
+              ) : (
+                availableSlots.map((slot) => <option key={slot} value={slot}>{slot}</option>)
+              )}
+            </select>
           </div>
 
           {/* Medical Report Attachment (Optional) */}

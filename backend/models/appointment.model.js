@@ -112,4 +112,18 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
+appointmentSchema.index(
+  { doctor: 1, confirmedDate: 1, confirmedTime: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      confirmedDate: { $type: "string" },
+      confirmedTime: { $type: "string" },
+      status: { $in: ["Pending Approval", "Confirmed", "Rescheduled", "Checked In", "In Consultation"] },
+    },
+  },
+);
+appointmentSchema.index({ patient: 1, createdAt: -1 });
+appointmentSchema.index({ doctor: 1, status: 1, confirmedDate: 1 });
+
 module.exports = mongoose.model("Appointment", appointmentSchema);

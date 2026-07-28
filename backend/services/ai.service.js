@@ -1,9 +1,8 @@
 const { buildMessages } = require("../prompts/healthAssistant.prompt");
 const { inferSpecialty, extractLocation, findDoctors } = require("../utils/doctorSearch");
+const AIConversation = require("../models/aiConversation.model");
 
-const sessions = new Map();
-const disclaimer = "Educational information only — it does not replace an examination, diagnosis, or treatment plan from a qualified clinician.";
-const keyFor = (userId, sessionId) => `${userId}:${sessionId || "default"}`;
+const disclaimer = "Educational information only. It does not replace an examination, diagnosis, or treatment plan from a qualified clinician.";
 
 const askGroq = async ({ prompt, memory, doctors }) => {
   if (!process.env.GROQ_API_KEY) return null;
@@ -14,17 +13,26 @@ const askGroq = async ({ prompt, memory, doctors }) => {
 };
 
 const chat = async ({ userId, sessionId, prompt, language, city }) => {
-  const memory = sessions.get(keyFor(userId, sessionId)) || { questions: [] };
+  const requestedStoredConversation = sessionId && !String(sessionId).startsWith("session-");
+  let conversation = requestedStoredConversation ? await AIConversation.findOne({ _id: sessionId, user: userId }) : null;
+  if (requestedStoredConversation && !conversation) throw Object.assign(new Error("Conversation not found."), { statusCode: 404 });
+  if (!conversation) conversation = await AIConversation.create({ user: userId, title: `${prompt.slice(0, 57)}${prompt.length > 57 ? "..." : ""}` });
+
   const specialty = inferSpecialty(prompt);
-  const preferredCity = city || extractLocation(prompt) || memory.city;
+  const preferredCity = city || extractLocation(prompt);
   const doctors = await findDoctors({ query: prompt, specialty, city: preferredCity });
-  const nextMemory = { ...memory, illness: specialty, city: preferredCity || memory.city, language: language || memory.language, questions: [...memory.questions, prompt].slice(-10) };
-  sessions.set(keyFor(userId, sessionId), nextMemory);
+  const memory = { language, city: preferredCity, history: conversation.messages.slice(-12).map((message) => ({ role: message.role, content: message.content })) };
+  conversation.messages.push({ role: "user", content: prompt });
+
   let response;
-  try { response = await askGroq({ prompt, memory: nextMemory, doctors }); } catch { response = null; }
-  if (!response) response = `A ${specialty} consultation may be appropriate. ${doctors.length ? "I found matching NeuroCare doctors below." : "I could not find a matching NeuroCare doctor for this search yet."}\n\nWhile arranging care: stay hydrated, eat regular balanced meals, avoid alcohol and tobacco, use gentle activity only if it does not worsen symptoms, and keep a consistent 7–9 hour sleep routine. Track symptom onset, triggers, severity, and current medicines for your consultation.\n\n${disclaimer}`;
+  try { response = await askGroq({ prompt, memory, doctors }); } catch { response = null; }
+  if (!response) response = `A ${specialty} consultation may be appropriate. ${doctors.length ? "I found matching NeuroCare doctors below." : "I could not find a matching NeuroCare doctor for this search yet."}\n\nStay hydrated, eat regular balanced meals, avoid alcohol and tobacco, use gentle activity only if it does not worsen symptoms, and keep a consistent 7–9 hour sleep routine. Track symptom onset, triggers, severity, and current medicines for your consultation.\n\n${disclaimer}`;
   else response = `${response}\n\n${disclaimer}`;
-  return { response, suggestedSpecialty: specialty, doctors, memory: nextMemory, triageLevel: /chest pain|difficulty breathing|stroke|unconscious/i.test(prompt) ? "Emergency" : "Routine" };
+
+  const triageLevel = /chest pain|difficulty breathing|stroke|unconscious/i.test(prompt) ? "Emergency" : "Routine";
+  conversation.messages.push({ role: "assistant", content: response, specialty, triageLevel, doctors });
+  await conversation.save();
+  return { response, suggestedSpecialty: specialty, doctors, triageLevel, conversationId: String(conversation._id), conversation };
 };
 
 module.exports = { chat };

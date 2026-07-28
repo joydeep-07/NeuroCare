@@ -11,6 +11,11 @@ export const ENDPOINTS = {
     GOOGLE_CALLBACK: `${BASE_URL}/auth/google/callback`,
     LOGOUT: `${BASE_URL}/auth/logout`,
   },
+  AI: {
+    CONVERSATIONS: `${BASE_URL}/ai/conversations`,
+    CONVERSATION: (id: string) => `${BASE_URL}/ai/conversations/${id}`,
+    CHAT: `${BASE_URL}/ai/chat`,
+  },
 
   // ==========================
   // Profile
@@ -37,8 +42,8 @@ export const ENDPOINTS = {
   // Appointments
   // ==========================
   APPOINTMENT: {
-    BOOK: `${BASE_URL}/appointments`,
-    GET_ALL: `${BASE_URL}/appointments`,
+    BOOK: `${BASE_URL}/appointments/request`,
+    GET_ALL: `${BASE_URL}/appointments/my-appointments`,
     GET_BY_ID: (id: string) => `${BASE_URL}/appointments/${id}`,
     UPDATE: (id: string) => `${BASE_URL}/appointments/${id}`,
     CANCEL: (id: string) => `${BASE_URL}/appointments/${id}/cancel`,
