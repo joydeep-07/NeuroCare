@@ -56,6 +56,26 @@ const UserDetails = () => {
   }, [dispatch]);
 
   // ===============================
+  // Filter out the logged-in user from members list
+  // ===============================
+  const filteredMembers = members.filter((member) => {
+    const memberUserId = member.user?._id || member.user?.id;
+    const currentUserId = user?._id || user?.id;
+
+    // If IDs match, it's the self-account, so filter it out
+    if (memberUserId && currentUserId && memberUserId === currentUserId) {
+      return false;
+    }
+
+    // Fallback comparison by email if IDs aren't available
+    if (member.user?.email && user?.email && member.user.email === user.email) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // ===============================
   // Avatar
   // ===============================
   const userAvatar =
@@ -238,7 +258,7 @@ const UserDetails = () => {
                 </div>
 
                 <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
-                  {members.map((member, index) => (
+                  {filteredMembers.map((member, index) => (
                     <button
                       key={member._id || index}
                       className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
@@ -371,7 +391,7 @@ const UserDetails = () => {
                   </div>
 
                   <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
-                    {members.map((member, index) => (
+                    {filteredMembers.map((member, index) => (
                       <button
                         key={member._id || index}
                         className="flex w-full items-center gap-4 px-5 py-5"
