@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, UserPlus, Link2, Trash2, Edit3, ShieldCheck, HeartPulse, FileText, CheckCircle } from "lucide-react";
+import { Users, UserPlus, Link2, Trash2, Edit3, User } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 
@@ -173,16 +173,20 @@ const FamilyMembers = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 md:py-12 space-y-8">
+    <div className="max-w-8xl mx-auto px-12 py-8 md:py-4 md:pb-10 space-y-8">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] shadow-lg">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] shadow-lg">
         <div>
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--accent-primary)] mb-2">
             <Users size={16} /> Family Healthcare Vault
           </span>
-          <h1 className="text-3xl font-bold font-heading text-[var(--text-main)]">Family Members</h1>
+          <h1 className="text-3xl font-bold font-heading text-[var(--text-main)]">
+            Family Members
+          </h1>
           <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Manage medical records & book appointments for your family. Entering an email of an existing NeuroCare user automatically links both accounts with live profile sync.
+            Manage medical records & book appointments for your family. Entering
+            an email of an existing NeuroCare user automatically links both
+            accounts with live profile sync.
           </p>
         </div>
 
@@ -197,15 +201,23 @@ const FamilyMembers = () => {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-2xl bg-[var(--card-bg)] rounded-3xl border border-[var(--border-light)] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="w-full max-w-2xl bg-[var(--card-bg)] rounded-lg border border-[var(--border-light)] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
             <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-between items-center">
               <h2 className="text-xl font-bold font-heading">
                 {editingMember ? "Edit Family Member" : "Add Family Member"}
               </h2>
-              <button onClick={() => setShowForm(false)} className="text-white hover:opacity-80">✕</button>
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-white hover:opacity-80"
+              >
+                ✕
+              </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4 text-xs">
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 overflow-y-auto space-y-4 text-xs"
+            >
               {formError && (
                 <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-medium">
                   {formError}
@@ -213,12 +225,16 @@ const FamilyMembers = () => {
               )}
 
               <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-[var(--text-main)]">
-                💡 <strong>Auto-Link Feature</strong>: If the email matches a registered NeuroCare user, a reciprocal link will be established automatically!
+                💡 <strong>Auto-Link Feature</strong>: If the email matches a
+                registered NeuroCare user, a reciprocal link will be established
+                automatically!
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Email Address *</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                    Email Address *
+                  </label>
                   <input
                     type="email"
                     value={email}
@@ -231,7 +247,9 @@ const FamilyMembers = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Relationship *</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                    Relationship *
+                  </label>
                   <select
                     value={relationship}
                     onChange={(e) => setRelationship(e.target.value)}
@@ -249,7 +267,9 @@ const FamilyMembers = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Full Name</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                    Full Name
+                  </label>
                   <input
                     type="text"
                     value={fullName}
@@ -260,7 +280,9 @@ const FamilyMembers = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Phone Number</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                    Phone Number
+                  </label>
                   <input
                     type="text"
                     value={phone}
@@ -271,7 +293,9 @@ const FamilyMembers = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Gender</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                    Gender
+                  </label>
                   <select
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
@@ -284,7 +308,9 @@ const FamilyMembers = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Blood Group</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                    Blood Group
+                  </label>
                   <select
                     value={bloodGroup}
                     onChange={(e) => setBloodGroup(e.target.value)}
@@ -303,7 +329,9 @@ const FamilyMembers = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Current Illness / Known Conditions</label>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                  Current Illness / Known Conditions
+                </label>
                 <input
                   type="text"
                   value={illness}
@@ -338,19 +366,28 @@ const FamilyMembers = () => {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] animate-pulse" />
+            <div
+              key={i}
+              className="h-48 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] animate-pulse"
+            />
           ))}
         </div>
       ) : members.length === 0 ? (
-        <div className="text-center py-16 p-8 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)]">
-          <Users size={48} className="mx-auto text-[var(--text-secondary)] mb-4" />
-          <h3 className="text-xl font-bold text-[var(--text-main)] font-heading">No Family Members Added</h3>
+        <div className="text-center py-16 p-8 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)]">
+          <Users
+            size={48}
+            className="mx-auto text-[var(--text-secondary)] mb-4"
+          />
+          <h3 className="text-xl font-bold text-[var(--text-main)] font-heading">
+            No Family Members Added
+          </h3>
           <p className="text-xs text-[var(--text-secondary)] mt-1 mb-6">
-            Add your parents, spouse, or children to manage their appointments and medical history.
+            Add your parents, spouse, or children to manage their appointments
+            and medical history.
           </p>
           <button
             onClick={handleOpenAddForm}
-            className="px-6 py-3 rounded-2xl bg-[var(--accent-primary)] text-white text-xs font-semibold"
+            className="px-6 py-3 rounded-lg bg-[var(--accent-primary)] text-white text-xs font-semibold"
           >
             Add First Family Member
           </button>
@@ -360,7 +397,7 @@ const FamilyMembers = () => {
           {members.map((m) => (
             <div
               key={m._id}
-              className="rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] p-6 shadow-sm hover:shadow-lg transition-all space-y-4 relative flex flex-col justify-between"
+              className="rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] p-6 shadow-sm hover:shadow-lg transition-all space-y-4 relative flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-4">
@@ -373,35 +410,46 @@ const FamilyMembers = () => {
                       <Link2 size={12} /> Linked Account
                     </span>
                   ) : (
-                    <span className="text-[10px] text-[var(--text-secondary)]">Standard Profile</span>
+                    <span className="text-[10px] text-[var(--text-secondary)]">
+                      Standard Profile
+                    </span>
                   )}
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <img
-                    src={
-                      m.user.avatar ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(m.user.fullName || "User")}&background=0ea5e9&color=fff`
-                    }
-                    alt={m.user.fullName}
-                    className="w-14 h-14 rounded-2xl object-cover border border-[var(--border-light)]"
-                  />
+                  <div className="w-14 h-14 rounded-full object-cover border-4 border-[var(--border-light)] flex justify-center items-center">
+                    <User />
+                  </div>
                   <div>
-                    <h3 className="text-base font-bold text-[var(--text-main)] font-heading">{m.user.fullName || "Unnamed Member"}</h3>
-                    <p className="text-xs text-[var(--text-secondary)]">{m.user.email}</p>
-                    <p className="text-xs text-[var(--text-secondary)] font-mono">{m.user.phone || "No phone added"}</p>
+                    <h3 className="text-base font-bold text-[var(--text-main)] font-heading">
+                      {m.user.fullName || "Unnamed Member"}
+                    </h3>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      {m.user.email}
+                    </p>
+                    <p className="text-xs text-[var(--text-secondary)] font-mono">
+                      {m.user.phone || "No phone added"}
+                    </p>
                   </div>
                 </div>
 
                 {/* Health Metrics */}
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs pt-4 border-t border-[var(--border-light)]">
                   <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
-                    <span className="text-[var(--text-secondary)] block text-[10px]">Blood Group</span>
-                    <span className="font-bold text-rose-500">{m.user.bloodGroup || "Not Set"}</span>
+                    <span className="text-[var(--text-secondary)] block text-[10px]">
+                      Blood Group
+                    </span>
+                    <span className="font-bold text-rose-500">
+                      {m.user.bloodGroup || "Not Set"}
+                    </span>
                   </div>
                   <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
-                    <span className="text-[var(--text-secondary)] block text-[10px]">Gender</span>
-                    <span className="font-semibold text-[var(--text-main)]">{m.user.gender || "Not Set"}</span>
+                    <span className="text-[var(--text-secondary)] block text-[10px]">
+                      Gender
+                    </span>
+                    <span className="font-semibold text-[var(--text-main)]">
+                      {m.user.gender || "Not Set"}
+                    </span>
                   </div>
                 </div>
 
