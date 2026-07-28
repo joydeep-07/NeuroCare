@@ -67,9 +67,9 @@ const DoctorSearch = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 md:py-12 space-y-8">
+    <div className="max-w-8xl mx-auto px-12 py-8 md:py-12 space-y-8">
       {/* Hero Header */}
-      <div className="relative rounded-3xl p-8 md:p-12 bg-gradient-to-r from-cyan-900 via-blue-900 to-indigo-950 text-white shadow-2xl overflow-hidden">
+      <div className="relative rounded-lg p-8 md:p-12 bg-gradient-to-r from-cyan-900 via-blue-900 to-indigo-950 text-white shadow-2xl overflow-hidden">
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl" />
         <div className="relative z-10 max-w-2xl">
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 text-xs font-semibold uppercase tracking-wider mb-4">
@@ -85,8 +85,8 @@ const DoctorSearch = () => {
       </div>
 
       {/* Search & Specialty Bar */}
-      <div className="p-6 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] shadow-lg space-y-6">
-        <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-4">
+      <div className="p-6 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] shadow-lg space-y-6">
+        <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-2">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={20} />
             <input
@@ -94,12 +94,12 @@ const DoctorSearch = () => {
               placeholder="Search by doctor name, symptoms (e.g. migraine, chest pain), or hospital..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)] transition-all"
+              className="w-full pl-12 pr-4 py-3.5 rounded-l-full rounded-r-sm border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)] transition-all"
             />
           </div>
           <button
             type="submit"
-            className="px-8 py-3.5 rounded-2xl bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition-all"
+            className="px-8 py-3.5 rounded-r-sm bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition-all"
           >
             Search Doctors
           </button>
