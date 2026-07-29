@@ -87,7 +87,7 @@ const DoctorSearch = () => {
       </div>
 
       {/* Search & Specialty Bar */}
-      <div className="p-6 rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] shadow-lg space-y-6">
+      <div className="p-6 space-y-6">
         <form
           onSubmit={handleSearchSubmit}
           className="flex flex-col md:flex-row gap-2"
@@ -102,12 +102,12 @@ const DoctorSearch = () => {
               placeholder="Search by doctor name, symptoms (e.g. migraine, chest pain), or hospital..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-l-full rounded-r-sm border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)] transition-all"
+              className="w-full pl-12 pr-4 py-3.5 rounded-sm border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)] transition-all"
             />
           </div>
           <button
             type="submit"
-            className="px-8 py-3.5 rounded-r-sm bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition-all"
+            className="px-8 py-3.5 rounded-sm bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 shadow-md shadow-blue-500/20 transition-all"
           >
             Search Doctors
           </button>
@@ -119,10 +119,10 @@ const DoctorSearch = () => {
             <button
               key={spec}
               onClick={() => setSelectedSpecialty(spec)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-sm text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedSpecialty === spec
                   ? "bg-[var(--accent-primary)] text-white shadow-sm"
-                  : "bg-[var(--bg-main)] text-[var(--text-secondary)] border border-[var(--border-light)] hover:text-[var(--text-main)]"
+                  : "bg-[var(--bg-main)] text-[var(--text-secondary)] border border-[var(--border-light)]/50 hover:text-[var(--text-main)]"
               }`}
             >
               {spec}
@@ -138,7 +138,7 @@ const DoctorSearch = () => {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-64 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)] animate-pulse"
+                className="h-64 rounded-3xl bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 animate-pulse"
               />
             ))}
           </div>
@@ -161,7 +161,7 @@ const DoctorSearch = () => {
             {doctors.map((doctor) => (
               <div
                 key={doctor._id}
-                className="group rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 p-6 shadow-sm hover:shadow-xl hover:border-[var(--accent-primary)]/40 transition-all flex flex-col justify-between"
+                className="group rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 p-6 shadow-sm hover:shadow-xl hover:border-[var(--text-main)]/10 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex gap-4 items-center mb-4">
