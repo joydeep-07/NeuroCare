@@ -13,7 +13,6 @@ import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 import AppointmentForm from "./AppointmentForm";
 
-
 interface Doctor {
   _id: string;
   fullName: string;
@@ -88,24 +87,12 @@ const AllDoctors = () => {
     >
       <div className="px-4 md:px-12 py-8 md:py-12 space-y-8">
         {/* Hero Header */}
-        <div
-          className="relative rounded-lg p-8 md:p-12 shadow-xl overflow-hidden border transition-colors duration-300"
-          style={{
-            backgroundColor: "var(--card-bg)",
-            borderColor: "var(--border-light)",
-          }}
-        >
-          <div
-            className="absolute -right-20 -top-20 w-80 h-80 opacity-10 rounded-full blur-3xl pointer-events-none"
-            style={{ backgroundColor: "var(--accent-primary)" }}
-          />
-          <div className="relative z-10 max-w-2xl">
+        <div className="relative overflow-hidden transition-colors duration-300">
+          <div className="relative z-10 max-w-3xl">
             <span
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 border"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 "
               style={{
-                backgroundColor: "var(--surface-hover)",
                 color: "var(--accent-primary)",
-                borderColor: "var(--border-light)",
               }}
             >
               <Stethoscope size={14} /> Certified Specialists
@@ -114,16 +101,8 @@ const AllDoctors = () => {
               className="text-3xl md:text-5xl font-light mb-4 leading-tight"
               style={{ color: "var(--text-main)" }}
             >
-              Discover Top Doctors & Request Appointments
+              Discover Top Doctors & Request For Early Appointments
             </h1>
-            <p
-              className="text-xs md:text-sm leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Search qualified healthcare experts by symptoms, medical
-              specialty, hospital, or city. Submit your request for swift
-              administrative confirmation.
-            </p>
           </div>
         </div>
 
@@ -212,11 +191,7 @@ const AllDoctors = () => {
             </div>
           ) : doctors.length === 0 ? (
             <div
-              className="text-center py-16 p-8 rounded-lg border"
-              style={{
-                backgroundColor: "var(--card-bg)",
-                borderColor: "var(--border-light)",
-              }}
+              className="text-center py-16 p-8 "
             >
               <Stethoscope
                 size={48}
@@ -397,7 +372,7 @@ const AllDoctors = () => {
                     className="text-xs"
                     style={{ color: "var(--text-secondary)" }}
                   >
-                  {selectedDoctorForBooking.fullName}
+                    {selectedDoctorForBooking.fullName}
                   </p>
                 </div>
                 <button
@@ -424,7 +399,6 @@ const AllDoctors = () => {
                   }}
                   embedded={true}
                 />
-              
               </div>
             </motion.div>
           </div>
