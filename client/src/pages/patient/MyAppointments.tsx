@@ -11,11 +11,13 @@ import {
   XCircle,
   Ban,
   Stethoscope,
+  ChevronDown,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import { Link } from "react-router-dom";
-import {formatDate} from '../../hooks/useDate'
+import { formatDate } from "../../hooks/useDate";
 
 interface Appointment {
   _id: string;
@@ -87,6 +89,7 @@ const statusBadgeStyles: Record<string, string> = {
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const fetchAppointments = async () => {
     try {
@@ -106,7 +109,8 @@ const MyAppointments = () => {
     fetchAppointments();
   }, []);
 
-  const handleCancel = async (id: string) => {
+  const handleCancel = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     if (
       !window.confirm(
         "Are you sure you want to cancel this appointment request?",
@@ -122,6 +126,10 @@ const MyAppointments = () => {
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to cancel appointment.");
     }
+  };
+
+  const toggleAccordion = (id: string) => {
+    setOpenId(openId === id ? null : id);
   };
 
   return (
@@ -155,7 +163,7 @@ const MyAppointments = () => {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="h-44 rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 animate-pulse"
+              className="h-24 rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 animate-pulse"
             />
           ))}
         </div>
@@ -179,166 +187,208 @@ const MyAppointments = () => {
           </Link>
         </div>
       ) : (
-        <div className="space-y-6">
-          {appointments.map((appt) => (
-            <div
-              key={appt._id}
-              className="rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 p-6 md:p-8 shadow-sm hover:shadow-lg transition-all space-y-6"
-            >
-              {/* Top Row: Doctor Info & Status */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-[var(--border-light)]/50">
-                <div className="flex gap-4 items-center">
-                  <img
-                    src={appt.doctor.avatar}
-                    alt={appt.doctor.fullName}
-                    className="w-14 h-14 rounded-full object-top object-cover border border-[var(--border-light)]/50"
-                  />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-[var(--text-main)] font-heading">
-                        {appt.doctor.fullName}
-                      </h3>
-                      <span className="text-xs text-[var(--text-secondary)] font-mono">
-                        ({appt.appointmentId})
-                      </span>
-                    </div>
-                    <p className="text-xs font-semibold text-[var(--accent-primary)]">
-                      {appt.doctor.specialization} • {appt.hospital}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border ${
-                      statusBadgeStyles[appt.status] ||
-                      "bg-gray-500/10 text-gray-600"
-                    }`}
-                  >
-                    ● {appt.status}
-                  </span>
-
-                  {(appt.status === "Pending Approval" ||
-                    appt.status === "Requested") && (
-                    <button
-                      onClick={() => handleCancel(appt._id)}
-                      className="px-3.5 py-1.5 rounded-sm border border-red-500/30 text-red-500 text-xs font-semibold hover:bg-red-500/10 transition-all"
-                    >
-                      Cancel Request
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Middle Row: Schedule Details & Mode */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div className="p-4 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50 space-y-1">
-                  <span className="text-[var(--text-secondary)] block">
-                    Confirmed Date & Time
-                  </span>
-                  <div className="flex items-center gap-2 text-[var(--text-main)] font-semibold">
-                    <Calendar
-                      size={14}
-                      className="text-[var(--accent-primary)]"
+        <div className="space-y-4">
+          {appointments.map((appt) => {
+            const isOpen = openId === appt._id;
+            return (
+              <div
+                key={appt._id}
+                className="rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 shadow-sm transition-all overflow-hidden"
+              >
+                {/* Accordion Header (Always Visible: Doctor Data & Status) */}
+                <div
+                  onClick={() => toggleAccordion(appt._id)}
+                  className="p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 cursor-pointer hover:bg-[var(--card-bg)] transition-all"
+                >
+                  <div className="flex gap-4 items-center">
+                    <img
+                      src={appt.doctor.avatar}
+                      alt={appt.doctor.fullName}
+                      className="w-14 h-14 rounded-full object-top object-cover border border-[var(--border-light)]/50"
                     />
-                    <span>
-                      {appt.confirmedDate
-                        ? `${formatDate(appt.confirmedDate)} at ${appt.confirmedTime}`
-                        : "Pending Admin Assignment"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50 space-y-1">
-                  <span className="text-[var(--text-secondary)] block">
-                    Consultation Mode
-                  </span>
-                  <div className="flex items-center gap-2 text-[var(--text-main)] font-semibold">
-                    {appt.consultationMode === "Video Consultation" ? (
-                      <Video size={14} className="text-cyan-500" />
-                    ) : (
-                      <MapPin size={14} className="text-emerald-500" />
-                    )}
-                    <span>{appt.consultationMode}</span>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50 space-y-1">
-                  <span className="text-[var(--text-secondary)] block">
-                    Patient
-                  </span>
-                  <div className="flex items-center gap-2 text-[var(--text-main)] font-semibold">
-                    <UserCheck
-                      size={14}
-                      className="text-[var(--accent-primary)]"
-                    />
-                    <span>
-                      {appt.familyMember
-                        ? `Family Member: ${appt.familyMember.fullName} (${appt.familyMember.relationship})`
-                        : "Self"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Symptoms & Reason */}
-              <div className="text-xs space-y-1">
-                <span className="text-[var(--text-secondary)] font-semibold uppercase tracking-wider block">
-                  Reported Symptoms:
-                </span>
-                <p className="text-[var(--text-main)] bg-[var(--bg-main)]/50 p-3 rounded-sm border border-[var(--border-light)]/50">
-                  {appt.symptoms}
-                </p>
-              </div>
-
-              {/* Admin Instructions (if assigned) */}
-              {appt.adminInstructions && (
-                <div className="p-4 rounded-sm bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                  <span className="font-bold flex items-center gap-1.5">
-                    <AlertCircle size={14} /> Hospital Admin Instructions:
-                  </span>
-                  <p>{appt.adminInstructions}</p>
-                </div>
-              )}
-
-              {/* Doctor Diagnosis & Prescription (if completed) */}
-              {appt.status === "Completed" && (
-                <div className="p-5 rounded-sm bg-emerald-500/10 border border-emerald-500/20 space-y-3 text-xs">
-                  <h4 className="font-bold text-emerald-700 dark:text-emerald-300 text-sm flex items-center gap-2">
-                    <CheckCircle2 size={16} /> Consultation Completed
-                  </h4>
-                  {appt.diagnosis && (
                     <div>
-                      <span className="font-semibold text-[var(--text-secondary)]">
-                        Clinical Diagnosis:
-                      </span>
-                      <p className="text-[var(--text-main)] font-medium mt-0.5">
-                        {appt.diagnosis}
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-[var(--text-main)] font-heading">
+                          {appt.doctor.fullName}
+                        </h3>
+                        <span className="text-xs text-[var(--text-secondary)] font-mono">
+                          ({appt.appointmentId})
+                        </span>
+                      </div>
+                      <p className="text-xs font-semibold text-[var(--accent-primary)]">
+                        {appt.doctor.specialization} • {appt.hospital}
                       </p>
                     </div>
-                  )}
-                  {appt.prescription && appt.prescription.length > 0 && (
-                    <div>
-                      <span className="font-semibold text-[var(--text-secondary)]">
-                        Prescribed Medicines:
-                      </span>
-                      <ul className="mt-1 space-y-1">
-                        {appt.prescription.map((p, idx) => (
-                          <li
-                            key={idx}
-                            className="bg-[var(--card-bg)]/50 p-2 rounded-sm border border-emerald-500/20 text-[var(--text-main)] font-mono"
-                          >
-                            💊 <strong>{p.medicine}</strong> - {p.dosage} (
-                            {p.frequency}) for {p.duration}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                    <span
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border ${
+                        statusBadgeStyles[appt.status] ||
+                        "bg-gray-500/10 text-gray-600"
+                      }`}
+                    >
+                      ● {appt.status}
+                    </span>
+
+                    {(appt.status === "Pending Approval" ||
+                      appt.status === "Requested") && (
+                      <button
+                        onClick={(e) => handleCancel(e, appt._id)}
+                        className="px-3.5 py-1.5 rounded-sm border border-red-500/30 text-red-500 text-xs font-semibold hover:bg-red-500/10 transition-all"
+                      >
+                        Cancel Request
+                      </button>
+                    )}
+
+                    <motion.div
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                    >
+                      <ChevronDown
+                        size={18}
+                        className="text-[var(--text-secondary)]"
+                      />
+                    </motion.div>
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Accordion Content with Framer Motion Animation */}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: [0.04, 0.62, 0.23, 0.98],
+                      }}
+                    >
+                      <div className="px-6 pb-6 md:px-8 md:pb-8 pt-2 border-t border-[var(--border-light)]/50 space-y-6">
+                        {/* Middle Row: Schedule Details & Mode */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-4">
+                          <div className="p-4 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50 space-y-1">
+                            <span className="text-[var(--text-secondary)] block">
+                              Confirmed Date & Time
+                            </span>
+                            <div className="flex items-center gap-2 text-[var(--text-main)] font-semibold">
+                              <Calendar
+                                size={14}
+                                className="text-[var(--accent-primary)]"
+                              />
+                              <span>
+                                {appt.confirmedDate
+                                  ? `${formatDate(appt.confirmedDate)} at ${
+                                      appt.confirmedTime
+                                    }`
+                                  : "Pending Admin Assignment"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="p-4 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50 space-y-1">
+                            <span className="text-[var(--text-secondary)] block">
+                              Consultation Mode
+                            </span>
+                            <div className="flex items-center gap-2 text-[var(--text-main)] font-semibold">
+                              {appt.consultationMode ===
+                              "Video Consultation" ? (
+                                <Video size={14} className="text-cyan-500" />
+                              ) : (
+                                <MapPin
+                                  size={14}
+                                  className="text-emerald-500"
+                                />
+                              )}
+                              <span>{appt.consultationMode}</span>
+                            </div>
+                          </div>
+
+                          <div className="p-4 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50 space-y-1">
+                            <span className="text-[var(--text-secondary)] block">
+                              Patient
+                            </span>
+                            <div className="flex items-center gap-2 text-[var(--text-main)] font-semibold">
+                              <UserCheck
+                                size={14}
+                                className="text-[var(--accent-primary)]"
+                              />
+                              <span>
+                                {appt.familyMember
+                                  ? `Family Member: ${appt.familyMember.fullName} (${appt.familyMember.relationship})`
+                                  : "Self"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Symptoms & Reason */}
+                        <div className="text-xs space-y-1">
+                          <span className="text-[var(--text-secondary)] font-semibold uppercase tracking-wider block">
+                            Reported Symptoms:
+                          </span>
+                          <p className="text-[var(--text-main)] bg-[var(--bg-main)]/50 p-3 rounded-sm border border-[var(--border-light)]/50">
+                            {appt.symptoms}
+                          </p>
+                        </div>
+
+                        {/* Admin Instructions (if assigned) */}
+                        {appt.adminInstructions && (
+                          <div className="p-4 rounded-sm bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                            <span className="font-bold flex items-center gap-1.5">
+                              <AlertCircle size={14} /> Hospital Admin
+                              Instructions:
+                            </span>
+                            <p>{appt.adminInstructions}</p>
+                          </div>
+                        )}
+
+                        {/* Doctor Diagnosis & Prescription (if completed) */}
+                        {appt.status === "Completed" && (
+                          <div className="p-5 rounded-sm bg-emerald-500/10 border border-emerald-500/20 space-y-3 text-xs">
+                            <h4 className="font-bold text-emerald-700 dark:text-emerald-300 text-sm flex items-center gap-2">
+                              <CheckCircle2 size={16} /> Consultation Completed
+                            </h4>
+                            {appt.diagnosis && (
+                              <div>
+                                <span className="font-semibold text-[var(--text-secondary)]">
+                                  Clinical Diagnosis:
+                                </span>
+                                <p className="text-[var(--text-main)] font-medium mt-0.5">
+                                  {appt.diagnosis}
+                                </p>
+                              </div>
+                            )}
+                            {appt.prescription &&
+                              appt.prescription.length > 0 && (
+                                <div>
+                                  <span className="font-semibold text-[var(--text-secondary)]">
+                                    Prescribed Medicines:
+                                  </span>
+                                  <ul className="mt-1 space-y-1">
+                                    {appt.prescription.map((p, idx) => (
+                                      <li
+                                        key={idx}
+                                        className="bg-[var(--card-bg)]/50 p-2 rounded-sm border border-emerald-500/20 text-[var(--text-main)] font-mono"
+                                      >
+                                        💊 <strong>{p.medicine}</strong> -{" "}
+                                        {p.dosage} ({p.frequency}) for{" "}
+                                        {p.duration}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
