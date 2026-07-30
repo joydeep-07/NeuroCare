@@ -23,6 +23,11 @@
   font-family: roboto, system-ui, sans-serif;
 }
 
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
 body {
   background-color: var(--bg-main);
   color: var(--text-main);

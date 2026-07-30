@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 
 import "./index.css";
 import "./themevariables.css";
+import "lenis/dist/lenis.css";
 
 import App from "./App";
 import { store } from "./redux/store";

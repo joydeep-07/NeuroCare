@@ -398,7 +398,10 @@ const AiAssistant = () => {
         )}
 
         {/* Chat Messages Body */}
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 pb-24">
+        <div
+          data-lenis-prevent-wheel
+          className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 pb-24"
+        >
           {messages.map((msg) => (
             <div
               key={msg.id}
