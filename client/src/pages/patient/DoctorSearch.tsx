@@ -143,7 +143,7 @@ const DoctorSearch = () => {
             ))}
           </div>
         ) : doctors.length === 0 ? (
-          <div className="text-center py-16 p-8 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-light)]">
+          <div className="text-center py-16 p-8">
             <Stethoscope
               size={48}
               className="mx-auto text-[var(--text-secondary)] mb-4"

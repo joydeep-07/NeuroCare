@@ -241,7 +241,7 @@ const UserDetails = () => {
 
                 <div className="mt-6 flex justify-center">
                   <button
-                    onClick={() => navigate("/profile")}
+                    onClick={() => navigate("/members")}
                     className="h-12 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)]/50 px-8 text-sm font-medium transition-all duration-300 hover:bg-[var(--bg-main)]"
                   >
                     Manage your NeuroCare Account

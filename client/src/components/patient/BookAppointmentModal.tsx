@@ -34,7 +34,7 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
   const [symptoms, setSymptoms] = useState("");
   const [reason, setReason] = useState("");
   const [requestedDate, setRequestedDate] = useState(
-    new Date(Date.now() + 86400000).toISOString().split("T")[0]
+    new Date(Date.now() + 86400000).toISOString().split("T")[0],
   );
   const [preferredTime, setPreferredTime] = useState("");
   const [familyMemberId, setFamilyMemberId] = useState("");
@@ -44,8 +44,12 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const selectedDay = new Date(`${requestedDate}T00:00:00`).toLocaleDateString("en-US", { weekday: "long" });
-  const availableSlots = doctor.availability?.find((item) => item.day === selectedDay)?.slots || [];
+  const selectedDay = new Date(`${requestedDate}T00:00:00`).toLocaleDateString(
+    "en-US",
+    { weekday: "long" },
+  );
+  const availableSlots =
+    doctor.availability?.find((item) => item.day === selectedDay)?.slots || [];
 
   useEffect(() => {
     setPreferredTime(availableSlots[0] || "");
@@ -68,7 +72,9 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!symptoms.trim() || !preferredTime) {
-      setErrorMsg("Please describe your symptoms and select an available time slot.");
+      setErrorMsg(
+        "Please describe your symptoms and select an available time slot.",
+      );
       return;
     }
 
@@ -77,7 +83,12 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
       setErrorMsg("");
 
       const uploadedReports = reportUrl
-        ? [{ title: reportTitle || "Attached Medical Record", fileUrl: reportUrl }]
+        ? [
+            {
+              title: reportTitle || "Attached Medical Record",
+              fileUrl: reportUrl,
+            },
+          ]
         : [];
 
       const res = await api.post(ENDPOINTS.APPOINTMENT.BOOK, {
@@ -91,12 +102,16 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
       });
 
       if (res.data.success) {
-        alert("Appointment request submitted! Status: Pending Approval. Our Admin team will assign your exact appointment time slot.");
+        alert(
+          "Appointment request submitted! Status: Pending Approval. Our Admin team will assign your exact appointment time slot.",
+        );
         onSuccess();
         onClose();
       }
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.message || "Failed to submit appointment request.");
+      setErrorMsg(
+        err.response?.data?.message || "Failed to submit appointment request.",
+      );
     } finally {
       setLoading(false);
     }
