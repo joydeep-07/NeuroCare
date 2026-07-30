@@ -111,16 +111,27 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
             <div className="flex items-center gap-2 text-cyan-200 text-xs font-semibold uppercase tracking-wider mb-1">
               <Stethoscope size={16} /> Request Appointment
             </div>
-            <h2 className="text-xl font-bold font-heading">{doctor.fullName}</h2>
-            <p className="text-sm text-cyan-100/90">{doctor.specialization} • {doctor.hospital}</p>
+            <h2 className="text-xl font-bold font-heading">
+              {doctor.fullName}
+            </h2>
+            <p className="text-sm text-cyan-100/90">
+              {doctor.specialization} • {doctor.hospital}
+            </p>
           </div>
-          <button onClick={onClose} className="p-1 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white">
+          <button
+            onClick={onClose}
+            className="p-1 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white"
+          >
             <X size={20} />
           </button>
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 flex-1">
+        <form
+          data-lenis-prevent-wheel
+          onSubmit={handleSubmit}
+          className="p-6 overflow-y-auto space-y-5 flex-1"
+        >
           {errorMsg && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium flex items-center gap-2">
               <AlertCircle size={16} />
@@ -129,7 +140,10 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
           )}
 
           <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-[var(--text-main)]">
-            ℹ️ <strong>Admin-Managed Scheduling Workflow</strong>: Your request will be stored with status <strong>Pending Approval</strong>. Hospital Admin will confirm the exact time slot, consultation mode, and instructions.
+            ℹ️ <strong>Admin-Managed Scheduling Workflow</strong>: Your request
+            will be stored with status <strong>Pending Approval</strong>.
+            Hospital Admin will confirm the exact time slot, consultation mode,
+            and instructions.
           </div>
 
           {/* Book For Whom */}
@@ -145,7 +159,8 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
               <option value="">Myself (Account Holder)</option>
               {familyMembers.map((m) => (
                 <option key={m._id} value={m.user?._id || m._id}>
-                  Family Member: {m.user?.fullName || "Member"} ({m.relationship})
+                  Family Member: {m.user?.fullName || "Member"} (
+                  {m.relationship})
                 </option>
               ))}
             </select>
@@ -154,7 +169,8 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
           {/* Symptoms Description */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
-              Primary Symptoms / Medical Reason <span className="text-red-500">*</span>
+              Primary Symptoms / Medical Reason{" "}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               rows={3}
@@ -178,7 +194,7 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
               onChange={(e) => setRequestedDate(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm outline-none focus:border-[var(--accent-primary)]"
             />
-            </div>
+          </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
@@ -194,7 +210,11 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
               {availableSlots.length === 0 ? (
                 <option value="">No slots available on {selectedDay}</option>
               ) : (
-                availableSlots.map((slot) => <option key={slot} value={slot}>{slot}</option>)
+                availableSlots.map((slot) => (
+                  <option key={slot} value={slot}>
+                    {slot}
+                  </option>
+                ))
               )}
             </select>
           </div>
@@ -224,8 +244,12 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
 
           {/* Consultation Fee Note */}
           <div className="flex justify-between items-center p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-light)] text-sm">
-            <span className="text-[var(--text-secondary)]">Consultation Fee:</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400 text-base">₹{doctor.consultationFee}</span>
+            <span className="text-[var(--text-secondary)]">
+              Consultation Fee:
+            </span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400 text-base">
+              ₹{doctor.consultationFee}
+            </span>
           </div>
 
           <div className="flex gap-3 pt-2">
