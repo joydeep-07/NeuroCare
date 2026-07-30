@@ -20,7 +20,7 @@ const Navbar = () => {
     if (!isAuthenticated || !user) {
       return [
         { name: "Home", path: "/" },
-        { name: "Find Doctors", path: "/doctors" },
+        // { name: "Find Doctors", path: "/doctors" },
         { name: "AI Assistant", path: "/ai-assistant" },
       ];
     }
@@ -45,7 +45,7 @@ const Navbar = () => {
     // Default: Patient role
     return [
       { name: "Home", path: "/" },
-      { name: "Find Doctors", path: "/doctors" },
+      // { name: "Find Doctors", path: "/doctors" },
       { name: "My Appointments", path: "/appointments" },
       { name: "Medical Records", path: "/records" },
       { name: "Family Members", path: "/members" },
@@ -104,10 +104,10 @@ const Navbar = () => {
                 <NavLink
                   to={route.path}
                   className={({ isActive }) =>
-                    `text-sm font-medium transition-all duration-200 px-3 py-1.5 rounded-lg ${
+                    `text-[13px] transition-all duration-200 px-3 py-1.5 rounded-lg ${
                       isActive
-                        ? "text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 font-semibold"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)]"
+                        ? "text-[var(--accent-primary)] font-semibold"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-main)]"
                     }`
                   }
                 >

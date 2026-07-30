@@ -15,7 +15,7 @@ const Home = () => {
         }}
       >
         {/* Navbar */}
-        <nav className="flex items-center justify-between px-6 md:px-12 py-4 text-sm transition-colors duration-300">
+        <nav className="hidden md:flex items-center justify-between px-6 md:px-12 py-4 text-sm transition-colors duration-300">
           <div className="flex items-center gap-8">
             <div className="px-3 py-1 flex justify-center items-center gap-3 font-bold tracking-wider rounded-sm text-sm">
               <FiPhone style={{ color: "var(--accent-primary)" }} />
@@ -69,15 +69,15 @@ const Home = () => {
           </div>
 
           {/* Hero Image with Floating Cards */}
-          <div className="relative w-full pb-16 md:pb-12">
+          <div className="relative w-full">
             <img
-              className="w-full h-[500px] md:h-[580px] object-cover object-top rounded-lg shadow-lg"
+              className="w-full h-[260px] sm:h-[360px] md:h-[580px] object-cover object-top rounded-lg shadow-lg"
               src="ban.jpg"
               alt="Doctor and Patient consultation"
             />
 
             {/* Floating Action Cards */}
-            <div className="absolute -bottom-6 left-4 right-4 md:left-8 md:right-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative mt-4 grid grid-cols-1 gap-4 md:absolute md:-bottom-16 md:left-8 md:right-8 md:mt-0 md:grid-cols-3">
               <div
                 className="p-5 rounded-lg border flex justify-between items-start transition-all shadow-md"
                 style={{
@@ -339,7 +339,7 @@ const Home = () => {
         </div>
       </div>
 
-     <AllDoctors/>
+      <AllDoctors />
     </>
   );
 };
