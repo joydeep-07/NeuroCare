@@ -107,7 +107,10 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
   return (
     <AnimatePresence>
       {show && (
-        <div data-lenis-prevent className="fixed h-screen inset-0 z-50 overflow-hidden">
+        <div
+          data-lenis-prevent
+          className="fixed h-screen inset-0 z-50 overflow-hidden"
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -230,6 +233,19 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
+                </div>
+
+                {/* Added Date of Birth Input Field */}
+                <div>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
+                  />
                 </div>
 
                 <div>

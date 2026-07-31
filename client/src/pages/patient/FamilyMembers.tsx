@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Users, UserPlus, Link2, Trash2, Edit3, User } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  Link2,
+  Trash2,
+  Edit3,
+  User,
+  Calendar,
+} from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import FamilyMemberForm from "../../components/FamilyMemberForm";
@@ -121,6 +129,39 @@ const FamilyMembers = () => {
     }
   };
 
+  // Helper function to calculate exact age (years, months, days)
+  const calculateAge = (dobString: string) => {
+    if (!dobString) return "Not Provided";
+    const dob = new Date(dobString);
+    const today = new Date();
+
+    if (isNaN(dob.getTime())) return "Invalid Date";
+
+    let years = today.getFullYear() - dob.getFullYear();
+    let months = today.getMonth() - dob.getMonth();
+    let days = today.getDate() - dob.getDate();
+
+    if (days < 0) {
+      months--;
+      // Get number of days in the previous month
+      const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    if (years === 0 && months === 0) {
+      return `${days} day${days !== 1 ? "s" : ""} old`;
+    } else if (years === 0) {
+      return `${months} mo ${days} d`;
+    }
+
+    return `${years} yrs ${months} mos`;
+  };
+
   return (
     <div className="max-w-8xl mx-auto px-12 py-8 md:py-4 md:pb-10 space-y-8">
       {/* Header Banner */}
@@ -228,8 +269,16 @@ const FamilyMembers = () => {
                   </div>
                 </div>
 
-                {/* Health Metrics */}
-                <div className="mt-4 grid grid-cols-2 gap-2 text-xs pt-4 border-t border-[var(--border-light)]">
+                {/* Exact Age & Health Metrics */}
+                <div className="mt-4 grid grid-cols-3 gap-2 text-xs pt-4 border-t border-[var(--border-light)]">
+                  <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
+                    <span className="text-[var(--text-secondary)] block text-[10px] flex items-center gap-1">
+                      <Calendar size={10} /> Age
+                    </span>
+                    <span className="font-semibold text-[var(--text-main)]">
+                      {calculateAge(m.user.dateOfBirth)}
+                    </span>
+                  </div>
                   <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
                     <span className="text-[var(--text-secondary)] block text-[10px]">
                       Blood Group
