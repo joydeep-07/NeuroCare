@@ -155,7 +155,7 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
       {/* Prescribed Medicines */}
       <div className="space-y-3">
         <h4 className="font-bold font-heading text-sm flex items-center gap-1.5 text-[var(--text-main)] border-b border-[var(--border-light)]/50 pb-2">
-          <Pill size={14} className="text-[var(--accent-primary)]" /> Rx -
+          <Pill size={14} className="text-[var(--accent-primary)]" />
           Prescribed Medicines
         </h4>
 
