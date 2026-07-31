@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Search,
   Stethoscope,
@@ -7,8 +7,11 @@ import {
   Calendar,
   ArrowRight,
   X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 import AppointmentForm from "./AppointmentForm";
@@ -46,12 +49,16 @@ const AllDoctors = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("All Specialties");
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const [selectedDoctorForBooking, setSelectedDoctorForBooking] =
     useState<Doctor | null>(null);
+
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
+      setShowAll(false); // Reset show all on new search/filter
       const params: any = {};
       if (searchQuery.trim()) params.query = searchQuery;
       if (selectedSpecialty !== "All Specialties")
@@ -77,6 +84,25 @@ const AllDoctors = () => {
     fetchDoctors();
   };
 
+  // GSAP animation when toggling "Show All" / "Show Less"
+  const handleToggleShowAll = () => {
+    const nextState = !showAll;
+    setShowAll(nextState);
+
+    if (nextState && gridRef.current) {
+      setTimeout(() => {
+        gsap.fromTo(
+          gridRef.current?.querySelectorAll(".doctor-card-extra") || [],
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, stagger: 0.1, duration: 0.4, ease: "power2.out" }
+        );
+      }, 50);
+    }
+  };
+
+  // Sliced list for default vs expanded view
+  const displayedDoctors = showAll ? doctors : doctors.slice(0, 3);
+
   return (
     <div
       className="min-h-screen font-sans transition-colors duration-300"
@@ -90,7 +116,7 @@ const AllDoctors = () => {
         <div className="relative overflow-hidden transition-colors duration-300">
           <div className="relative z-10 max-w-3xl">
             <span
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 "
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4"
               style={{
                 color: "var(--accent-primary)",
               }}
@@ -190,9 +216,7 @@ const AllDoctors = () => {
               ))}
             </div>
           ) : doctors.length === 0 ? (
-            <div
-              className="text-center py-16 p-8 "
-            >
+            <div className="text-center py-16 p-8">
               <Stethoscope
                 size={48}
                 className="mx-auto mb-4"
@@ -213,115 +237,152 @@ const AllDoctors = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {doctors.map((doctor) => (
-                <div
-                  key={doctor._id}
-                  className="group rounded-lg border p-6 shadow-sm transition-all flex flex-col justify-between"
-                  style={{
-                    backgroundColor: "var(--card-bg)",
-                    borderColor: "var(--border-light)",
-                  }}
-                >
-                  <div>
-                    <div className="flex gap-4 items-center mb-4">
-                      <img
-                        src={
-                          doctor.avatar ||
-                          "https://i.pinimg.com/1200x/5d/90/30/5d90305c3e338f4b17a52fd8dccf83b8.jpg"
-                        }
-                        alt={doctor.fullName}
-                        className="w-16 h-16 rounded-full object-top object-cover border shadow-xs"
-                        style={{ borderColor: "var(--border-light)" }}
-                      />
-                      <div className="flex-1">
-                        <h3
-                          className="text-xl font-semibold leading-snug"
-                          style={{ color: "var(--text-main)" }}
-                        >
-                          {doctor.fullName}
-                        </h3>
-                        <p
-                          className="text-xs font-semibold mt-0.5"
-                          style={{ color: "var(--accent-primary)" }}
-                        >
-                          {doctor.specialization}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p
-                      className="text-xs mb-4 line-clamp-3 text-justify leading-relaxed"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {doctor.biography}
-                    </p>
-
-                    <div
-                      className="space-y-2 text-xs mb-6 pt-3 border-t"
-                      style={{
-                        borderColor: "var(--border-light)",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Building
-                          size={14}
-                          className="shrink-0"
-                          style={{ color: "var(--accent-primary)" }}
-                        />
-                        <span className="truncate">{doctor.hospital}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin
-                          size={14}
-                          className="shrink-0"
-                          style={{ color: "var(--accent-primary)" }}
-                        />
-                        <span>{doctor.location || "New Delhi, India"}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar
-                          size={14}
-                          className="shrink-0"
-                          style={{ color: "var(--accent-primary)" }}
-                        />
-                        <span>{doctor.yearsOfExperience} Years Experience</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className="flex items-center justify-between pt-4 border-t"
-                    style={{ borderColor: "var(--border-light)" }}
+            <div className="space-y-8">
+              <div
+                ref={gridRef}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {displayedDoctors.map((doctor, index) => (
+                  <motion.div
+                    key={doctor._id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className={`group rounded-lg border p-6 shadow-sm transition-all flex flex-col justify-between ${
+                      index >= 3 ? "doctor-card-extra" : ""
+                    }`}
+                    style={{
+                      backgroundColor: "var(--card-bg)",
+                      borderColor: "var(--border-light)",
+                    }}
                   >
                     <div>
-                      <span
-                        className="text-xs block"
+                      <div className="flex gap-4 items-center mb-4">
+                        <img
+                          src={
+                            doctor.avatar ||
+                            "https://i.pinimg.com/1200x/5d/90/30/5d90305c3e338f4b17a52fd8dccf83b8.jpg"
+                          }
+                          alt={doctor.fullName}
+                          className="w-16 h-16 rounded-full object-top object-cover border shadow-xs"
+                          style={{ borderColor: "var(--border-light)" }}
+                        />
+                        <div className="flex-1">
+                          <h3
+                            className="text-xl font-semibold leading-snug"
+                            style={{ color: "var(--text-main)" }}
+                          >
+                            {doctor.fullName}
+                          </h3>
+                          <p
+                            className="text-xs font-semibold mt-0.5"
+                            style={{ color: "var(--accent-primary)" }}
+                          >
+                            {doctor.specialization}
+                          </p>
+                        </div>
+                      </div>
+
+                      <p
+                        className="text-xs mb-4 line-clamp-3 text-justify leading-relaxed"
                         style={{ color: "var(--text-secondary)" }}
                       >
-                        Consultation Fee
-                      </span>
-                      <span
-                        className="text-lg font-bold"
-                        style={{ color: "var(--success)" }}
+                        {doctor.biography}
+                      </p>
+
+                      <div
+                        className="space-y-2 text-xs mb-6 pt-3 border-t"
+                        style={{
+                          borderColor: "var(--border-light)",
+                          color: "var(--text-secondary)",
+                        }}
                       >
-                        ₹{doctor.consultationFee}
-                      </span>
+                        <div className="flex items-center gap-2">
+                          <Building
+                            size={14}
+                            className="shrink-0"
+                            style={{ color: "var(--accent-primary)" }}
+                          />
+                          <span className="truncate">{doctor.hospital}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin
+                            size={14}
+                            className="shrink-0"
+                            style={{ color: "var(--accent-primary)" }}
+                          />
+                          <span>{doctor.location || "New Delhi, India"}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar
+                            size={14}
+                            className="shrink-0"
+                            style={{ color: "var(--accent-primary)" }}
+                          />
+                          <span>{doctor.yearsOfExperience} Years Experience</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <button
-                      onClick={() => setSelectedDoctorForBooking(doctor)}
-                      className="px-5 py-2.5 rounded-sm text-white text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 hover:opacity-90 cursor-pointer"
-                      style={{
-                        backgroundColor: "var(--accent-primary)",
-                      }}
+                    <div
+                      className="flex items-center justify-between pt-4 border-t"
+                      style={{ borderColor: "var(--border-light)" }}
                     >
-                      Request Appointment <ArrowRight size={14} />
-                    </button>
-                  </div>
+                      <div>
+                        <span
+                          className="text-xs block"
+                          style={{ color: "var(--text-secondary)" }}
+                        >
+                          Consultation Fee
+                        </span>
+                        <span
+                          className="text-lg font-bold"
+                          style={{ color: "var(--success)" }}
+                        >
+                          ₹{doctor.consultationFee}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => setSelectedDoctorForBooking(doctor)}
+                        className="px-5 py-2.5 rounded-sm text-white text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 hover:opacity-90 cursor-pointer"
+                        style={{
+                          backgroundColor: "var(--accent-primary)",
+                        }}
+                      >
+                        Request Appointment <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Show More / Show Less Button */}
+              {doctors.length > 3 && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={handleToggleShowAll}
+                    className="px-6 py-2.5 rounded-sm text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-sm hover:opacity-80"
+                    style={{
+                    
+                      color: "var(--text-main)",
+                    }}
+                  >
+                    {showAll ? (
+                      <>
+                        Show Less <ChevronUp size={14} />
+                      </>
+                    ) : (
+                      <>
+                        Show All ({doctors.length - 3} More){" "}
+                        <ChevronDown size={14} />
+                      </>
+                    )}
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>
@@ -389,7 +450,7 @@ const AllDoctors = () => {
               </div>
 
               {/* Drawer Content / Modal Form Injection */}
-              <div className=" flex-1">
+              <div className="flex-1">
                 <AppointmentForm
                   doctor={selectedDoctorForBooking}
                   onClose={() => setSelectedDoctorForBooking(null)}
