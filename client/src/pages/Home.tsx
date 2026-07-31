@@ -65,13 +65,13 @@ const Home = () => {
                 guidance, treatment, and resources to help you achieve your best
                 health.
               </p>
-              <Link
+              <button
                 className="text-xs font-medium flex items-center gap-1 hover:underline transition-all"
                 style={{ color: "var(--accent-primary)" }}
-                to={"/doctors"}
+                onClick={() => scrollToSection("services", 10)}
               >
                 Our Services <span className="text-xs">↗</span>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -179,7 +179,9 @@ const Home = () => {
         </div>
 
         {/* Services Section Preview */}
-       <WhatWeDo/>
+        <div id="services">
+          <WhatWeDo />
+        </div>
       </div>
 
       <div id="doctors">
