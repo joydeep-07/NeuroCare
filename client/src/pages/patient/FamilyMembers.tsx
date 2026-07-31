@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Users, UserPlus, Link2, Trash2, Edit3, User } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
+import FamilyMemberForm from "../../components/FamilyMemberForm";
 
 interface Member {
   _id: string;
@@ -28,22 +29,9 @@ const FamilyMembers = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Form State
+  // Form State Control
   const [showForm, setShowForm] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-
-  const [email, setEmail] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [relationship, setRelationship] = useState("Father");
-  const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState("Male");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [bloodGroup, setBloodGroup] = useState("O+");
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
-  const [illness, setIllness] = useState("");
-  const [notes, setNotes] = useState("");
-
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -67,40 +55,18 @@ const FamilyMembers = () => {
 
   const handleOpenAddForm = () => {
     setEditingMember(null);
-    setEmail("");
-    setFullName("");
-    setRelationship("Father");
-    setPhone("");
-    setGender("Male");
-    setDateOfBirth("");
-    setBloodGroup("O+");
-    setHeight("");
-    setWeight("");
-    setIllness("");
-    setNotes("");
     setFormError("");
     setShowForm(true);
   };
 
   const handleOpenEditForm = (member: Member) => {
     setEditingMember(member);
-    setEmail(member.user.email || "");
-    setFullName(member.user.fullName || "");
-    setRelationship(member.relationship || "Family Member");
-    setPhone(member.user.phone || "");
-    setGender(member.user.gender || "Male");
-    setDateOfBirth(member.user.dateOfBirth ? new Date(member.user.dateOfBirth).toISOString().split("T")[0] : "");
-    setBloodGroup(member.user.bloodGroup || "O+");
-    setHeight(member.user.height ? String(member.user.height) : "");
-    setWeight(member.user.weight ? String(member.user.weight) : "");
-    setIllness(member.user.illness || "");
     setFormError("");
     setShowForm(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
+  const handleSubmit = async (formData: any) => {
+    if (!formData.email) {
       setFormError("Email address is required.");
       return;
     }
@@ -110,41 +76,17 @@ const FamilyMembers = () => {
       setFormError("");
 
       if (editingMember) {
-        // Update
-        const res = await api.put(ENDPOINTS.MEMBER.UPDATE(editingMember._id), {
-          relationship,
-          fullName,
-          phone,
-          gender,
-          dateOfBirth: dateOfBirth || null,
-          bloodGroup,
-          height: height ? Number(height) : null,
-          weight: weight ? Number(weight) : null,
-          illness,
-          notes,
-        });
-
+        const res = await api.put(
+          ENDPOINTS.MEMBER.UPDATE(editingMember._id),
+          formData,
+        );
         if (res.data.success) {
           alert(res.data.message);
           setShowForm(false);
           fetchMembers();
         }
       } else {
-        // Add
-        const res = await api.post(ENDPOINTS.MEMBER.CREATE, {
-          email,
-          fullName,
-          relationship,
-          phone,
-          gender,
-          dateOfBirth: dateOfBirth || null,
-          bloodGroup,
-          height: height ? Number(height) : null,
-          weight: weight ? Number(weight) : null,
-          illness,
-          notes,
-        });
-
+        const res = await api.post(ENDPOINTS.MEMBER.CREATE, formData);
         if (res.data.success) {
           alert(res.data.message);
           setShowForm(false);
@@ -152,14 +94,21 @@ const FamilyMembers = () => {
         }
       }
     } catch (err: any) {
-      setFormError(err.response?.data?.message || "Failed to save family member.");
+      setFormError(
+        err.response?.data?.message || "Failed to save family member.",
+      );
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleRemove = async (id: string) => {
-    if (!window.confirm("Remove this family relationship? Both user accounts will remain intact.")) return;
+    if (
+      !window.confirm(
+        "Remove this family relationship? Both user accounts will remain intact.",
+      )
+    )
+      return;
 
     try {
       const res = await api.delete(ENDPOINTS.MEMBER.DELETE(id));
@@ -192,178 +141,21 @@ const FamilyMembers = () => {
 
         <button
           onClick={handleOpenAddForm}
-          className="px-6 py-3 rounded-2xl bg-[var(--accent-primary)] text-white text-xs font-semibold shadow-md hover:opacity-90 transition-all flex items-center gap-2"
+          className="px-6 py-3 rounded-2xl bg-[var(--accent-primary)] text-white text-xs font-semibold shadow-md hover:opacity-95 transition-all flex items-center gap-2"
         >
           <UserPlus size={16} /> Add Family Member
         </button>
       </div>
 
-      {/* Form Modal */}
-      {showForm && (
-        <div
-          data-lenis-prevent
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-        >
-          <div className="w-full max-w-2xl bg-[var(--card-bg)] rounded-lg border border-[var(--border-light)] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-between items-center">
-              <h2 className="text-xl font-bold font-heading">
-                {editingMember ? "Edit Family Member" : "Add Family Member"}
-              </h2>
-              <button
-                onClick={() => setShowForm(false)}
-                className="text-white hover:opacity-80"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form
-              onSubmit={handleSubmit}
-              className="p-6 overflow-y-auto space-y-4 text-xs"
-            >
-              {formError && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-medium">
-                  {formError}
-                </div>
-              )}
-
-              <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-[var(--text-main)]">
-                💡 <strong>Auto-Link Feature</strong>: If the email matches a
-                registered NeuroCare user, a reciprocal link will be established
-                automatically!
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    disabled={!!editingMember}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="family.member@example.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
-                    Relationship *
-                  </label>
-                  <select
-                    value={relationship}
-                    onChange={(e) => setRelationship(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
-                  >
-                    <option value="Father">Father</option>
-                    <option value="Mother">Mother</option>
-                    <option value="Spouse">Spouse</option>
-                    <option value="Son">Son</option>
-                    <option value="Daughter">Daughter</option>
-                    <option value="Brother">Brother</option>
-                    <option value="Sister">Sister</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Full Name"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
-                    Gender
-                  </label>
-                  <select
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
-                  >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">
-                    Blood Group
-                  </label>
-                  <select
-                    value={bloodGroup}
-                    onChange={(e) => setBloodGroup(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
-                  >
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[var(--text-secondary)] mb-1">
-                  Current Illness / Known Conditions
-                </label>
-                <input
-                  type="text"
-                  value={illness}
-                  onChange={(e) => setIllness(e.target.value)}
-                  placeholder="e.g. Hypertension, Diabetes, Asthma"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)]"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t border-[var(--border-light)]">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-[var(--border-light)] text-[var(--text-main)] font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="flex-1 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white font-semibold"
-                >
-                  {formLoading ? "Saving..." : "Save Member"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Left Drawer Form Component */}
+      <FamilyMemberForm
+        show={showForm}
+        onClose={() => setShowForm(false)}
+        onSubmit={handleSubmit}
+        editingMember={editingMember}
+        formLoading={formLoading}
+        formError={formError}
+      />
 
       {/* Members Grid */}
       {loading ? (
