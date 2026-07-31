@@ -65,19 +65,30 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
     <div className="space-y-6 text-xs text-[var(--text-main)] pb-8">
       {/* Hospital & Doctor Header */}
       <div className="p-4 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50 space-y-1">
-        <span className="text-[var(--accent-primary)] font-semibold tracking-wider uppercase text-[10px] block">
+        <span className="text-[var(--accent-primary)] text-center font-semibold tracking-wider uppercase text-sm block">
           {appointment.doctor.hospital}
         </span>
-        <h3 className="text-base font-bold font-heading text-[var(--text-main)]">
-         {appointment.doctor.fullName}
-        </h3>
-        <p className="text-[var(--text-secondary)]">
-          {appointment.doctor.specialization}
-        </p>
+        <div className="flex justify-between pt-5">
+          <div className="lext">
+            <h3 className="text-base font-bold font-heading text-[var(--text-main)]">
+              {appointment.doctor.fullName}
+            </h3>
+            <p className="text-[var(--text-secondary)]">
+              {appointment.doctor.specialization}
+            </p>
+          </div>
+
+          <div className="right text-right">
+            <h3 className="text-base font-bold font-heading text-[var(--text-main)]">
+              Patient Name
+            </h3>
+            <p className="text-[var(--text-secondary)]">Age, Gender</p>
+          </div>
+        </div>
       </div>
 
       {/* Patient Meta Details */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* <div className="grid grid-cols-3 gap-3">
         <div className="p-3 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50">
           <span className="text-[var(--text-secondary)] block text-[10px] uppercase">
             Patient Name
@@ -101,7 +112,7 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
           </span>
           <span className="font-semibold capitalize">{patientGender}</span>
         </div>
-      </div>
+      </div> */}
 
       {/* Assessment & Diagnosis */}
       <div className="space-y-3">
