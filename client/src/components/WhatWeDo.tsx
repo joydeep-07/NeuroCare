@@ -23,8 +23,8 @@ const WhatWeDo: React.FC = () => {
       gsap.to(activeIndicatorRef.current, {
         y: currentCategoryElement.offsetTop,
         height: currentCategoryElement.offsetHeight,
-        duration: 0.3,
-        ease: "power3.out",
+        duration: 0.2,
+        ease: "easeInOut",
       });
     }
   }, [activeCategory]);
@@ -54,9 +54,7 @@ const WhatWeDo: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         {/* Dynamic Left Menu */}
-        <div
-          className="flex lg:flex-col flex-row overflow-x-auto lg:overflow-visible scrollbar-none rounded-lg relative"
-        >
+        <div className="flex lg:flex-col flex-row overflow-x-auto lg:overflow-visible scrollbar-none rounded-lg relative">
           {/* GSAP Sliding Indicator Background */}
           <div
             ref={activeIndicatorRef}
@@ -221,13 +219,12 @@ const WhatWeDo: React.FC = () => {
             >
               {/* Drawer Header */}
               <div
-                className="p-6 border-b flex items-center justify-between"
+                className="p-4 border-b flex items-center justify-between"
                 style={{ borderColor: "var(--border-light)" }}
               >
                 <span
-                  className="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md"
+                  className="text-sm font-semibold uppercase tracking-wider px-2.5"
                   style={{
-                    backgroundColor: "var(--surface-hover)",
                     color: "var(--accent-primary)",
                   }}
                 >
@@ -261,7 +258,7 @@ const WhatWeDo: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span
-                      className="text-xs font-medium flex items-center gap-1 px-2 py-0.5 rounded"
+                      className="text-xs font-medium flex items-center gap-1 px-3 py-1 rounded"
                       style={{
                         backgroundColor: "var(--surface-hover)",
                         color: "var(--accent-primary)",
@@ -321,7 +318,7 @@ const WhatWeDo: React.FC = () => {
               >
                 <button
                   onClick={() => setSelectedService(null)}
-                  className="w-full py-3 rounded-xl text-xs font-semibold tracking-wider uppercase transition-colors"
+                  className="w-full py-3 rounded-sm text-xs font-semibold tracking-wider uppercase transition-colors"
                   style={{
                     backgroundColor: "var(--accent-primary)",
                     color: "#ffffff",

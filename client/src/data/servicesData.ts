@@ -102,7 +102,7 @@ export const servicesData: ServicesData = {
     {
       title: "Memory & Cognitive Wellness",
       image:
-        "https://images.unsplash.com/photo-1576765608291-76850c950937?auto=format&fit=crop&q=80&w=600",
+        "https://i.pinimg.com/1200x/71/1e/50/711e50f1022fad4eee76fa2b03520081.jpg",
       shortDescription:
         "Holistic management of age-related neurological conditions.",
       description:
@@ -218,7 +218,7 @@ export const servicesData: ServicesData = {
     {
       title: "Cognitive Longevity Program",
       image:
-        "https://images.unsplash.com/photo-1576765608291-76850c950937?auto=format&fit=crop&q=80&w=600",
+        "https://i.pinimg.com/736x/44/09/9e/44099ea477596db55894db68e41d66ab.jpg",
       shortDescription:
         "Proactive brain health tracking and neuroplasticity enhancement.",
       description:
