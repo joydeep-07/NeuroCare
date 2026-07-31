@@ -1,23 +1,21 @@
 import { useState, useEffect } from "react";
 import {
   Calendar,
-  Clock,
   MapPin,
   Video,
   UserCheck,
   AlertCircle,
-  FileText,
   CheckCircle2,
-  XCircle,
-  Ban,
   Stethoscope,
   ChevronDown,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../hooks/useDate";
+import Prespcription from "../../components/patient/Prespcription"; 
 
 interface Appointment {
   _id: string;
@@ -90,6 +88,10 @@ const MyAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [isPrescriptionDrawerOpen, setIsPrescriptionDrawerOpen] =
+    useState(false);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
 
   const fetchAppointments = async () => {
     try {
@@ -132,8 +134,18 @@ const MyAppointments = () => {
     setOpenId(openId === id ? null : id);
   };
 
+  const handlePrescriptionDrawer = (appt: Appointment) => {
+    setSelectedAppointment(appt);
+    setIsPrescriptionDrawerOpen(true);
+  };
+
+  const handleClosePrescriptionDrawer = () => {
+    setIsPrescriptionDrawerOpen(false);
+    setSelectedAppointment(null);
+  };
+
   return (
-    <div className="max-w-8xl mx-auto md:px-12 px-4 py-8 md:py-12 space-y-8">
+    <div className="max-w-8xl mx-auto md:px-12 px-4 py-8 md:py-12 space-y-8 relative">
       {/* Title Banner */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 shadow-lg">
         <div>
@@ -222,6 +234,18 @@ const MyAppointments = () => {
                   </div>
 
                   <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                    {appt.status === "Completed" && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePrescriptionDrawer(appt);
+                        }}
+                        className="px-3.5 py-1.5 rounded-full border border-[var(--border-light)] text-white text-xs font-medium bg-[var(--accent-primary)] transition-all"
+                      >
+                        Get Prescription
+                      </button>
+                    )}
+
                     <span
                       className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border ${
                         statusBadgeStyles[appt.status] ||
@@ -391,6 +415,53 @@ const MyAppointments = () => {
           })}
         </div>
       )}
+
+      {/* Right-Side Framer Motion Prescription Drawer */}
+      <AnimatePresence>
+        {isPrescriptionDrawerOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={handleClosePrescriptionDrawer}
+              className="fixed inset-0 h-screen bg-black z-50"
+            />
+
+            {/* Sliding Drawer */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-full max-w-2xl bg-[var(--card-bg)] border-l border-[var(--border-light)] shadow-2xl z-50 flex flex-col overflow-y-auto"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--border-light)]">
+                <h2 className="text-lg font-bold font-heading text-[var(--text-main)] flex items-center gap-2">
+                  <Stethoscope
+                    size={18}
+                    className="text-[var(--accent-primary)]"
+                  />
+                  Prescription Details
+                </h2>
+                <button
+                  onClick={handleClosePrescriptionDrawer}
+                  className="p-2 rounded-full hover:bg-[var(--bg-main)] text-[var(--text-secondary)] transition-all"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Drawer Body / Mounted Component */}
+              <div className="p-4 flex-1">
+                <Prespcription appointment={selectedAppointment} />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
