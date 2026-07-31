@@ -7,7 +7,6 @@ import Root from "./layouts/Root";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import SignIn from "./pages/SignIn";
-import DoctorSearch from "./pages/patient/DoctorSearch";
 import MyAppointments from "./pages/patient/MyAppointments";
 import FamilyMembers from "./pages/patient/FamilyMembers";
 import MedicalRecords from "./pages/patient/MedicalRecords";
@@ -19,6 +18,7 @@ import AddDoctor from "./pages/admin/AddDoctor";
 import AdminAppointments from "./pages/admin/AdminAppointments";
 
 import type { RootState } from "./redux/store";
+import AllDoctors from "./components/AllDoctors";
 
 const router = createBrowserRouter([
   {
@@ -37,10 +37,10 @@ const router = createBrowserRouter([
         path: "signin",
         element: <SignIn />,
       },
-      // {
-      //   path: "doctors",
-      //   element: <DoctorSearch />,
-      // },
+      {
+        path: "doctors",
+        element: <AllDoctors />,
+      },
       {
         path: "appointments",
         element: <MyAppointments />,
