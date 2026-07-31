@@ -84,7 +84,7 @@ const Home = () => {
             />
 
             {/* Floating Action Cards */}
-            <div className="relative mt-4 grid grid-cols-1 gap-4 md:absolute md:-bottom-16 md:left-8 md:right-8 md:mt-0 md:grid-cols-3">
+            <div className="relative mt-4 grid grid-cols-1 gap-4 md:absolute md:-bottom-4 md:left-8 md:right-8 md:mt-0 md:grid-cols-3">
               <div
                 className="p-5 rounded-lg border flex justify-between items-start transition-all shadow-md"
                 style={{
