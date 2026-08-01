@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createRoot } from "react-dom/client";
+import { pdf } from "@react-pdf/renderer";
 import {
   Calendar,
   MapPin,
@@ -152,38 +152,14 @@ const MyAppointments = () => {
   const handleDownloadPrescription = () => {
     if (!selectedAppointment) return;
 
-    const printWindow = window.open("", "_blank", "noopener,noreferrer");
-    if (!printWindow) {
-      alert("Please allow pop-ups to download the prescription.");
-      return;
-    }
-
-    printWindow.document.title = `Prescription-${selectedAppointment.appointmentId}`;
-    printWindow.document.head.innerHTML = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
-      .map((node) => node.outerHTML)
-      .join("");
-    printWindow.document.head.insertAdjacentHTML(
-      "beforeend",
-      "<style>@page { size: A4 portrait; margin: 16mm; } body { margin: 0; background: #fff; } @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>",
-    );
-    printWindow.document.body.innerHTML = '<div id="prescription-print-root"></div>';
-
-    const mountPoint = printWindow.document.getElementById("prescription-print-root");
-    if (!mountPoint) return;
-
-    const printRoot = createRoot(mountPoint);
-    printRoot.render(<DownloadablePrescription appointment={selectedAppointment} />);
-
-    const cleanup = () => {
-      printRoot.unmount();
-      printWindow.close();
-    };
-
-    printWindow.addEventListener("afterprint", cleanup, { once: true });
-    window.setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-    }, 250);
+    void pdf(<DownloadablePrescription appointment={selectedAppointment} />).toBlob().then((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Prescription-${selectedAppointment.appointmentId}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
   };
 
   return (

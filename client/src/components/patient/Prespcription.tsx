@@ -65,8 +65,6 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
   const patientGender = patientInfo?.gender || "-";
   const patientAge = calculateAge(patientInfo?.dateOfBirth || patientInfo?.dob);
 
-  const isFamilyMember = !!appointment.familyMember;
-
   return (
     <div className="space-y-6 text-xs text-[var(--text-main)] pb-8">
       {/* Hospital & Doctor Header */}
