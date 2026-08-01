@@ -14,6 +14,16 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "hand";
+  src: url("./assets/fonts/Handwritten.ttf") format("truetype");
+  font-style: normal;
+}
+
+.hand-writting{
+  font-family: hand;
+}
+
 .font-heading {
   font-family: tenor, system-ui, sans-serif;
 }

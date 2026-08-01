@@ -58,7 +58,10 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
   }
 
   const patientInfo = appointment.familyMember || appointment.patient;
-  const patientName = patientInfo?.fullName || [patientInfo?.firstName, patientInfo?.lastName].filter(Boolean).join(" ") || "Patient";
+  const patientName =
+    patientInfo?.fullName ||
+    [patientInfo?.firstName, patientInfo?.lastName].filter(Boolean).join(" ") ||
+    "Patient";
   const patientGender = patientInfo?.gender || "-";
   const patientAge = calculateAge(patientInfo?.dateOfBirth || patientInfo?.dob);
 
@@ -82,14 +85,18 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
           </div>
 
           <div className="right text-right">
-            <h3 className="text-base font-bold font-heading text-[var(--text-main)]">{patientName}</h3>
-            <p className="text-[var(--text-secondary)]">{patientAge === null ? "N/A" : `${patientAge} Years`} · {patientGender}</p>
+            <h3 className="text-base font-bold font-heading text-[var(--text-main)]">
+              {patientName}
+            </h3>
+            <p className="text-[var(--text-secondary)]">
+              {patientAge === null ? "N/A" : `${patientAge} Years`} ·{" "}
+              {patientGender}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Patient Meta Details */}
-      
 
       {/* Assessment & Diagnosis */}
       <div className="space-y-3">
@@ -184,6 +191,14 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
                 </div>
               );
             })}
+            <div className="p-4 text-right absolute bottom-0 right-0">
+              <h1 className="text-3xl hand-writting text-(--text-main)">
+                {appointment.doctor.fullName}
+              </h1>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-(--text-secondary)">
+                Digitally Signed
+              </p>
+            </div>
           </div>
         ) : (
           <p className="text-[var(--text-secondary)] p-4 bg-[var(--bg-main)]/50 rounded-sm border border-[var(--border-light)]/50">
