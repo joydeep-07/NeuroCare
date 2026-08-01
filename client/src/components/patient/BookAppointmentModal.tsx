@@ -32,7 +32,7 @@ interface Props {
 
 const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
   const [symptoms, setSymptoms] = useState("");
-  const [reason, setReason] = useState("");
+  const [reason] = useState("");
   const [requestedDate, setRequestedDate] = useState(
     new Date(Date.now() + 86400000).toISOString().split("T")[0],
   );

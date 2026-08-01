@@ -51,6 +51,8 @@ interface Appointment {
   familyMember?: {
     fullName: string;
     relationship: string;
+    gender?: string;
+    dateOfBirth?: string;
   };
   diagnosis?: string;
   prescription?: Array<{

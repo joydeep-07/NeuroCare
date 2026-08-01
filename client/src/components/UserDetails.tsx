@@ -9,11 +9,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout as logoutAction, updateUser } from "../redux/authSlice";
 import type { AppDispatch, RootState } from "../redux/store";
 import { TbXboxXFilled } from "react-icons/tb";
-import { Link } from "react-router-dom";
 
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
-import { Cross, User } from "lucide-react";
 
 const UserDetails = () => {
   const navigate = useNavigate();

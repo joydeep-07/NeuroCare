@@ -1,5 +1,8 @@
 const User = require("../models/user.model");
 const Appointment = require("../models/appointment.model");
+const Document = require("../models/document.model");
+
+const doctorVisibleStatuses = ["Confirmed", "Rescheduled", "Checked In", "In Consultation", "Completed"];
 
 // =======================================
 // Get / Search Doctors (Public / Patient)
@@ -90,7 +93,7 @@ const getDoctorDashboard = async (req, res) => {
     const doctorId = req.user._id;
 
     // Strict privacy rule: Doctor sees ONLY appointments assigned to them!
-    const appointments = await Appointment.find({ doctor: doctorId })
+    const appointments = await Appointment.find({ doctor: doctorId, status: { $in: doctorVisibleStatuses } })
       .populate("patient", "fullName email phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
       .populate("familyMember", "fullName relationship phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
       .sort({ createdAt: -1 });
@@ -98,7 +101,6 @@ const getDoctorDashboard = async (req, res) => {
     const totalAppointments = appointments.length;
     const confirmedAppointments = appointments.filter((a) => a.status === "Confirmed" || a.status === "Checked In" || a.status === "In Consultation");
     const completedAppointments = appointments.filter((a) => a.status === "Completed");
-    const pendingAppointments = appointments.filter((a) => a.status === "Pending Approval" || a.status === "Requested");
 
     return res.status(200).json({
       success: true,
@@ -106,7 +108,7 @@ const getDoctorDashboard = async (req, res) => {
         totalAppointments,
         confirmedCount: confirmedAppointments.length,
         completedCount: completedAppointments.length,
-        pendingCount: pendingAppointments.length,
+        pendingCount: 0,
       },
       appointments,
     });
@@ -159,7 +161,7 @@ const completeConsultation = async (req, res) => {
     }
 
     // Verify appointment belongs to this doctor
-    if (String(appointment.doctor) !== String(req.user._id)) {
+    if (String(appointment.doctor) !== String(req.user._id) || !doctorVisibleStatuses.includes(appointment.status)) {
       return res.status(403).json({
         success: false,
         message: "Unauthorized: You can only complete consultations assigned to you.",
@@ -194,10 +196,29 @@ const completeConsultation = async (req, res) => {
   }
 };
 
+// Records are read-only to doctors and only exposed while viewing an approved appointment.
+const getAppointmentMedicalRecords = async (req, res) => {
+  try {
+    const appointment = await Appointment.findById(req.params.appointmentId).select("doctor patient familyMember status");
+    if (!appointment) return res.status(404).json({ success: false, message: "Appointment not found." });
+    if (String(appointment.doctor) !== String(req.user._id) || !doctorVisibleStatuses.includes(appointment.status)) {
+      return res.status(403).json({ success: false, message: "You are not allowed to view records for this appointment." });
+    }
+    const patientId = appointment.familyMember || appointment.patient;
+    const documents = await Document.find({ patient: patientId })
+      .populate("uploadedBy", "fullName")
+      .sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, documents });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Error retrieving patient medical records." });
+  }
+};
+
 module.exports = {
   getDoctors,
   getDoctorById,
   getDoctorDashboard,
   updateAvailability,
   completeConsultation,
+  getAppointmentMedicalRecords,
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FileText, Upload, Sparkles, Trash2, Eye, ExternalLink, Filter, Search, CheckCircle } from "lucide-react";
+import { FileText, Upload, Sparkles, Trash2, Eye, ExternalLink, Search } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 

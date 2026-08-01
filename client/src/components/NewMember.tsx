@@ -56,7 +56,7 @@ const NewMember = () => {
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
       <Paper className="rounded-2xl p-8 shadow-md">
-        <Typography variant="h4" fontWeight={700} mb={4}>
+        <Typography component="h2" variant="h4" sx={{ fontWeight: 700, mb: 4 }}>
           Add Family Member
         </Typography>
 

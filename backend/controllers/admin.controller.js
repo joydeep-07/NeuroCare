@@ -212,12 +212,15 @@ const scheduleAppointment = async (req, res) => {
       type: "appointment",
     });
 
-    await Notification.create({
-      recipient: appointment.doctor._id,
-      title: `New Confirmed Patient Appointment`,
-      message: `Confirmed appointment with patient ${appointment.patient.fullName} for ${appointment.confirmedDate} at ${appointment.confirmedTime} (${appointment.consultationMode}).`,
-      type: "appointment",
-    });
+    if (["Confirmed", "Rescheduled", "Checked In", "In Consultation"].includes(targetStatus)) {
+      const actualPatient = appointment.familyMember || appointment.patient;
+      await Notification.create({
+        recipient: appointment.doctor._id,
+        title: "New Approved Patient Appointment",
+        message: `Approved appointment with patient ${actualPatient.fullName} for ${appointment.confirmedDate} at ${appointment.confirmedTime} (${appointment.consultationMode}).`,
+        type: "appointment",
+      });
+    }
 
     return res.status(200).json({
       success: true,

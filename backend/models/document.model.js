@@ -7,11 +7,6 @@ const documentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    familyMember: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
     title: {
       type: String,
       required: true,
@@ -31,11 +26,20 @@ const documentSchema = new mongoose.Schema(
       ],
       default: "Other",
     },
+    description: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     fileUrl: {
       type: String,
       required: true,
     },
     publicId: {
+      type: String,
+      default: "",
+    },
+    fileType: {
       type: String,
       default: "",
     },
@@ -52,5 +56,7 @@ const documentSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+documentSchema.index({ patient: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Document", documentSchema);

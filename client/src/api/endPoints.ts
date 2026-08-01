@@ -57,6 +57,8 @@ export const ENDPOINTS = {
     GET_BY_ID: (id: string) => `${BASE_URL}/doctors/${id}`,
     GET_AVAILABLE: `${BASE_URL}/doctors/available`,
     SEARCH: `${BASE_URL}/doctors/search`,
+    DASHBOARD: `${BASE_URL}/doctors/portal/dashboard`,
+    APPOINTMENT_RECORDS: (id: string) => `${BASE_URL}/doctors/portal/appointments/${id}/records`,
   },
 
   // ==========================
@@ -71,9 +73,9 @@ export const ENDPOINTS = {
   // Medical Reports
   // ==========================
   REPORT: {
-    UPLOAD: `${BASE_URL}/reports/upload`,
-    GET_ALL: `${BASE_URL}/reports`,
-    DELETE: (id: string) => `${BASE_URL}/reports/${id}`,
+    UPLOAD: `${BASE_URL}/documents/upload`,
+    GET_ALL: `${BASE_URL}/documents`,
+    DELETE: (id: string) => `${BASE_URL}/documents/${id}`,
   },
 
   // ==========================

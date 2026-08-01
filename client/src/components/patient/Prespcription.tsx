@@ -1,5 +1,5 @@
 import React from "react";
-import { Stethoscope, User, FileText, Pill, Calendar } from "lucide-react";
+import { FileText, Pill } from "lucide-react";
 
 interface Medicine {
   medicineName?: string;
@@ -26,12 +26,14 @@ interface Appointment {
     fullName: string;
     gender?: string;
     age?: number | string;
+    dateOfBirth?: string;
   };
   familyMember?: {
     fullName: string;
     relationship: string;
     age?: number | string;
     gender?: string;
+    dateOfBirth?: string;
   };
 }
 
@@ -56,8 +58,17 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
   const patientGender =
     appointment.familyMember?.gender || appointment.patient?.gender || "-";
 
-  const patientAge =
-    appointment.familyMember?.age || appointment.patient?.age || "-";
+  const patient = appointment.familyMember || appointment.patient;
+  const patientAge = (() => {
+    if (patient?.dateOfBirth) {
+      const dob = new Date(patient.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age -= 1;
+      if (!Number.isNaN(age) && age >= 0) return age;
+    }
+    return patient?.age ?? "-";
+  })();
 
   const isFamilyMember = !!appointment.familyMember;
 
@@ -79,16 +90,14 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
           </div>
 
           <div className="right text-right">
-            <h3 className="text-base font-bold font-heading text-[var(--text-main)]">
-              Patient Name
-            </h3>
-            <p className="text-[var(--text-secondary)]">Age, Gender</p>
+            <h3 className="text-base font-bold font-heading text-[var(--text-main)]">{patientName}</h3>
+            <p className="text-[var(--text-secondary)]">{patientAge === "-" ? "Age unavailable" : `${patientAge} yrs`} · {patientGender}</p>
           </div>
         </div>
       </div>
 
       {/* Patient Meta Details */}
-      {/* <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div className="p-3 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50">
           <span className="text-[var(--text-secondary)] block text-[10px] uppercase">
             Patient Name
@@ -112,7 +121,7 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
           </span>
           <span className="font-semibold capitalize">{patientGender}</span>
         </div>
-      </div> */}
+      </div>
 
       {/* Assessment & Diagnosis */}
       <div className="space-y-3">

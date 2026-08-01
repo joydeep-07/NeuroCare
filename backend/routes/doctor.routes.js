@@ -5,6 +5,7 @@ const {
   getDoctorDashboard,
   updateAvailability,
   completeConsultation,
+  getAppointmentMedicalRecords,
 } = require("../controllers/doctor.controller");
 const { protect, authorize } = require("../middlewares/auth.middleware");
 
@@ -14,6 +15,7 @@ const router = express.Router();
 router.get("/portal/dashboard", protect, authorize("doctor"), getDoctorDashboard);
 router.put("/portal/availability", protect, authorize("doctor"), updateAvailability);
 router.put("/portal/consultation/:appointmentId", protect, authorize("doctor"), completeConsultation);
+router.get("/portal/appointments/:appointmentId/records", protect, authorize("doctor"), getAppointmentMedicalRecords);
 
 // Public discovery routes must remain after named portal routes.
 router.get("/", getDoctors);

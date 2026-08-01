@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Stethoscope, Star, MapPin, Building, Calendar, ArrowRight } from "lucide-react";
+import { Search, Stethoscope, MapPin, Building, Calendar, ArrowRight } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import BookAppointmentModal from "../../components/patient/BookAppointmentModal";

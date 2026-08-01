@@ -1,5 +1,4 @@
 import { FaGithub, FaLinkedin, FaFacebook, FaInstagram } from "react-icons/fa";
-import { Link } from "react-router";
 // import NewsLetter from "../Components/NewsLetter";
 
 const Footer = () => {

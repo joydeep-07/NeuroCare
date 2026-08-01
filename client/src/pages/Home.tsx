@@ -1,6 +1,5 @@
 // import React from "react";
-import { Link } from "react-router-dom";
-import { FiPhone, FiChevronRight } from "react-icons/fi";
+import { FiPhone } from "react-icons/fi";
 // import DoctorSearch from "./patient/DoctorSearch";
 import AllDoctors from "../components/AllDoctors";
 import scrollToSection from "../hooks/scrollToSection";

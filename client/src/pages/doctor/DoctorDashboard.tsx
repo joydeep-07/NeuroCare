@@ -43,6 +43,16 @@ interface Appointment {
   followUpDate?: string;
 }
 
+interface MedicalRecord {
+  _id: string;
+  title: string;
+  documentType: string;
+  description?: string;
+  fileUrl: string;
+  fileType?: string;
+  createdAt: string;
+}
+
 const DoctorDashboard = () => {
   const [dashboardData, setDashboardData] = useState<{
     stats: { totalAppointments: number; confirmedCount: number; completedCount: number; pendingCount: number };
@@ -55,6 +65,8 @@ const DoctorDashboard = () => {
 
   // Selected Patient History Review Modal
   const [selectedApptForReview, setSelectedApptForReview] = useState<Appointment | null>(null);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [recordsLoading, setRecordsLoading] = useState(false);
 
   // Consultation Completion Form Modal
   const [selectedApptForConsultation, setSelectedApptForConsultation] = useState<Appointment | null>(null);
@@ -93,6 +105,18 @@ const DoctorDashboard = () => {
   useEffect(() => {
     fetchDashboard();
   }, []);
+
+  const openMedicalRecord = async (appointment: Appointment) => {
+    setSelectedApptForReview(appointment);
+    setMedicalRecords([]);
+    setRecordsLoading(true);
+    try {
+      const res = await api.get(ENDPOINTS.DOCTOR.APPOINTMENT_RECORDS(appointment._id));
+      if (res.data.success) setMedicalRecords(res.data.documents);
+    } finally {
+      setRecordsLoading(false);
+    }
+  };
 
   const handleAddMedicineRow = () => {
     setMedicines((prev) => [...prev, { medicine: "", dosage: "", frequency: "Twice daily", duration: "7 days" }]);
@@ -241,6 +265,20 @@ const DoctorDashboard = () => {
                       </ul>
                     </div>
                   )}
+
+                  <div className="space-y-2">
+                    <span className="font-bold text-[var(--text-secondary)] block">Uploaded Medical Records:</span>
+                    {recordsLoading ? <p className="text-[var(--text-secondary)]">Loading records…</p> : medicalRecords.length === 0 ? <p className="text-[var(--text-secondary)]">No uploaded records for this patient.</p> : (
+                      <div className="space-y-2">
+                        {medicalRecords.map((record) => (
+                          <div key={record._id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)]">
+                            <div><p className="font-semibold text-[var(--text-main)]">{record.title}</p><p className="text-[var(--text-secondary)]">{record.documentType} · {new Date(record.createdAt).toLocaleDateString("en-IN")}</p></div>
+                            <a href={record.fileUrl} target="_blank" rel="noreferrer" download className="text-[var(--accent-primary)] font-semibold">Preview / Download</a>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })()}
@@ -414,7 +452,7 @@ const DoctorDashboard = () => {
 
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => setSelectedApptForReview(appt)}
+                    onClick={() => openMedicalRecord(appt)}
                     className="px-4 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-xs font-semibold text-[var(--text-main)] flex items-center gap-1.5 hover:bg-[var(--bg-secondary)]"
                   >
                     <Eye size={14} /> View Medical Record

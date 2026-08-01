@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Menu, X, Bot, Stethoscope, Calendar, Users, FileText, LayoutDashboard, UserPlus, ShieldAlert } from "lucide-react";
+import { Link, NavLink } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { gsap } from "gsap";
 import { useSelector } from "react-redux";
 

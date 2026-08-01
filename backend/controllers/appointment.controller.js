@@ -103,9 +103,14 @@ const requestAppointment = async (req, res) => {
 // =======================================
 const getPatientAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find({ patient: req.user._id })
+    // One document is shared by its booking owner and its actual patient.
+    // This keeps family histories in sync without duplicating appointments.
+    const appointments = await Appointment.find({
+      $or: [{ patient: req.user._id }, { familyMember: req.user._id }],
+    })
       .populate("doctor", "fullName email phone specialization hospital department consultationFee avatar location")
-      .populate("familyMember", "fullName relationship phone gender avatar")
+      .populate("patient", "fullName email phone gender dateOfBirth bloodGroup avatar")
+      .populate("familyMember", "fullName relationship phone gender dateOfBirth bloodGroup avatar")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -136,8 +141,14 @@ const getAppointmentById = async (req, res) => {
       return res.status(404).json({ success: false, message: "Appointment not found." });
     }
 
-    const isParticipant = String(appointment.patient._id) === String(req.user._id) || String(appointment.doctor._id) === String(req.user._id);
-    if (req.user.role !== "admin" && !isParticipant) {
+    const isBookingOwner = String(appointment.patient._id) === String(req.user._id);
+    const isActualPatient = appointment.familyMember && String(appointment.familyMember._id) === String(req.user._id);
+    const isDoctor = String(appointment.doctor._id) === String(req.user._id);
+    const doctorVisibleStatuses = ["Confirmed", "Rescheduled", "Checked In", "In Consultation", "Completed"];
+    if (req.user.role === "doctor" && (!isDoctor || !doctorVisibleStatuses.includes(appointment.status))) {
+      return res.status(403).json({ success: false, message: "This appointment has not been approved for doctor access." });
+    }
+    if (req.user.role !== "admin" && !isBookingOwner && !isActualPatient && !isDoctor) {
       return res.status(403).json({ success: false, message: "You are not allowed to view this appointment." });
     }
 
