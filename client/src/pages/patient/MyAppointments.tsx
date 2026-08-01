@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
 import {
   Calendar,
   MapPin,
@@ -16,6 +17,8 @@ import ENDPOINTS from "../../api/endPoints";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../hooks/useDate";
 import Prespcription from "../../components/patient/Prespcription"; 
+import DownloadablePrescription from "../../components/patient/DownloadablePrespcription";
+import Download from "../../components/patient/Download";
 
 interface Appointment {
   _id: string;
@@ -144,6 +147,43 @@ const MyAppointments = () => {
   const handleClosePrescriptionDrawer = () => {
     setIsPrescriptionDrawerOpen(false);
     setSelectedAppointment(null);
+  };
+
+  const handleDownloadPrescription = () => {
+    if (!selectedAppointment) return;
+
+    const printWindow = window.open("", "_blank", "noopener,noreferrer");
+    if (!printWindow) {
+      alert("Please allow pop-ups to download the prescription.");
+      return;
+    }
+
+    printWindow.document.title = `Prescription-${selectedAppointment.appointmentId}`;
+    printWindow.document.head.innerHTML = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
+      .map((node) => node.outerHTML)
+      .join("");
+    printWindow.document.head.insertAdjacentHTML(
+      "beforeend",
+      "<style>@page { size: A4 portrait; margin: 16mm; } body { margin: 0; background: #fff; } @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>",
+    );
+    printWindow.document.body.innerHTML = '<div id="prescription-print-root"></div>';
+
+    const mountPoint = printWindow.document.getElementById("prescription-print-root");
+    if (!mountPoint) return;
+
+    const printRoot = createRoot(mountPoint);
+    printRoot.render(<DownloadablePrescription appointment={selectedAppointment} />);
+
+    const cleanup = () => {
+      printRoot.unmount();
+      printWindow.close();
+    };
+
+    printWindow.addEventListener("afterprint", cleanup, { once: true });
+    window.setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 250);
   };
 
   return (
@@ -448,12 +488,16 @@ const MyAppointments = () => {
                   />
                   Prescription Details
                 </h2>
-                <button
-                  onClick={handleClosePrescriptionDrawer}
-                  className="p-2 rounded-full hover:bg-[var(--bg-main)] text-[var(--text-secondary)] transition-all"
-                >
-                  <X size={20} />
-                </button>
+
+                <div className="flex gap-4">
+                  <Download onDownload={handleDownloadPrescription} />
+                  <button
+                    onClick={handleClosePrescriptionDrawer}
+                    className="p-2 rounded-full hover:bg-[var(--bg-main)] text-[var(--text-secondary)] transition-all"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
               </div>
 
               {/* Drawer Body / Mounted Component */}
