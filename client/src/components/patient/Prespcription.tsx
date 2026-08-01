@@ -89,31 +89,7 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
       </div>
 
       {/* Patient Meta Details */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="p-3 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50">
-          <span className="text-[var(--text-secondary)] block text-[10px] uppercase">
-            Patient Name
-          </span>
-          <span className="font-semibold">{patientName}</span>
-          {isFamilyMember && (
-            <span className="block text-[10px] text-[var(--accent-primary)] mt-0.5">
-              ({appointment.familyMember?.relationship})
-            </span>
-          )}
-        </div>
-        <div className="p-3 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50">
-          <span className="text-[var(--text-secondary)] block text-[10px] uppercase">
-            Age
-          </span>
-          <span className="font-semibold">{patientAge === null ? "N/A" : `${patientAge} Years`}</span>
-        </div>
-        <div className="p-3 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50">
-          <span className="text-[var(--text-secondary)] block text-[10px] uppercase">
-            Gender
-          </span>
-          <span className="font-semibold capitalize">{patientGender}</span>
-        </div>
-      </div>
+      
 
       {/* Assessment & Diagnosis */}
       <div className="space-y-3">
