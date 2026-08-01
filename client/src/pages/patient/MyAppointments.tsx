@@ -457,12 +457,12 @@ const MyAppointments = () => {
             >
               {/* Drawer Header */}
               <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--border-light)]">
-                <h2 className="text-lg font-bold font-heading text-[var(--text-main)] flex items-center gap-2">
+                <h2 className="text-lg font-medium font-heading text-[var(--text-main)] flex items-center gap-2">
                   <Stethoscope
                     size={18}
                     className="text-[var(--accent-primary)]"
                   />
-                  Prescription Details
+                  Prescription
                 </h2>
 
                 <div className="flex gap-4">
