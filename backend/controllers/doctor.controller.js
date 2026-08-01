@@ -94,8 +94,8 @@ const getDoctorDashboard = async (req, res) => {
 
     // Strict privacy rule: Doctor sees ONLY appointments assigned to them!
     const appointments = await Appointment.find({ doctor: doctorId, status: { $in: doctorVisibleStatuses } })
-      .populate("patient", "fullName email phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
-      .populate("familyMember", "fullName relationship phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
+      .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone bloodGroup height weight illness medicalHistory")
+      .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship phone bloodGroup height weight illness medicalHistory")
       .sort({ createdAt: -1 });
 
     const totalAppointments = appointments.length;
@@ -178,8 +178,8 @@ const completeConsultation = async (req, res) => {
     await appointment.save();
 
     const updatedAppt = await Appointment.findById(appointment._id)
-      .populate("patient", "fullName email phone")
-      .populate("familyMember", "fullName relationship")
+      .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone")
+      .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship")
       .populate("doctor", "fullName specialization hospital");
 
     return res.status(200).json({

@@ -1,5 +1,6 @@
 import React from "react";
 import { FileText, Pill } from "lucide-react";
+import { calculateAge } from "../../utils/calculateAge";
 
 interface Medicine {
   medicineName?: string;
@@ -24,16 +25,22 @@ interface Appointment {
   };
   patient?: {
     fullName: string;
+    firstName?: string;
+    lastName?: string;
+    dob?: string;
     gender?: string;
-    age?: number | string;
     dateOfBirth?: string;
+    avatar?: string;
   };
   familyMember?: {
     fullName: string;
+    firstName?: string;
+    lastName?: string;
+    dob?: string;
     relationship: string;
-    age?: number | string;
     gender?: string;
     dateOfBirth?: string;
+    avatar?: string;
   };
 }
 
@@ -50,25 +57,10 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
     );
   }
 
-  const patientName =
-    appointment.familyMember?.fullName ||
-    appointment.patient?.fullName ||
-    "Patient";
-
-  const patientGender =
-    appointment.familyMember?.gender || appointment.patient?.gender || "-";
-
-  const patient = appointment.familyMember || appointment.patient;
-  const patientAge = (() => {
-    if (patient?.dateOfBirth) {
-      const dob = new Date(patient.dateOfBirth);
-      const today = new Date();
-      let age = today.getFullYear() - dob.getFullYear();
-      if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age -= 1;
-      if (!Number.isNaN(age) && age >= 0) return age;
-    }
-    return patient?.age ?? "-";
-  })();
+  const patientInfo = appointment.familyMember || appointment.patient;
+  const patientName = patientInfo?.fullName || [patientInfo?.firstName, patientInfo?.lastName].filter(Boolean).join(" ") || "Patient";
+  const patientGender = patientInfo?.gender || "-";
+  const patientAge = calculateAge(patientInfo?.dateOfBirth || patientInfo?.dob);
 
   const isFamilyMember = !!appointment.familyMember;
 
@@ -91,7 +83,7 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
 
           <div className="right text-right">
             <h3 className="text-base font-bold font-heading text-[var(--text-main)]">{patientName}</h3>
-            <p className="text-[var(--text-secondary)]">{patientAge === "-" ? "Age unavailable" : `${patientAge} yrs`} · {patientGender}</p>
+            <p className="text-[var(--text-secondary)]">{patientAge === null ? "N/A" : `${patientAge} Years`} · {patientGender}</p>
           </div>
         </div>
       </div>
@@ -113,7 +105,7 @@ const Prespcription: React.FC<Props> = ({ appointment }) => {
           <span className="text-[var(--text-secondary)] block text-[10px] uppercase">
             Age
           </span>
-          <span className="font-semibold">{patientAge} yrs</span>
+          <span className="font-semibold">{patientAge === null ? "N/A" : `${patientAge} Years`}</span>
         </div>
         <div className="p-3 rounded-sm bg-[var(--bg-main)]/50 border border-[var(--border-light)]/50">
           <span className="text-[var(--text-secondary)] block text-[10px] uppercase">

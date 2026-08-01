@@ -80,8 +80,8 @@ const requestAppointment = async (req, res) => {
     });
 
     const populatedAppointment = await Appointment.findById(appointment._id)
-      .populate("patient", "fullName email phone")
-      .populate("familyMember", "fullName relationship")
+      .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone")
+      .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship")
       .populate("doctor", "fullName specialization hospital consultationFee avatar");
 
     return res.status(201).json({
@@ -109,8 +109,8 @@ const getPatientAppointments = async (req, res) => {
       $or: [{ patient: req.user._id }, { familyMember: req.user._id }],
     })
       .populate("doctor", "fullName email phone specialization hospital department consultationFee avatar location")
-      .populate("patient", "fullName email phone gender dateOfBirth bloodGroup avatar")
-      .populate("familyMember", "fullName relationship phone gender dateOfBirth bloodGroup avatar")
+      .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone bloodGroup")
+      .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship phone bloodGroup")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -133,8 +133,8 @@ const getPatientAppointments = async (req, res) => {
 const getAppointmentById = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id)
-      .populate("patient", "fullName email phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
-      .populate("familyMember", "fullName relationship phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
+      .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone bloodGroup height weight illness medicalHistory")
+      .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship phone bloodGroup height weight illness medicalHistory")
       .populate("doctor", "fullName email phone specialization hospital department consultationFee location avatar biography");
 
     if (!appointment) {

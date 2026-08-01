@@ -15,8 +15,8 @@ const getAdminDashboard = async (req, res) => {
     const confirmedAppointments = await Appointment.countDocuments({ status: "Confirmed" });
 
     const recentAppointments = await Appointment.find()
-      .populate("patient", "fullName email phone avatar")
-      .populate("familyMember", "fullName relationship")
+      .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone")
+      .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship")
       .populate("doctor", "fullName specialization hospital")
       .sort({ createdAt: -1 })
       .limit(10);
@@ -142,8 +142,8 @@ const getAllAppointments = async (req, res) => {
     if (patientId) filter.patient = patientId;
 
     const appointments = await Appointment.find(filter)
-      .populate("patient", "fullName email phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
-      .populate("familyMember", "fullName relationship phone gender dateOfBirth bloodGroup height weight illness medicalHistory avatar")
+      .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone bloodGroup height weight illness medicalHistory")
+      .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship phone bloodGroup height weight illness medicalHistory")
       .populate("doctor", "fullName email phone specialization hospital department consultationFee avatar")
       .sort({ createdAt: -1 });
 
