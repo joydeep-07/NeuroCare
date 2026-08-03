@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser, FaUserCircle } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { IoAdd } from "react-icons/io5";
 import ThemeToggle from "./ThemeToggle";
+import UploadAvatar from "../components/patient/UploadAvatar";
 import gsap from "gsap";
 import { useDispatch, useSelector } from "react-redux";
 import { logout as logoutAction, updateUser } from "../redux/authSlice";
@@ -72,15 +73,6 @@ const UserDetails = () => {
 
     return true;
   });
-
-  // ===============================
-  // Avatar
-  // ===============================
-  const userAvatar =
-    user?.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user?.fullName || user?.name || user?.email || "User",
-    )}&background=1a73e8&color=ffffff&size=256`;
 
   // ===============================
   // Logout
@@ -173,7 +165,7 @@ const UserDetails = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Avatar */}
+      {/* Avatar Button Trigger */}
       <button
         onClick={() => {
           if (open) closeDrawer();
@@ -184,7 +176,7 @@ const UserDetails = () => {
         <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--card-bg)] shadow-[0_4px_18px_var(--shadow)] transition-all duration-300 ">
           {user?.avatar ? (
             <img
-              src={userAvatar}
+              src={user.avatar}
               alt="Avatar"
               className="h-full w-full rounded-full object-cover"
             />
@@ -200,7 +192,7 @@ const UserDetails = () => {
         </div>
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown / Drawer */}
       {open && (
         <>
           {/* ================= Desktop Dropdown ================= */}
@@ -212,21 +204,9 @@ const UserDetails = () => {
                   {user?.email || "NO USER FOUND"}
                 </p>
 
+                {/* Integrated Upload Avatar Component */}
                 <div className="mt-4 flex justify-center">
-                  {user?.avatar ? (
-                    <img
-                      src={userAvatar}
-                      alt="Profile"
-                      className="h-16 w-16 rounded-full border-2 border-[var(--border-light)] object-cover shadow-md"
-                    />
-                  ) : (
-                    <div className="h-16 w-16 flex justify-center items-center rounded-full border-2 border-[var(--border-light)] object-cover shadow-md">
-                      <FaUserCircle
-                        size={48}
-                        className="text-[var(--text-secondary)]"
-                      />
-                    </div>
-                  )}
+                  <UploadAvatar size="w-16 h-16" />
                 </div>
 
                 <h2 className="mt-3 text-center text-xl font-semibold text-[var(--text-main)] truncate px-2">
@@ -236,7 +216,7 @@ const UserDetails = () => {
                 <div className="mt-4 flex justify-center">
                   <button
                     onClick={() => navigate("/members")}
-                    className="h-9 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)]/50 px-4 text-xs font-medium transition-all duration-300 hover:bg-[var(--bg-main)]"
+                    className="h-9 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)]/50 px-4 text-xs font-medium transition-all duration-300 hover:bg-[var(--bg-main)] cursor-pointer"
                   >
                     Manage your NeuroCare Account
                   </button>
@@ -255,21 +235,20 @@ const UserDetails = () => {
                   {filteredMembers.map((member, index) => (
                     <button
                       key={member._id || index}
-                      className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
+                      className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50 cursor-pointer"
                     >
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full overflow-hidden border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]">
                         {member.user?.avatar ? (
                           <img
                             src={member.user.avatar}
-                            alt={member.user.fullName}
+                            alt={member.user?.fullName || "Member Avatar"}
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span className="text-xs font-semibold text-[var(--text-secondary)]">
-                            {(member.user?.fullName || "?")
-                              .charAt(0)
-                              .toUpperCase()}
-                          </span>
+                          <FaUser
+                            size={16}
+                            className="text-[var(--text-secondary)]"
+                          />
                         )}
                       </div>
 
@@ -284,7 +263,7 @@ const UserDetails = () => {
                     </button>
                   ))}
 
-                  <button className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
+                  <button className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50 cursor-pointer">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
                       <IoAdd size={18} />
                     </div>
@@ -295,7 +274,7 @@ const UserDetails = () => {
 
                   <button
                     onClick={logout}
-                    className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
+                    className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50 cursor-pointer"
                   >
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--danger)]">
                       <FiLogOut size={16} />
@@ -307,11 +286,11 @@ const UserDetails = () => {
                 </div>
 
                 <div className="mt-4 flex justify-center gap-3 text-xs text-[var(--text-secondary)]">
-                  <button className="transition-colors hover:text-[var(--accent-primary)]">
+                  <button className="transition-colors hover:text-[var(--accent-primary)] cursor-pointer">
                     Privacy Policy
                   </button>
                   <span>•</span>
-                  <button className="transition-colors hover:text-[var(--accent-primary)]">
+                  <button className="transition-colors hover:text-[var(--accent-primary)] cursor-pointer">
                     Terms of Service
                   </button>
                 </div>
@@ -325,7 +304,10 @@ const UserDetails = () => {
               ref={drawerRef}
               className="fixed top-0 right-0 z-50 h-screen w-[100%] overflow-y-auto bg-[var(--card-bg)] shadow-2xl"
             >
-              <button className="absolute top-5 right-5" onClick={closeDrawer}>
+              <button
+                className="absolute top-5 right-5 cursor-pointer"
+                onClick={closeDrawer}
+              >
                 <TbXboxXFilled
                   size={22}
                   className="text-[var(--text-secondary)]"
@@ -336,21 +318,9 @@ const UserDetails = () => {
                   {user?.email || "user@example.com"}
                 </p>
 
+                {/* Integrated Upload Avatar Component for Mobile */}
                 <div className="mt-4 flex justify-center">
-                  {user?.avatar ? (
-                    <img
-                      src={userAvatar}
-                      alt="Profile"
-                      className="h-16 w-16 rounded-full border-2 border-[var(--border-light)] object-cover shadow-md"
-                    />
-                  ) : (
-                    <div className="h-16 w-16 flex justify-center items-center rounded-full border-2 border-[var(--border-light)] object-cover shadow-md">
-                      <FaUserCircle
-                        size={48}
-                        className="text-[var(--text-secondary)]"
-                      />
-                    </div>
-                  )}
+                  <UploadAvatar size="w-16 h-16" />
                 </div>
 
                 <h2 className="mt-3 text-center text-2xl font-semibold truncate px-2">
@@ -363,7 +333,7 @@ const UserDetails = () => {
                       closeDrawer();
                       navigate("/profile");
                     }}
-                    className="h-9 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] px-4 text-xs font-medium"
+                    className="h-9 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] px-4 text-xs font-medium cursor-pointer"
                   >
                     Manage your NeuroCare Account
                   </button>
@@ -381,18 +351,22 @@ const UserDetails = () => {
                     {filteredMembers.map((member, index) => (
                       <button
                         key={member._id || index}
-                        className="flex w-full items-center gap-3 px-4 py-3"
+                        className="flex w-full items-center gap-3 px-4 py-3 cursor-pointer"
                       >
-                        <img
-                          src={
-                            member.user?.avatar ||
-                            `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                              member.user?.fullName || "User",
-                            )}`
-                          }
-                          className="h-9 w-9 rounded-full object-cover shrink-0"
-                          alt={member.user?.fullName || "Member"}
-                        />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full overflow-hidden border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]">
+                          {member.user?.avatar ? (
+                            <img
+                              src={member.user.avatar}
+                              alt={member.user?.fullName || "Member Avatar"}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <FaUser
+                              size={16}
+                              className="text-[var(--text-secondary)]"
+                            />
+                          )}
+                        </div>
 
                         <div className="text-left min-w-0 flex-1">
                           <p className="text-sm font-semibold truncate">
@@ -405,7 +379,7 @@ const UserDetails = () => {
                       </button>
                     ))}
 
-                    <button className="flex w-full items-center gap-3 px-4 py-3">
+                    <button className="flex w-full items-center gap-3 px-4 py-3 cursor-pointer">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)]">
                         <IoAdd size={18} />
                       </div>
@@ -416,7 +390,7 @@ const UserDetails = () => {
 
                     <button
                       onClick={logout}
-                      className="flex w-full items-center gap-3 px-4 py-3"
+                      className="flex w-full items-center gap-3 px-4 py-3 cursor-pointer"
                     >
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)] text-[var(--danger)]">
                         <FiLogOut size={16} />
@@ -428,9 +402,9 @@ const UserDetails = () => {
                   </div>
 
                   <div className="flex justify-center gap-3 pt-3 text-xs text-[var(--text-secondary)]">
-                    <button>Privacy Policy</button>
+                    <button className="cursor-pointer">Privacy Policy</button>
                     <span>•</span>
-                    <button>Terms of Service</button>
+                    <button className="cursor-pointer">Terms of Service</button>
                   </div>
                 </div>
               </div>
