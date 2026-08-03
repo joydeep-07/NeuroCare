@@ -165,7 +165,7 @@ const MyAppointments = () => {
   return (
     <div className="max-w-8xl mx-auto md:px-12 px-4 py-8 md:py-12 space-y-8 relative">
       {/* Title Banner */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50 shadow-lg">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/30 shadow-lg">
         <div>
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--accent-primary)] mb-2">
             <Calendar size={16} /> Patient Consultation Queue
@@ -198,7 +198,7 @@ const MyAppointments = () => {
           ))}
         </div>
       ) : appointments.length === 0 ? (
-        <div className="text-center py-16 p-8 rounded-lg bg-[var(--card-bg)]/50 border border-[var(--border-light)]/50">
+        <div className="text-center py-16 p-8 rounded-lg ">
           <Calendar
             size={48}
             className="mx-auto text-[var(--text-secondary)] mb-4"
