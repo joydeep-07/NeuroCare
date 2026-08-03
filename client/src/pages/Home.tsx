@@ -4,6 +4,7 @@ import { FiPhone } from "react-icons/fi";
 import AllDoctors from "../components/AllDoctors";
 import scrollToSection from "../hooks/scrollToSection";
 import WhatWeDo from "../components/WhatWeDo";
+import Review from "../components/patient/Review";
 const Home = () => {
   return (
     <>
@@ -184,6 +185,8 @@ const Home = () => {
         <div id="services">
           <WhatWeDo />
         </div>
+
+        <Review/>
       </div>
     </>
   );
