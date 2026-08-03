@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { TextField, InputAdornment } from "@mui/material";
 import { MdEmail, MdPassword, MdLock } from "react-icons/md";
-import { FcGoogle } from "react-icons/fc";
 import { UserCheck, Stethoscope, ShieldCheck } from "lucide-react";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/authSlice";
+import GoogleLogin from "../components/patient/GoogleLogin";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
@@ -413,16 +413,7 @@ const SignIn = () => {
 
           {activeTab === "patient" && !otpSent && (
             <div className="mt-8 pt-6 border-t border-[var(--border-light)]">
-              <button
-                type="button"
-                onClick={() => {
-                  alert("Google OAuth: Selected Google Sign In for Patient portal.");
-                }}
-                className="w-full py-3 px-4 rounded-xl border border-[var(--border-light)] bg-[var(--card-bg)] flex items-center justify-center gap-3 text-sm font-medium text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-all"
-              >
-                <FcGoogle size={20} />
-                Continue with Google Account
-              </button>
+              <GoogleLogin/>
             </div>
           )}
         </div>

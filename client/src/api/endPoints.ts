@@ -24,6 +24,7 @@ export const ENDPOINTS = {
     GET: `${BASE_URL}/profile`,
     COMPLETE: `${BASE_URL}/profile/complete`,
     UPDATE: `${BASE_URL}/profile/update`,
+    AVATAR: `${BASE_URL}/profile/avatar`,
     DELETE: `${BASE_URL}/profile/delete`,
   },
 

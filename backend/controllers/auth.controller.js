@@ -6,6 +6,9 @@ const OTP = require("../models/otp.model");
 const generateOTP = require("../utils/generateOTP");
 const sendOTP = require("../utils/sendOTP");
 const generateToken = require("../utils/generateToken");
+const { OAuth2Client } = require("google-auth-library");
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // =======================
 // Send OTP (Patient / Doctor)
@@ -136,7 +139,7 @@ const verifyOTP = async (req, res) => {
 
       user = await User.create({
         email: cleanEmail,
-        provider: "otp",
+        provider: "email",
         role: requestedRole,
         isProfileComplete: false,
       });
@@ -199,6 +202,99 @@ const verifyOTP = async (req, res) => {
       success: false,
       message: error.message || "Authentication error",
     });
+  }
+};
+
+// =======================
+// Google ID token authentication
+// =======================
+const googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ success: false, message: "Google credential is required." });
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ success: false, message: "Google sign-in is not configured." });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const email = payload?.email?.toLowerCase().trim();
+
+    if (!email || !payload.email_verified) {
+      return res.status(401).json({ success: false, message: "Google did not verify this email address." });
+    }
+
+    let user = await User.findOne({ email });
+    const googleAvatar = payload.picture || "";
+
+    if (!user) {
+      user = await User.create({
+        email,
+        fullName: payload.name || "",
+        avatar: googleAvatar,
+        avatarSource: googleAvatar ? "google" : "default",
+        provider: "google",
+        googleId: payload.sub,
+        role: "patient",
+        isProfileComplete: false,
+      });
+    } else {
+      // Linking by verified email avoids duplicate accounts. Never replace an uploaded avatar.
+      user.googleId = user.googleId || payload.sub;
+      // Legacy records with a non-empty avatar predate avatarSource; preserve them
+      // rather than risking replacement of an earlier user-uploaded picture.
+      if (user.avatarSource === "google" || !user.avatar) {
+        user.avatar = googleAvatar;
+        user.avatarSource = googleAvatar ? "google" : "default";
+      }
+      if (user.provider !== "google") user.provider = "google";
+    }
+
+    if (user.role === "patient" && !user.family) {
+      const family = await Family.create({
+        familyName: `${user.fullName || "My"} Family`,
+        primaryMember: user._id,
+        members: [user._id],
+      });
+      user.family = family._id;
+      await FamilyMember.updateOne(
+        { family: family._id, user: user._id },
+        { $setOnInsert: { family: family._id, user: user._id, addedBy: user._id, relationship: "Self" } },
+        { upsert: true },
+      );
+    }
+
+    user.lastLogin = new Date();
+    await user.save();
+    user = await User.findById(user._id).populate("family");
+
+    return res.status(200).json({
+      success: true,
+      message: "Google sign in successful",
+      token: generateToken(user._id),
+      user: {
+        _id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        phone: user.phone,
+        role: user.role,
+        avatar: user.avatar,
+        provider: user.provider,
+        isProfileComplete: !!(user.fullName && user.phone),
+        family: user.family,
+        specialization: user.specialization,
+        hospital: user.hospital,
+      },
+    });
+  } catch (error) {
+    console.error("googleLogin error:", error.message);
+    return res.status(401).json({ success: false, message: "Google sign-in could not be verified. Please try again." });
   }
 };
 
@@ -333,6 +429,7 @@ const completeProfile = async (req, res) => {
 module.exports = {
   sendEmailOTP,
   verifyOTP,
+  googleLogin,
   adminLogin,
   getMe,
   completeProfile,

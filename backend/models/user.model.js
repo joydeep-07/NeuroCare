@@ -94,10 +94,22 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
+    avatarSource: {
+      type: String,
+      enum: ["default", "google", "uploaded"],
+      default: "default",
+    },
+
+    avatarPublicId: {
+      type: String,
+      default: "",
+    },
+
     provider: {
       type: String,
-      enum: ["otp", "google", "password"],
-      default: "otp",
+      // Keep "otp" for existing records while using "email" for new OTP accounts.
+      enum: ["email", "otp", "google", "password"],
+      default: "email",
     },
 
     password: {
