@@ -13,6 +13,7 @@ import { TbXboxXFilled } from "react-icons/tb";
 
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
+import { User } from "lucide-react";
 
 const UserDetails = () => {
   const navigate = useNavigate();
@@ -245,9 +246,9 @@ const UserDetails = () => {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <FaUser
+                          <User
                             size={16}
-                            className="text-[var(--text-secondary)]"
+                            className="text-[var(--text-secondary)] transition-opacity duration-300 group-hover:opacity-60"
                           />
                         )}
                       </div>
@@ -361,9 +362,9 @@ const UserDetails = () => {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <FaUser
+                            <User
                               size={16}
-                              className="text-[var(--text-secondary)]"
+                              className="text-[var(--text-secondary)] transition-opacity duration-300 group-hover:opacity-60"
                             />
                           )}
                         </div>
