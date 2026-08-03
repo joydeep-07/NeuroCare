@@ -47,7 +47,7 @@ const Navbar = () => {
       { name: "Home", path: "/" },
       // { name: "Find Doctors", path: "/doctors" },
       { name: "My Appointments", path: "/appointments" },
-      { name: "Medical Records", path: "/records" },
+      // { name: "Medical Records", path: "/records" },
       { name: "Family Members", path: "/members" },
       { name: "AI Assistant", path: "/ai-assistant" },
     ];
