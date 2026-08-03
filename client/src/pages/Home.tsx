@@ -178,13 +178,12 @@ const Home = () => {
         </div>
 
         {/* Services Section Preview */}
+        <div id="doctors">
+          <AllDoctors />
+        </div>
         <div id="services">
           <WhatWeDo />
         </div>
-      </div>
-
-      <div id="doctors">
-        <AllDoctors />
       </div>
     </>
   );
