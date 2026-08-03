@@ -1,14 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Users,
   UserPlus,
   Link2,
   Trash2,
   Edit3,
-  Calendar,
-  Camera,
-  Loader2,
   User,
+  Calendar,
 } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
@@ -44,10 +42,6 @@ const FamilyMembers = () => {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState("");
-
-  // Avatar Upload Loading State per Member
-  const [uploadingId, setUploadingId] = useState<string | null>(null);
-  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const fetchMembers = async () => {
     try {
@@ -135,43 +129,6 @@ const FamilyMembers = () => {
     }
   };
 
-  // Handle Avatar Upload for a Specific Member
-  const handleAvatarChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    memberId: string,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image must be 5 MB or smaller.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("avatar", file);
-
-    try {
-      setUploadingId(memberId);
-      const res = await api.patch(ENDPOINTS.PROFILE.AVATAR, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (res.data.success) {
-        fetchMembers();
-      }
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to update profile picture.");
-    } finally {
-      setUploadingId(null);
-      if (fileInputRefs.current[memberId]) {
-        fileInputRefs.current[memberId]!.value = "";
-      }
-    }
-  };
-
   // Helper function to calculate exact age (years, months, days)
   const calculateAge = (dobString: string) => {
     if (!dobString) return "Not Provided";
@@ -186,6 +143,7 @@ const FamilyMembers = () => {
 
     if (days < 0) {
       months--;
+      // Get number of days in the previous month
       const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
       days += prevMonth.getDate();
     }
@@ -272,140 +230,117 @@ const FamilyMembers = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {members.map((m) => {
-            return (
-              <div
-                key={m._id}
-                className="rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] p-6 shadow-sm hover:shadow-lg transition-all space-y-4 relative flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider">
-                      {m.relationship}
-                    </span>
+          {members.map((m) => (
+            <div
+              key={m._id}
+              className="rounded-lg bg-[var(--card-bg)] border border-[var(--border-light)] p-6 shadow-sm hover:shadow-lg transition-all space-y-4 relative flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <span className="px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider">
+                    {m.relationship}
+                  </span>
 
-                    {m.isLinkedAccount ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold">
-                        <Link2 size={12} /> Linked Account
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-[var(--text-secondary)]">
-                        Standard Profile
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    {/* Avatar with Upload Hover Trigger */}
-                    <div
-                      className="relative group w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--border-light)] shrink-0 cursor-pointer bg-[var(--bg-secondary)] flex items-center justify-center"
-                      onClick={() => fileInputRefs.current[m._id]?.click()}
-                    >
-                      {m.user?.avatar ? (
-                        <img
-                          src={m.user.avatar}
-                          alt={m.user?.fullName || "Member Avatar"}
-                          className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-60"
-                        />
-                      ) : (
-                        <User
-                          size={24}
-                          className="text-[var(--text-secondary)] transition-opacity duration-300 group-hover:opacity-60"
-                        />
-                      )}
-
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        {uploadingId === m._id ? (
-                          <Loader2 className="animate-spin text-white w-5 h-5" />
-                        ) : (
-                          <Camera className="text-white w-5 h-5" />
-                        )}
-                      </div>
-
-                      <input
-                        type="file"
-                        accept="image/jpeg, image/png, image/webp"
-                        ref={(el) => (fileInputRefs.current[m._id] = el)}
-                        onChange={(e) => handleAvatarChange(e, m._id)}
-                        className="hidden"
-                      />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-bold text-[var(--text-main)] font-heading truncate">
-                        {m.user?.fullName || "Unnamed Member"}
-                      </h3>
-                      <p className="text-xs text-[var(--text-secondary)] truncate">
-                        {m.user?.email}
-                      </p>
-                      <p className="text-xs text-[var(--text-secondary)] font-mono truncate">
-                        {m.user?.phone || "No phone added"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Exact Age & Health Metrics */}
-                  <div className="mt-4 grid grid-cols-3 gap-2 text-xs pt-4 border-t border-[var(--border-light)]">
-                    <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
-                      <span className="text-[var(--text-secondary)] block text-[10px] flex items-center gap-1">
-                        <Calendar size={10} /> Age
-                      </span>
-                      <span className="font-semibold text-[var(--text-main)] truncate block">
-                        {calculateAge(m.user?.dateOfBirth)}
-                      </span>
-                    </div>
-                    <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
-                      <span className="text-[var(--text-secondary)] block text-[10px]">
-                        Blood Group
-                      </span>
-                      <span className="font-bold text-rose-500">
-                        {m.user?.bloodGroup || "Not Set"}
-                      </span>
-                    </div>
-                    <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
-                      <span className="text-[var(--text-secondary)] block text-[10px]">
-                        Gender
-                      </span>
-                      <span className="font-semibold text-[var(--text-main)]">
-                        {m.user?.gender || "Not Set"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {m.user?.illness && (
-                    <div className="mt-2 text-xs p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 truncate">
-                      <strong>Current Condition:</strong> {m.user.illness}
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-4 border-t border-[var(--border-light)] text-xs">
                   {m.isLinkedAccount ? (
-                    <span className="text-[10px] text-[var(--text-secondary)] italic">
-                      🔒 Personal info managed by user
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold">
+                      <Link2 size={12} /> Linked Account
                     </span>
                   ) : (
-                    <button
-                      onClick={() => handleOpenEditForm(m)}
-                      className="text-[var(--accent-primary)] font-semibold flex items-center gap-1 hover:underline cursor-pointer"
-                    >
-                      <Edit3 size={14} /> Edit Details
-                    </button>
-                  )}
-
-                  {!m.isSelf && (
-                    <button
-                      onClick={() => handleRemove(m._id)}
-                      className="text-rose-500 font-semibold flex items-center gap-1 hover:underline ml-auto cursor-pointer"
-                    >
-                      <Trash2 size={14} /> Remove Link
-                    </button>
+                    <span className="text-[10px] text-[var(--text-secondary)]">
+                      Standard Profile
+                    </span>
                   )}
                 </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--border-light)] bg-[var(--bg-secondary)] flex justify-center items-center shrink-0">
+                    {m.user?.avatar ? (
+                      <img
+                        src={m.user.avatar}
+                        alt={m.user?.fullName || "Member Avatar"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User
+                        size={24}
+                        className="text-[var(--text-secondary)]"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[var(--text-main)] font-heading">
+                      {m.user.fullName || "Unnamed Member"}
+                    </h3>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      {m.user.email}
+                    </p>
+                    <p className="text-xs text-[var(--text-secondary)] font-mono">
+                      {m.user.phone || "No phone added"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Exact Age & Health Metrics */}
+                <div className="mt-4 grid grid-cols-3 gap-2 text-xs pt-4 border-t border-[var(--border-light)]">
+                  <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
+                    <span className="text-[var(--text-secondary)] block text-[10px] flex items-center gap-1">
+                      <Calendar size={10} /> Age
+                    </span>
+                    <span className="font-semibold text-[var(--text-main)]">
+                      {calculateAge(m.user.dateOfBirth)}
+                    </span>
+                  </div>
+                  <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
+                    <span className="text-[var(--text-secondary)] block text-[10px]">
+                      Blood Group
+                    </span>
+                    <span className="font-bold text-rose-500">
+                      {m.user.bloodGroup || "Not Set"}
+                    </span>
+                  </div>
+                  <div className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-light)]">
+                    <span className="text-[var(--text-secondary)] block text-[10px]">
+                      Gender
+                    </span>
+                    <span className="font-semibold text-[var(--text-main)]">
+                      {m.user.gender || "Not Set"}
+                    </span>
+                  </div>
+                </div>
+
+                {m.user.illness && (
+                  <div className="mt-2 text-xs p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300">
+                    <strong>Current Condition:</strong> {m.user.illness}
+                  </div>
+                )}
               </div>
-            );
-          })}
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t border-[var(--border-light)] text-xs">
+                {m.isLinkedAccount ? (
+                  <span className="text-[10px] text-[var(--text-secondary)] italic">
+                    🔒 Personal info managed by user
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleOpenEditForm(m)}
+                    className="text-[var(--accent-primary)] font-semibold flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    <Edit3 size={14} /> Edit Details
+                  </button>
+                )}
+
+                {!m.isSelf && (
+                  <button
+                    onClick={() => handleRemove(m._id)}
+                    className="text-rose-500 font-semibold flex items-center gap-1 hover:underline ml-auto cursor-pointer"
+                  >
+                    <Trash2 size={14} /> Remove Link
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
