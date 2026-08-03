@@ -205,63 +205,59 @@ const UserDetails = () => {
         <>
           {/* ================= Desktop Dropdown ================= */}
           <div className="hidden md:block">
-            <div className="absolute right-0 z-[9999] mt-3 w-md overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--card-bg)] text-[var(--text-main)] shadow-[0_20px_60px_var(--shadow)] transition-all duration-300">
+            <div className="absolute right-0 z-[9999] mt-3 w-sm max-h-[85vh] overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--card-bg)] text-[var(--text-main)] shadow-[0_20px_60px_var(--shadow)] transition-all duration-300">
               {/* Header */}
-              <div className="px-8 pt-6 pb-5">
-                <p className="text-center text-[15px] font-medium text-[var(--text-secondary)]">
+              <div className="px-5 pt-5 pb-4">
+                <p className="text-center text-xs font-medium text-[var(--text-secondary)] truncate">
                   {user?.email || "NO USER FOUND"}
                 </p>
 
-                <div className="mt-6 flex justify-center">
+                <div className="mt-4 flex justify-center">
                   {user?.avatar ? (
-                    <>
-                      <img
-                        src={userAvatar}
-                        alt="Profile"
-                        className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
-                      />
-                    </>
+                    <img
+                      src={userAvatar}
+                      alt="Profile"
+                      className="h-16 w-16 rounded-full border-2 border-[var(--border-light)] object-cover shadow-md"
+                    />
                   ) : (
-                    <>
-                      <div className="h-24 w-24 flex justify-center items-center rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg">
-                        <FaUserCircle
-                          size={76}
-                          className="text-[var(--text-secondary)] "
-                        />
-                      </div>
-                    </>
+                    <div className="h-16 w-16 flex justify-center items-center rounded-full border-2 border-[var(--border-light)] object-cover shadow-md">
+                      <FaUserCircle
+                        size={48}
+                        className="text-[var(--text-secondary)]"
+                      />
+                    </div>
                   )}
                 </div>
 
-                <h2 className="mt-5 text-center text-4xl font-semibold text-[var(--text-main)]">
+                <h2 className="mt-3 text-center text-xl font-semibold text-[var(--text-main)] truncate px-2">
                   Hi, {(user?.fullName || user?.name || "User").split(" ")[0]} !
                 </h2>
 
-                <div className="mt-6 flex justify-center">
+                <div className="mt-4 flex justify-center">
                   <button
                     onClick={() => navigate("/members")}
-                    className="h-12 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)]/50 px-8 text-sm font-medium transition-all duration-300 hover:bg-[var(--bg-main)]"
+                    className="h-9 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)]/50 px-4 text-xs font-medium transition-all duration-300 hover:bg-[var(--bg-main)]"
                   >
                     Manage your NeuroCare Account
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-3 px-5 pb-5">
-                <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
-                  <div className="flex items-center justify-between px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
-                    <span className="font-medium">Choose Theme</span>
+              <div className="space-y-2.5 px-4 pb-4">
+                <div className="overflow-hidden rounded-xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
+                  <div className="flex items-center justify-between px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
+                    <span className="text-sm font-medium">Choose Theme</span>
                     <ThemeToggle />
                   </div>
                 </div>
 
-                <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
+                <div className="overflow-hidden rounded-xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
                   {filteredMembers.map((member, index) => (
                     <button
                       key={member._id || index}
-                      className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
+                      className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
                     >
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full overflow-hidden border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]">
                         {member.user?.avatar ? (
                           <img
                             src={member.user.avatar}
@@ -269,7 +265,7 @@ const UserDetails = () => {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span className="font-semibold text-[var(--text-secondary)]">
+                          <span className="text-xs font-semibold text-[var(--text-secondary)]">
                             {(member.user?.fullName || "?")
                               .charAt(0)
                               .toUpperCase()}
@@ -277,47 +273,44 @@ const UserDetails = () => {
                         )}
                       </div>
 
-                      <div className="text-left">
-                        <p className="font-semibold text-[var(--text-main)]">
+                      <div className="text-left min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-[var(--text-main)] truncate">
                           {member.user?.fullName || "Unknown User"}
                         </p>
-
-                        <p className="text-sm text-[var(--text-secondary)]">
+                        <p className="text-xs text-[var(--text-secondary)] truncate">
                           {member.user?.email || "-"}
                         </p>
                       </div>
                     </button>
                   ))}
 
-                  <button className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
-                      <IoAdd size={22} />
+                  <button className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+                      <IoAdd size={18} />
                     </div>
-
-                    <span className="font-medium">Add another member</span>
+                    <span className="text-sm font-medium">
+                      Add another member
+                    </span>
                   </button>
 
                   <button
                     onClick={logout}
-                    className="flex w-full items-center gap-4 px-6 py-5 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
+                    className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50"
                   >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--danger)]">
-                      <FiLogOut />
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] text-[var(--danger)]">
+                      <FiLogOut size={16} />
                     </div>
-
-                    <span className="font-medium text-[var(--danger)]">
+                    <span className="text-sm font-medium text-[var(--danger)]">
                       Sign out
                     </span>
                   </button>
                 </div>
 
-                <div className="mt-6 flex justify-center gap-4 text-sm text-[var(--text-secondary)]">
+                <div className="mt-4 flex justify-center gap-3 text-xs text-[var(--text-secondary)]">
                   <button className="transition-colors hover:text-[var(--accent-primary)]">
                     Privacy Policy
                   </button>
-
                   <span>•</span>
-
                   <button className="transition-colors hover:text-[var(--accent-primary)]">
                     Terms of Service
                   </button>
@@ -332,67 +325,63 @@ const UserDetails = () => {
               ref={drawerRef}
               className="fixed top-0 right-0 z-50 h-screen w-[100%] overflow-y-auto bg-[var(--card-bg)] shadow-2xl"
             >
-              <button className="absolute top-6 right-6" onClick={closeDrawer}>
+              <button className="absolute top-5 right-5" onClick={closeDrawer}>
                 <TbXboxXFilled
-                  size={20}
-                  className="text-[var(--text-secondary)] "
+                  size={22}
+                  className="text-[var(--text-secondary)]"
                 />
               </button>
-              <div className="px-4 py-6">
-                <p className="text-center text-sm font-medium text-[var(--text-secondary)]">
+              <div className="px-4 py-5">
+                <p className="text-center text-xs font-medium text-[var(--text-secondary)] truncate px-6">
                   {user?.email || "user@example.com"}
                 </p>
 
-                <div className="mt-6 flex justify-center">
+                <div className="mt-4 flex justify-center">
                   {user?.avatar ? (
-                    <>
-                      <img
-                        src={userAvatar}
-                        alt="Profile"
-                        className="h-24 w-24 rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg"
-                      />
-                    </>
+                    <img
+                      src={userAvatar}
+                      alt="Profile"
+                      className="h-16 w-16 rounded-full border-2 border-[var(--border-light)] object-cover shadow-md"
+                    />
                   ) : (
-                    <>
-                      <div className="h-24 w-24 flex justify-center items-center rounded-full border-4 border-[var(--border-light)] object-cover shadow-lg">
-                        <FaUserCircle
-                          size={74}
-                          className="text-[var(--text-secondary)] "
-                        />
-                      </div>
-                    </>
+                    <div className="h-16 w-16 flex justify-center items-center rounded-full border-2 border-[var(--border-light)] object-cover shadow-md">
+                      <FaUserCircle
+                        size={48}
+                        className="text-[var(--text-secondary)]"
+                      />
+                    </div>
                   )}
                 </div>
 
-                <h2 className="mt-5 text-center text-3xl font-semibold">
+                <h2 className="mt-3 text-center text-2xl font-semibold truncate px-2">
                   Hi, {user?.fullName || user?.name || "User"}!
                 </h2>
 
-                <div className="mt-6 flex justify-center">
+                <div className="mt-4 flex justify-center">
                   <button
                     onClick={() => {
                       closeDrawer();
                       navigate("/profile");
                     }}
-                    className="h-12 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] px-6 text-sm font-medium"
+                    className="h-9 rounded-full border border-[var(--border-light)] bg-[var(--bg-secondary)] px-4 text-xs font-medium"
                   >
                     Manage your NeuroCare Account
                   </button>
                 </div>
 
-                <div className="mt-8 space-y-3">
-                  <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
-                    <div className="flex items-center justify-between px-5 py-5">
-                      <span className="font-medium">Choose Theme</span>
+                <div className="mt-6 space-y-2.5">
+                  <div className="overflow-hidden rounded-xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-sm font-medium">Choose Theme</span>
                       <ThemeToggle />
                     </div>
                   </div>
 
-                  <div className="overflow-hidden rounded-2xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
+                  <div className="overflow-hidden rounded-xl border border-[var(--border-light)]/50 bg-[var(--bg-main)]">
                     {filteredMembers.map((member, index) => (
                       <button
                         key={member._id || index}
-                        className="flex w-full items-center gap-4 px-5 py-5"
+                        className="flex w-full items-center gap-3 px-4 py-3"
                       >
                         <img
                           src={
@@ -401,43 +390,44 @@ const UserDetails = () => {
                               member.user?.fullName || "User",
                             )}`
                           }
-                          className="h-11 w-11 rounded-full object-cover"
+                          className="h-9 w-9 rounded-full object-cover shrink-0"
                           alt={member.user?.fullName || "Member"}
                         />
 
-                        <div className="text-left">
-                          <p className="font-semibold">
+                        <div className="text-left min-w-0 flex-1">
+                          <p className="text-sm font-semibold truncate">
                             {member.user?.fullName || "Unknown User"}
                           </p>
-
-                          <p className="text-sm text-[var(--text-secondary)]">
+                          <p className="text-xs text-[var(--text-secondary)] truncate">
                             {member.user?.email || "-"}
                           </p>
                         </div>
                       </button>
                     ))}
 
-                    <button className="flex w-full items-center gap-4 px-5 py-5">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)]">
-                        <IoAdd size={22} />
+                    <button className="flex w-full items-center gap-3 px-4 py-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)]">
+                        <IoAdd size={18} />
                       </div>
-
-                      <span>Add another member</span>
+                      <span className="text-sm font-medium">
+                        Add another member
+                      </span>
                     </button>
 
                     <button
                       onClick={logout}
-                      className="flex w-full items-center gap-4 px-5 py-5"
+                      className="flex w-full items-center gap-3 px-4 py-3"
                     >
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-light)] text-[var(--danger)]">
-                        <FiLogOut />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-light)] text-[var(--danger)]">
+                        <FiLogOut size={16} />
                       </div>
-
-                      <span className="text-[var(--danger)]">Sign out</span>
+                      <span className="text-sm font-medium text-[var(--danger)]">
+                        Sign out
+                      </span>
                     </button>
                   </div>
 
-                  <div className="flex justify-center gap-4 pt-4 text-sm text-[var(--text-secondary)]">
+                  <div className="flex justify-center gap-3 pt-3 text-xs text-[var(--text-secondary)]">
                     <button>Privacy Policy</button>
                     <span>•</span>
                     <button>Terms of Service</button>
