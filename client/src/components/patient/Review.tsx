@@ -42,7 +42,7 @@ const mockReviews = [
 ];
 
 const slideVariants = {
-  enter: (direction) => ({
+  enter:  ( direction : number) => ({
     x: direction > 0 ? 300 : -400,
     opacity: 0,
   }),
@@ -50,7 +50,7 @@ const slideVariants = {
     x: 0,
     opacity: 1,
   },
-  exit: (direction) => ({
+  exit: (direction : number) => ({
     x: direction > 0 ? -400 : 300,
     opacity: 0,
   }),
@@ -151,10 +151,10 @@ const Reviews = () => {
           </span>
 
           <h1
-            className="text-3xl md:text-5xl font-light mb-4 leading-tight"
+            className="text-2xl md:text-5xl font-light mb-4 leading-tight"
             style={{ color: "var(--text-main)" }}
           >
-            What People Say ?
+            What People choose <span className="text-(--accent-primary)">Neuro</span>Care ?
           </h1>
 
           <p className="text-xs opacity-80 max-w-sm mb-6 lg:mb-0">
