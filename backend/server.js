@@ -35,6 +35,7 @@ app.use("/api/admin", require("./routes/admin.routes"));
 app.use("/api/appointments", require("./routes/appointment.routes"));
 app.use("/api/documents", require("./routes/document.routes"));
 app.use("/api/ai", require("./routes/ai.routes"));
+app.use("/api/reviews", require("./routes/review.routes"));
 
 app.get("/", (req, res) => {
   res.json({

@@ -59,7 +59,8 @@ export const ENDPOINTS = {
     GET_AVAILABLE: `${BASE_URL}/doctors/available`,
     SEARCH: `${BASE_URL}/doctors/search`,
     DASHBOARD: `${BASE_URL}/doctors/portal/dashboard`,
-    APPOINTMENT_RECORDS: (id: string) => `${BASE_URL}/doctors/portal/appointments/${id}/records`,
+    APPOINTMENT_RECORDS: (id: string) =>
+      `${BASE_URL}/doctors/portal/appointments/${id}/records`,
   },
 
   // ==========================
@@ -77,6 +78,16 @@ export const ENDPOINTS = {
     UPLOAD: `${BASE_URL}/documents/upload`,
     GET_ALL: `${BASE_URL}/documents`,
     DELETE: (id: string) => `${BASE_URL}/documents/${id}`,
+  },
+
+  // ==========================
+  // Reviews
+  // ==========================
+  REVIEW: {
+    GET_ALL: `${BASE_URL}/reviews`,
+    CREATE: `${BASE_URL}/reviews`,
+    UPDATE: (id: string) => `${BASE_URL}/reviews/${id}`,
+    DELETE: (id: string) => `${BASE_URL}/reviews/${id}`,
   },
 
   // ==========================
