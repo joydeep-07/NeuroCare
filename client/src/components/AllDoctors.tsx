@@ -27,6 +27,10 @@ const AllDoctors = () => {
   const [selectedDoctorForBooking, setSelectedDoctorForBooking] =
     useState<Doctor | null>(null);
 
+    const [expandedDoctorId, setExpandedDoctorId] = useState<string | null>(
+      null,
+    );
+
   const gridRef = useRef<HTMLDivElement>(null);
 
   const fetchDoctors = async () => {
@@ -79,7 +83,7 @@ const AllDoctors = () => {
 
   return (
     <div
-      className="min-h-screen font-sans transition-colors duration-300"
+      className=" font-sans transition-colors duration-300"
       style={{
         backgroundColor: "var(--bg-main)",
         color: "var(--text-main)",
@@ -222,6 +226,12 @@ const AllDoctors = () => {
                     doctor={doctor}
                     index={index}
                     isExtra={index >= 3}
+                    isExpanded={expandedDoctorId === doctor._id}
+                    onToggleExpand={() =>
+                      setExpandedDoctorId(
+                        expandedDoctorId === doctor._id ? null : doctor._id,
+                      )
+                    }
                     onBookAppointment={(doc) =>
                       setSelectedDoctorForBooking(doc)
                     }
