@@ -1,13 +1,19 @@
 // Reviews.tsx
 import React, { useEffect, useState, useRef } from "react";
-import { Stethoscope, User, Edit3, Trash2 } from "lucide-react";
+import {
+  Stethoscope,
+  User,
+  Edit3,
+  Trash2,
+  Star,
+  MoreVertical,
+} from "lucide-react";
 import { motion, AnimatePresence, easeInOut } from "framer-motion";
 import { LeaveReview } from "./LeaveReview";
 import { ENDPOINTS } from "../../api/endPoints";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/store";
 import axios from "axios";
-import Rating from "@mui/material/Rating";
 
 const SLIDE_DURATION = 10000;
 const RADIUS = 36;
@@ -41,8 +47,23 @@ const Reviews = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<any>(null);
 
+  // Dropdown Menu state for Owner actions
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+
   const holdTimeoutRef = useRef<any>(null);
   const isHoldingRef = useRef(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpenId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Fetch reviews from backend
   const fetchReviews = async () => {
@@ -106,6 +127,7 @@ const Reviews = () => {
 
   // Delete review handler with Auth Token
   const handleDelete = async (reviewId: string) => {
+    setMenuOpenId(null);
     if (!window.confirm("Are you sure you want to delete this review?")) return;
     try {
       await axios.delete(ENDPOINTS.REVIEW.DELETE(reviewId), {
@@ -128,6 +150,7 @@ const Reviews = () => {
 
   // Open Panel for Editing
   const handleOpenEdit = (rev: any) => {
+    setMenuOpenId(null);
     setEditingReview(rev);
     setIsPanelOpen(true);
     setIsPaused(true);
@@ -306,39 +329,76 @@ const Reviews = () => {
                       <h1 className="font-semibold text-lg sm:text-xl">
                         {item.name}
                       </h1>
-                      <p className="text-sm text-(--text-secondary) ">{item.email}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Rating
-                          value={item.rating || 5}
-                          readOnly
-                          size="small"
-                        />
+                      <p className="text-sm text-(--text-secondary) ">
+                        {item.email}
+                      </p>
+
+                      {/* Lucide Rating Stars */}
+                      <div className="flex items-center gap-1 mt-1">
+                        {Array.from({ length: 5 }).map((_, i) => {
+                          const ratingValue = item.rating || 5;
+                          const isFilled = i < Math.floor(ratingValue);
+                          return (
+                            <Star
+                              key={i}
+                              size={12}
+                              className={`${
+                                isFilled
+                                  ? "text-amber-400 fill-amber-400"
+                                  : "text-gray-300 dark:text-gray-600"
+                              }`}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {/* Owner Actions */}
+                    {/* Owner Actions - Vertical 3-Dot Dropdown Menu */}
                     {isOwner && (
-                      <div className="absolute top-4 right-4 flex items-center gap-2">
+                      <div className="absolute top-4 right-4" ref={menuRef}>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleOpenEdit(item);
+                            setMenuOpenId(
+                              menuOpenId === item._id ? null : item._id,
+                            );
                           }}
-                          className="p-2 rounded-full bg-[var(--bg-main)] hover:bg-[var(--accent-primary)]/20 text-[var(--text-main)] transition-colors cursor-pointer"
-                          title="Edit Review"
+                          className="p-2 rounded-full bg-[var(--bg-main)] text-[var(--text-main)] transition-colors cursor-pointer"
+                          title="Options"
                         >
-                          <Edit3 size={16} />
+                          <MoreVertical size={16} />
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(item._id);
-                          }}
-                          className="p-2 rounded-full bg-[var(--bg-main)] hover:bg-red-500/20 text-red-500 transition-colors cursor-pointer"
-                          title="Delete Review"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+
+                        <AnimatePresence>
+                          {menuOpenId === item._id && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute right-0 mt-2 w-32 bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-sm shadow-lg overflow-hidden z-20"
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenEdit(item);
+                                }}
+                                className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium text-[var(--text-main)] hover:bg-[var(--accent-primary)]/15 transition-colors text-left cursor-pointer"
+                              >
+                                <Edit3 size={14} /> Edit
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(item._id);
+                                }}
+                                className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium text-red-500 hover:bg-red-500/15 transition-colors text-left cursor-pointer border-t border-[var(--border-light)]/40"
+                              >
+                                <Trash2 size={14} /> Delete
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     )}
                   </div>
