@@ -183,7 +183,7 @@ const Reviews = () => {
               color: "var(--accent-primary)",
             }}
           >
-            <Stethoscope size={14} /> Patient's Reviews
+            <Stethoscope size={14} /> What people say ?
           </span>
 
           <h1
@@ -216,7 +216,7 @@ const Reviews = () => {
               <p className="text-sm opacity-70">Loading reviews...</p>
             </div>
           ) : reviews.length === 0 ? (
-            <div className="h-64 sm:h-72 md:h-80 flex items-center justify-center border border-[var(--border-light)] bg-[var(--bg-secondary)] rounded-xl">
+            <div className="h-40 sm:h-55 md:h-55 flex items-center justify-center border border-[var(--border-light)] bg-[var(--bg-secondary)] rounded-xl">
               <p className="text-sm opacity-70 tracking-wide px-4 text-center">
                 No Reviews found
               </p>
@@ -257,7 +257,7 @@ const Reviews = () => {
                   transition={{
                     layout: { duration: 0.45, ease: easeInOut },
                   }}
-                  className="border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]/50 rounded-lg min-h-88 md:min-h-59 overflow-hidden select-none cursor-grab active:cursor-grabbing relative"
+                  className="border-l-3 border-[var(--accent-primary)]/50 bg-[var(--bg-secondary)]/30 rounded-lg min-h-50 md:min-h-55 overflow-hidden select-none cursor-grab active:cursor-grabbing relative"
                 >
                   <div className="flex flex-col sm:flex-row items-start sm:items-center p-4 sm:p-6">
                     <div className="relative mb-4 sm:mb-0 sm:mr-6 w-[88px] h-[88px] flex-shrink-0">
@@ -326,10 +326,10 @@ const Reviews = () => {
                     </div>
 
                     <div className="flex-1">
-                      <h1 className="font-semibold text-lg sm:text-xl">
+                      <h1 className="font-normal font-heading text-lg sm:text-xl">
                         {item.name}
                       </h1>
-                      <p className="text-sm text-(--text-secondary) ">
+                      <p className="text-xs text-(--text-secondary) ">
                         {item.email}
                       </p>
 
@@ -420,7 +420,7 @@ const Reviews = () => {
                 </motion.div>
               </AnimatePresence>
 
-              <div className="mt-6 flex justify-between items-center px-2 sm:px-4">
+              <div className="mt-6 flex justify-end items-center px-2 sm:px-4">
                 <div className="text-sm tracking-wider text-[var(--text-secondary)]/70">
                   <span className="font-medium text-[var(--text-main)]">
                     {String(currentSlide).padStart(2, "0")}
