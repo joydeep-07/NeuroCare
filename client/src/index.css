@@ -81,3 +81,17 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.6);
 }
+
+/* Theme toggle animation */
+
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: none;
+  z-index: 9999;
+  isolation: isolate;
+  mix-blend-mode: normal;
+}
