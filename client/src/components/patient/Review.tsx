@@ -22,6 +22,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const Reviews = () => {
   const { user, token } = useSelector((state: RootState) => state.auth);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [index, setIndex] = useState(0);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -335,7 +336,7 @@ const Reviews = () => {
                               )}
                             </svg>
 
-                            {item.avatar && item.avatar.startsWith("http") ? (
+                            {item.avatar && item.avatar.startsWith("http") && !failedImages[realId] ? (
                               <div className="relative h-16 w-16 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                                 {!loadedImages[realId] && (
                                   <div className="absolute inset-0 rounded-full p-1 bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-2 border-[var(--accent-primary)] animate-pulse flex justify-center items-center">
@@ -347,6 +348,7 @@ const Reviews = () => {
                                   src={item.avatar}
                                   alt={item.name}
                                   onLoad={() => handleImageLoad(realId)}
+                                  onError={() => setFailedImages((prev) => ({ ...prev, [realId]: true }))}
                                   className={`h-16 w-16 rounded-full object-cover z-10 border border-[var(--border-light)] transition-opacity duration-500 ${
                                     loadedImages[realId]
                                       ? "opacity-100"

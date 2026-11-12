@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Search, Stethoscope, MapPin, Building, Calendar, ArrowRight } from "lucide-react";
+import { Search, Stethoscope, MapPin, Building, Calendar, ArrowRight, RotateCcw } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import BookAppointmentModal from "../../components/patient/BookAppointmentModal";
+import UserAvatar from "../../components/UserAvatar";
 
 interface Doctor {
   _id: string;
@@ -149,12 +150,25 @@ const DoctorSearch = () => {
               className="mx-auto text-[var(--text-secondary)] mb-4"
             />
             <h3 className="text-xl font-bold text-[var(--text-main)] font-heading">
-              No Doctors Found
+              No relevant doctors found for your search.
             </h3>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Try refining your search query or selecting a different medical
-              specialty.
+            <p className="text-sm text-[var(--text-secondary)] mt-2 max-w-md mx-auto">
+              We couldn't find any registered doctors matching your search query or selected specialization. Try adjusting your search keywords or clearing filters.
             </p>
+            {(searchQuery.trim() || selectedSpecialty !== "All Specialties") && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedSpecialty("All Specialties");
+                  }}
+                  className="px-5 py-2.5 rounded-sm bg-[var(--accent-primary)] text-white text-xs font-semibold hover:opacity-90 transition-all flex items-center gap-1.5 shadow-sm"
+                >
+                  <RotateCcw size={14} /> Reset Search Filters
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -165,13 +179,11 @@ const DoctorSearch = () => {
               >
                 <div>
                   <div className="flex gap-4 items-center mb-4">
-                    <img
-                      src={
-                        doctor.avatar ||
-                        "https://i.pinimg.com/1200x/5d/90/30/5d90305c3e338f4b17a52fd8dccf83b8.jpg"
-                      }
+                    <UserAvatar
+                      src={doctor.avatar}
                       alt={doctor.fullName}
-                      className="w-16 h-16 rounded-full object-top object-cover border border-[var(--border-light)] shadow-xs"
+                      name={doctor.fullName}
+                      size="w-16 h-16"
                     />
                     <div className="flex-1">
                       {/* <div className="flex items-center gap-1.5 text-amber-500 font-semibold text-xs mb-1">

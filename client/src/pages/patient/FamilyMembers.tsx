@@ -5,12 +5,12 @@ import {
   Link2,
   Trash2,
   Edit3,
-  User,
   Calendar,
 } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import FamilyMemberForm from "../../components/FamilyMemberForm";
+import UserAvatar from "../../components/UserAvatar";
 
 interface Member {
   _id: string;
@@ -253,20 +253,14 @@ const FamilyMembers = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[var(--border-light)] bg-[var(--bg-secondary)] flex justify-center items-center shrink-0">
-                    {m.user?.avatar ? (
-                      <img
-                        src={m.user.avatar}
-                        alt={m.user?.fullName || "Member Avatar"}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User
-                        size={24}
-                        className="text-[var(--text-secondary)]"
-                      />
-                    )}
-                  </div>
+                  <UserAvatar
+                    src={m.user?.avatar}
+                    alt={m.user?.fullName || "Member Avatar"}
+                    name={m.user?.fullName || "Member"}
+                    size="w-14 h-14"
+                    iconSize={24}
+                    iconType="lucide"
+                  />
                   <div>
                     <h3 className="text-base font-bold text-[var(--text-main)] font-heading">
                       {m.user.fullName || "Unnamed Member"}

@@ -19,6 +19,7 @@ import { formatDate } from "../../hooks/useDate";
 import Prespcription from "../../components/patient/Prespcription"; 
 import DownloadablePrescription from "../../components/patient/DownloadablePrespcription";
 import Download from "../../components/patient/Download";
+import UserAvatar from "../../components/UserAvatar";
 
 interface Appointment {
   _id: string;
@@ -231,10 +232,11 @@ const MyAppointments = () => {
                   className="p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 cursor-pointer hover:bg-[var(--card-bg)] transition-all"
                 >
                   <div className="flex gap-4 items-center">
-                    <img
+                    <UserAvatar
                       src={appt.doctor.avatar}
                       alt={appt.doctor.fullName}
-                      className="w-14 h-14 rounded-full object-top object-cover border border-[var(--border-light)]/50"
+                      name={appt.doctor.fullName}
+                      size="w-14 h-14"
                     />
                     <div>
                       <div className="flex items-center gap-2">

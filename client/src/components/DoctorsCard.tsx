@@ -7,6 +7,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import UserAvatar from "./UserAvatar";
 
 export interface Doctor {
   _id: string;
@@ -64,14 +65,12 @@ export const DoctorsCard: React.FC<DoctorsCardProps> = ({
         className="flex items-center justify-between md:cursor-default cursor-pointer"
       >
         <div className="flex gap-3.5 md:gap-4 items-center w-full">
-          <img
-            src={
-              doctor.avatar ||
-              "https://i.pinimg.com/1200x/5d/90/30/5d90305c3e338f4b17a52fd8dccf83b8.jpg"
-            }
+          <UserAvatar
+            src={doctor.avatar}
             alt={doctor.fullName}
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full object-top object-cover border shadow-xs shrink-0"
-            style={{ borderColor: "var(--border-light)" }}
+            name={doctor.fullName}
+            size="w-12 h-12 md:w-16 md:h-16"
+            className="shrink-0"
           />
           <div className="flex-1 min-w-0">
             <h3

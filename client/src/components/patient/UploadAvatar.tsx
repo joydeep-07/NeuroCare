@@ -1,6 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaCamera, FaSpinner } from "react-icons/fa";
+import { FaCamera, FaSpinner, FaUser } from "react-icons/fa";
 import { updateUser } from "../../redux/authSlice";
 import type { AppDispatch, RootState } from "../../redux/store";
 import api from "../../api/axios";
@@ -20,7 +20,12 @@ const UploadAvatar: React.FC<UploadAvatarProps> = ({
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.avatar]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,11 +70,13 @@ const UploadAvatar: React.FC<UploadAvatarProps> = ({
     }
   };
 
-  const userAvatar =
-    user?.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user?.fullName || user?.name || user?.email || "User",
-    )}&background=1a73e8&color=ffffff&size=256`;
+  const isValidAvatar = Boolean(
+    user?.avatar &&
+    typeof user.avatar === "string" &&
+    user.avatar.trim() !== "" &&
+    !user.avatar.includes("null") &&
+    !user.avatar.includes("undefined")
+  );
 
   return (
     <div className="relative inline-block">
@@ -77,11 +84,18 @@ const UploadAvatar: React.FC<UploadAvatarProps> = ({
         className={`relative rounded-full overflow-hidden border-2 border-[var(--border-light)] bg-[var(--bg-secondary)] shadow-md ${size} group cursor-pointer`}
         onClick={() => fileInputRef.current?.click()}
       >
-        <img
-          src={userAvatar}
-          alt={user?.fullName || "User Avatar"}
-          className="h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-75"
-        />
+        {!isValidAvatar || imgError ? (
+          <div className="h-full w-full flex items-center justify-center bg-[var(--bg-secondary)] text-[var(--text-secondary)] select-none">
+            <FaUser className="text-2xl opacity-75" />
+          </div>
+        ) : (
+          <img
+            src={user?.avatar}
+            alt={user?.fullName || "User Avatar"}
+            onError={() => setImgError(true)}
+            className="h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-75"
+          />
+        )}
 
         {/* Overlay Spinner or Camera Icon on Hover */}
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

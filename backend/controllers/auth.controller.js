@@ -247,11 +247,10 @@ const googleLogin = async (req, res) => {
     } else {
       // Linking by verified email avoids duplicate accounts. Never replace an uploaded avatar.
       user.googleId = user.googleId || payload.sub;
-      // Legacy records with a non-empty avatar predate avatarSource; preserve them
-      // rather than risking replacement of an earlier user-uploaded picture.
-      if (user.avatarSource === "google" || !user.avatar) {
+      // Link Google authentication and display Google avatar when available
+      if (googleAvatar && (user.avatarSource === "google" || user.avatarSource === "default" || !user.avatar || user.avatar.includes("ui-avatars.com"))) {
         user.avatar = googleAvatar;
-        user.avatarSource = googleAvatar ? "google" : "default";
+        user.avatarSource = "google";
       }
       if (user.provider !== "google") user.provider = "google";
     }

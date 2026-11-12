@@ -113,8 +113,8 @@ const AllDoctors = () => {
         symptoms: trimmedQuery,
         preferredLocation: trimmedLocation,
       });
-      if (res.data.success && res.data.doctors?.length > 0) {
-        setDoctors(res.data.doctors);
+      if (res.data.success) {
+        setDoctors(res.data.doctors || []);
         setAiRecommendationMeta(res.data);
         setShowAll(true);
       } else {
@@ -122,7 +122,7 @@ const AllDoctors = () => {
         await fetchDoctors(trimmedQuery, selectedSpecialty, trimmedLocation);
       }
     } catch {
-      // Fallback to standard name/specialty/hospital search if AI endpoint fails or query is a doctor name
+      // Fallback to standard query search if AI endpoint fails
       setAiRecommendationMeta(null);
       await fetchDoctors(trimmedQuery, selectedSpecialty, trimmedLocation);
     } finally {
@@ -311,14 +311,16 @@ const AllDoctors = () => {
                   className="px-2.5 py-0.5 rounded-sm text-white font-semibold text-[11px]"
                   style={{ backgroundColor: "var(--accent-primary)" }}
                 >
-                  AI Matched: {aiRecommendationMeta.suggestedSpecialty}
+                  AI Match: {aiRecommendationMeta.suggestedSpecialty || "Specialist Search"}
                 </span>
                 <span style={{ color: "var(--text-secondary)" }}>
-                  {aiRecommendationMeta.locationSearched
+                  {aiRecommendationMeta.locationSearched && aiRecommendationMeta.locationSearched !== "All locations"
                     ? `${aiRecommendationMeta.locationSearched} • `
                     : ""}
                   {aiRecommendationMeta.isLocationExactMatch
                     ? "Exact Location Match"
+                    : aiRecommendationMeta.totalMatches === 0
+                    ? "0 Matches"
                     : "Top Network Specialists"}
                 </span>
               </div>
@@ -358,15 +360,49 @@ const AllDoctors = () => {
                 className="text-xl font-bold"
                 style={{ color: "var(--text-main)" }}
               >
-                No Doctors Found
+                No relevant doctors found for your search.
               </h3>
               <p
-                className="text-sm mt-1"
+                className="text-sm mt-2 max-w-md mx-auto"
                 style={{ color: "var(--text-secondary)" }}
               >
-                Try searching by a different name, specialty, or symptom
-                description.
+                {locationInput
+                  ? `No verified doctors matched your criteria in "${locationInput}". Try adjusting your location or symptoms.`
+                  : "We couldn't find any verified doctors matching your search criteria. Try adjusting your symptoms, keywords, or selecting another medical specialty."}
               </p>
+              {hasActiveFilters && (
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  {locationInput && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLocationInput("");
+                        if (searchInput.trim()) {
+                          fetchDoctors(searchInput, selectedSpecialty, "");
+                        } else {
+                          handleReset();
+                        }
+                      }}
+                      className="px-4 py-2 rounded-sm border text-xs font-semibold hover:opacity-80 transition-all cursor-pointer"
+                      style={{
+                        backgroundColor: "var(--card-bg)",
+                        borderColor: "var(--border-light)",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
+                      Clear Location Filter
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="px-5 py-2 rounded-sm text-xs font-semibold hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm text-white"
+                    style={{ backgroundColor: "var(--accent-primary)" }}
+                  >
+                    <RotateCcw size={14} /> Reset All Filters
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-8">

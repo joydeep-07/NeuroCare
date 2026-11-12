@@ -34,11 +34,11 @@ const chat = async ({ userId, sessionId, prompt, language = "English", city = ""
   const patientContext = await buildPatientContext({ requestingUser: user, targetPatientId: user._id });
 
   const inferredSpecialty = inferSpecialtyFromSymptoms(prompt);
-  const preferredCity = city || extractLocationFromQuery(prompt) || user.city || user.location;
+  const preferredCity = city || extractLocationFromQuery(prompt) || "";
 
   // 3. If query involves seeking a doctor or reporting physical symptoms
   let recommendedDoctorsList = [];
-  if (intent === INTENTS.DOCTOR_RECOMMENDATION || (intent === INTENTS.GENERAL_MEDICAL && inferredSpecialty !== "General Medicine")) {
+  if (intent === INTENTS.DOCTOR_RECOMMENDATION || (intent === INTENTS.GENERAL_MEDICAL && inferredSpecialty)) {
     try {
       const recResult = await recommendDoctors({
         symptoms: prompt,
@@ -66,7 +66,8 @@ CRITICAL GUIDELINES:
 - If the user asks about their own medical history, medications, past appointments, or reports, answer using the provided patient context.
 - If the user has uploaded reports or previous diagnoses, refer to them accurately.
 - Never invent fictional doctors or treatments.
-- If recommending care, mention that you've found verified NeuroCare specialists for them.
+- If recommending doctors, ONLY reference the verified NeuroCare doctors provided in the context below.
+- If no doctors are available in the context (doctorsAvailable is empty) or no doctor matches their search criteria, state: "No relevant doctors found for your search." and invite the user to adjust their symptoms, specialty, or location. Do NOT invent or recommend unrelated doctors.
 - Always include helpful lifestyle and monitoring advice.
 - End with the standard clinical disclaimer: "${DISCLAIMER}"`;
 
@@ -129,8 +130,11 @@ CRITICAL GUIDELINES:
       const apptList = (patientContext?.appointments || []).map((a) => `- **${a.date || "Scheduled"}**: with ${a.doctorName} (${a.specialization}) - Status: ${a.status}`).join("\n");
       aiResponse = `Here are your recent appointment records:\n\n${apptList || "You currently have no past or pending appointments recorded."}\n\n${DISCLAIMER}`;
     } else {
-      aiResponse = `Based on your query, a consultation in **${inferredSpecialty}** may be appropriate. ` +
-        (recommendedDoctorsList.length > 0 ? "I have identified verified NeuroCare doctors matching your criteria below." : "Please consult a registered physician for full clinical evaluation.") +
+      const specLabel = inferredSpecialty ? ` in **${inferredSpecialty}**` : "";
+      aiResponse = `Based on your query, a consultation${specLabel} may be appropriate. ` +
+        (recommendedDoctorsList.length > 0
+          ? "I have identified verified NeuroCare doctors matching your criteria below."
+          : "No relevant doctors found for your search. You can adjust your symptoms, specialty, or location to find available doctors.") +
         `\n\nStay hydrated, follow balanced nutrition, and keep a log of symptom triggers and frequency.\n\n${DISCLAIMER}`;
     }
   } else {

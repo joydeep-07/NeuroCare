@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { isAxiosError } from "axios";
 import { Sparkles, RefreshCw } from "lucide-react";
+import UserAvatar from "./UserAvatar";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 import { updateUser } from "../redux/authSlice";
@@ -123,11 +124,13 @@ const UserData = () => {
       <h1 className="text-3xl font-bold">User Profile</h1>
 
       <section className="flex flex-col items-start gap-3 rounded-xl border border-[var(--border-light)] p-4 sm:flex-row sm:items-center">
-        {user.avatar ? (
-          <img src={user.avatar} alt="Profile" className="h-20 w-20 rounded-full object-cover" />
-        ) : (
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--bg-main)] text-xs text-[var(--text-secondary)]">No photo</div>
-        )}
+        <UserAvatar
+          src={user.avatar}
+          alt={user.fullName || "Profile"}
+          name={user.fullName || "User"}
+          size="h-20 w-20"
+          iconSize={32}
+        />
         <div>
           <label className={`inline-flex cursor-pointer rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white ${uploading ? "pointer-events-none opacity-50" : ""}`}>
             {uploading ? "Uploading..." : "Upload profile picture"}

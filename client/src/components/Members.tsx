@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
+import UserAvatar from "./UserAvatar";
 
 interface User {
   _id: string;
@@ -92,16 +93,11 @@ const Members = () => {
                 className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <div className="mb-4 flex items-center gap-4">
-                  <img
-                    src={
-                      member.user.avatar
-                        ? member.user.avatar
-                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                            member.user.fullName,
-                          )}`
-                    }
+                  <UserAvatar
+                    src={member.user.avatar}
                     alt={member.user.fullName}
-                    className="h-16 w-16 rounded-full object-cover"
+                    name={member.user.fullName}
+                    size="h-16 w-16"
                   />
 
                   <div>

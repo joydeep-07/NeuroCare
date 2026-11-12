@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Stethoscope, Plus, Pill, Eye, Sparkles, Copy, CheckCircle2 } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
+import UserAvatar from "../../components/UserAvatar";
 
 interface Appointment {
   _id: string;
@@ -261,10 +262,12 @@ const DoctorDashboard = () => {
               return (
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-light)]">
-                    <img
-                      src={selectedApptForReview.patient.avatar || "https://ui-avatars.com/api/?name=Patient"}
-                      alt=""
-                      className="w-14 h-14 rounded-2xl object-cover"
+                    <UserAvatar
+                      src={selectedApptForReview.patient.avatar}
+                      alt={target.fullName || "Patient"}
+                      name={target.fullName || "Patient"}
+                      size="w-14 h-14"
+                      shape="rounded-2xl"
                     />
                     <div>
                       <h4 className="text-base font-bold text-[var(--text-main)] font-heading">

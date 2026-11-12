@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { IoAdd } from "react-icons/io5";
 import ThemeToggle from "./ThemeToggle";
@@ -13,7 +12,7 @@ import { TbXboxXFilled } from "react-icons/tb";
 
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
-import { User } from "lucide-react";
+import UserAvatar from "./UserAvatar";
 
 const UserDetails = () => {
   const navigate = useNavigate();
@@ -118,19 +117,14 @@ const UserDetails = () => {
         onClick={() => setOpen(!open)}
         className="group relative cursor-pointer outline-none"
       >
-        <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--card-bg)] shadow-[0_4px_18px_var(--shadow)] transition-all duration-300 ">
-          {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt="Avatar"
-              className="h-full w-full rounded-full object-cover"
-            />
-          ) : (
-            <FaUser
-              size={18}
-              className="text-[var(--text-secondary)] transition-colors duration-300 group-hover:text-[var(--text-main)]"
-            />
-          )}
+        <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--card-bg)] shadow-[0_4px_18px_var(--shadow)] transition-all duration-300">
+          <UserAvatar
+            src={user?.avatar}
+            alt={user?.fullName || "User Avatar"}
+            name={user?.fullName || "User"}
+            size="h-full w-full"
+            iconSize={18}
+          />
 
           {/* Online Indicator */}
           <span className="absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full border-2 border-[var(--card-bg)] bg-[var(--success)]" />
@@ -194,20 +188,14 @@ const UserDetails = () => {
                         onClick={() => setOpen(false)}
                         className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-300 hover:bg-[var(--bg-secondary)]/50 cursor-pointer"
                       >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full overflow-hidden border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]">
-                          {member.user?.avatar ? (
-                            <img
-                              src={member.user.avatar}
-                              alt={member.user?.fullName || "Member Avatar"}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <User
-                              size={16}
-                              className="text-[var(--text-secondary)] transition-opacity duration-300 group-hover:opacity-60"
-                            />
-                          )}
-                        </div>
+                        <UserAvatar
+                          src={member.user?.avatar}
+                          alt={member.user?.fullName || "Member Avatar"}
+                          name={member.user?.fullName || "Member"}
+                          size="h-9 w-9"
+                          iconSize={16}
+                          iconType="lucide"
+                        />
 
                         <div className="text-left min-w-0 flex-1">
                           <p className="text-sm font-semibold text-[var(--text-main)] truncate">
@@ -325,20 +313,14 @@ const UserDetails = () => {
                           onClick={() => setOpen(false)}
                           className="flex w-full items-center gap-3 px-4 py-3 cursor-pointer"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full overflow-hidden border border-[var(--border-light)]/50 bg-[var(--bg-secondary)]">
-                            {member.user?.avatar ? (
-                              <img
-                                src={member.user.avatar}
-                                alt={member.user?.fullName || "Member Avatar"}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <User
-                                size={16}
-                                className="text-[var(--text-secondary)] transition-opacity duration-300 group-hover:opacity-60"
-                              />
-                            )}
-                          </div>
+                          <UserAvatar
+                            src={member.user?.avatar}
+                            alt={member.user?.fullName || "Member Avatar"}
+                            name={member.user?.fullName || "Member"}
+                            size="h-9 w-9"
+                            iconSize={16}
+                            iconType="lucide"
+                          />
 
                           <div className="text-left min-w-0 flex-1">
                             <p className="text-sm font-semibold truncate">
