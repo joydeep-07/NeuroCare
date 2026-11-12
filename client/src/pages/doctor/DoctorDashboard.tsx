@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Stethoscope, Plus, Pill, Eye } from "lucide-react";
+import { Stethoscope, Plus, Pill, Eye, Sparkles, Copy, CheckCircle2 } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 
@@ -77,6 +77,44 @@ const DoctorDashboard = () => {
     { medicine: "", dosage: "", frequency: "Once daily", duration: "5 days" },
   ]);
   const [submitting, setSubmitting] = useState(false);
+
+  // AI Clinical Overview Modal State
+  const [selectedApptForAI, setSelectedApptForAI] = useState<Appointment | null>(null);
+  const [clinicalOverviewData, setClinicalOverviewData] = useState<any | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [copiedNote, setCopiedNote] = useState(false);
+
+  const openClinicalOverview = async (appointment: Appointment) => {
+    setSelectedApptForAI(appointment);
+    setClinicalOverviewData(null);
+    setAiLoading(true);
+    try {
+      const res = await api.get(ENDPOINTS.AI.CLINICAL_OVERVIEW(appointment._id));
+      if (res.data.success) {
+        setClinicalOverviewData(res.data);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to generate AI clinical overview.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleApplyAIToConsultation = (overviewText: string) => {
+    let summary = overviewText;
+    const matchF = overviewText.match(/### Section F: Consultation Summary[\s\S]*?(?=(?:###|$))/i);
+    if (matchF) {
+      summary = matchF[0].replace(/### Section F: Consultation Summary/i, "").trim();
+    }
+    setDoctorNotes((prev) => (prev ? `${prev}\n\n[AI Clinical Summary]:\n${summary}` : `[AI Clinical Summary]:\n${summary}`));
+    if (!diagnosis && selectedApptForAI?.symptoms) {
+      setDiagnosis(`Clinical Evaluation: ${selectedApptForAI.symptoms.slice(0, 80)}`);
+    }
+    setCopiedNote(true);
+    setTimeout(() => setCopiedNote(false), 2000);
+    setSelectedApptForConsultation(selectedApptForAI);
+    setSelectedApptForAI(null);
+  };
 
   const fetchDashboard = async () => {
    try {
@@ -283,7 +321,17 @@ const DoctorDashboard = () => {
               );
             })()}
 
-            <div className="pt-3 border-t border-[var(--border-light)] flex justify-end">
+            <div className="pt-3 border-t border-[var(--border-light)] flex justify-between items-center">
+              <button
+                onClick={() => {
+                  const targetAppt = selectedApptForReview;
+                  setSelectedApptForReview(null);
+                  openClinicalOverview(targetAppt);
+                }}
+                className="px-4 py-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-semibold flex items-center gap-1.5 hover:bg-purple-500/20 transition-all"
+              >
+                <Sparkles size={14} /> Generate AI Clinical Overview
+              </button>
               <button
                 onClick={() => setSelectedApptForReview(null)}
                 className="px-5 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white font-semibold"
@@ -291,6 +339,112 @@ const DoctorDashboard = () => {
                 Close Medical File
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Clinical Assistant Modal */}
+      {selectedApptForAI && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="w-full max-w-3xl bg-[var(--card-bg)] rounded-3xl border border-[var(--border-light)] shadow-2xl p-6 md:p-8 space-y-4 max-h-[88vh] overflow-y-auto text-xs">
+            <div className="flex justify-between items-start pb-4 border-b border-[var(--border-light)]">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                    <Sparkles size={16} />
+                  </span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                    NeuroCare Clinical Decision Support
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold font-heading text-[var(--text-main)]">
+                  AI Clinical Overview – {selectedApptForAI.patient.fullName}
+                </h3>
+                <p className="text-[var(--text-secondary)] mt-0.5">
+                  Appt #{selectedApptForAI.appointmentId} · Symptoms: &quot;{selectedApptForAI.symptoms}&quot;
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedApptForAI(null)}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-main)] p-1 text-base font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {aiLoading ? (
+              <div className="py-16 text-center space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
+                <p className="text-sm font-semibold text-[var(--text-main)]">
+                  Synthesizing patient health history, reported symptoms, and medical reports...
+                </p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Grounding in real database records and previous NeuroCare consultations.
+                </p>
+              </div>
+            ) : clinicalOverviewData ? (
+              <div className="space-y-4">
+                {/* Clinical Disclaimer Notice */}
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-[11px] leading-relaxed">
+                  <strong>⚠️ Clinical Decision Support Notice:</strong> This AI overview assists qualified doctors by structuring available patient history and highlighting patterns. All diagnostic evaluations, prescriptions, and therapeutic plans remain strictly under your clinical judgment.
+                </div>
+
+                {/* Patient Quick Vitals Bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-light)] text-[11px]">
+                  <div>
+                    <span className="text-[var(--text-secondary)] block">Patient</span>
+                    <strong className="text-[var(--text-main)]">{clinicalOverviewData.patientName}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[var(--text-secondary)] block">Age / Gender</span>
+                    <strong className="text-[var(--text-main)]">{clinicalOverviewData.age || "N/A"} · {clinicalOverviewData.gender || "N/A"}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[var(--text-secondary)] block">Blood Group / BMI</span>
+                    <strong className="text-rose-500">{clinicalOverviewData.bloodGroup || "N/A"}</strong> · {typeof clinicalOverviewData.bmi === "object" ? clinicalOverviewData.bmi.value : clinicalOverviewData.bmi || "N/A"}
+                  </div>
+                  <div>
+                    <span className="text-[var(--text-secondary)] block">Uploaded Records</span>
+                    <strong className="text-[var(--accent-primary)]">{clinicalOverviewData.documentsCount} documents</strong>
+                  </div>
+                </div>
+
+                {/* AI Markdown Content */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-light)] text-xs leading-relaxed text-[var(--text-main)] space-y-3 whitespace-pre-wrap font-sans">
+                  {clinicalOverviewData.clinicalOverview}
+                </div>
+
+                {/* Action Toolbar */}
+                <div className="pt-3 border-t border-[var(--border-light)] flex flex-col sm:flex-row justify-between items-center gap-3">
+                  <span className="text-[10px] text-[var(--text-secondary)]">
+                    Generated: {new Date(clinicalOverviewData.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={() => handleApplyAIToConsultation(clinicalOverviewData.clinicalOverview)}
+                      className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold flex items-center justify-center gap-2 shadow-md transition-all"
+                    >
+                      {copiedNote ? (
+                        <>
+                          <CheckCircle2 size={15} /> Transferred to Notes!
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={15} /> Use in Consultation Notes
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setSelectedApptForAI(null)}
+                      className="px-4 py-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-light)] text-[var(--text-main)] font-semibold"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       )}
@@ -450,12 +604,20 @@ const DoctorDashboard = () => {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => openClinicalOverview(appt)}
+                    className="px-3.5 py-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-semibold flex items-center gap-1.5 hover:bg-purple-500/20 transition-all shadow-xs"
+                    title="Generate AI Clinical Overview"
+                  >
+                    <Sparkles size={14} /> AI Clinical Overview
+                  </button>
+
                   <button
                     onClick={() => openMedicalRecord(appt)}
-                    className="px-4 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-xs font-semibold text-[var(--text-main)] flex items-center gap-1.5 hover:bg-[var(--bg-secondary)]"
+                    className="px-3.5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-xs font-semibold text-[var(--text-main)] flex items-center gap-1.5 hover:bg-[var(--bg-secondary)]"
                   >
-                    <Eye size={14} /> View Medical Record
+                    <Eye size={14} /> View Records
                   </button>
 
                   {appt.status !== "Completed" && (
@@ -465,9 +627,9 @@ const DoctorDashboard = () => {
                         setDiagnosis(appt.diagnosis || "");
                         setDoctorNotes(appt.doctorNotes || "");
                       }}
-                      className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-emerald-700 shadow-md"
+                      className="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-emerald-700 shadow-md"
                     >
-                      <Pill size={14} /> Start / Complete Consultation
+                      <Pill size={14} /> Complete Consultation
                     </button>
                   )}
                 </div>

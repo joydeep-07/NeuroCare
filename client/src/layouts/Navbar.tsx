@@ -20,7 +20,7 @@ const Navbar = () => {
     if (!isAuthenticated || !user) {
       return [
         { name: "Home", path: "/" },
-        // { name: "Find Doctors", path: "/doctors" },
+        { name: "Find Doctors", path: "/doctors" },
         { name: "AI Assistant", path: "/ai-assistant" },
       ];
     }
@@ -29,7 +29,7 @@ const Navbar = () => {
       return [
         { name: "Doctor Dashboard", path: "/doctor/dashboard" },
         { name: "My Schedule", path: "/doctor/availability" },
-        { name: "AI Clinical Assistant", path: "/ai-assistant" },
+        { name: "AI Health Assistant", path: "/ai-assistant" },
       ];
     }
 
@@ -45,9 +45,9 @@ const Navbar = () => {
     // Default: Patient role
     return [
       { name: "Home", path: "/" },
-      // { name: "Find Doctors", path: "/doctors" },
+      { name: "Find Doctors", path: "/doctors" },
       { name: "My Appointments", path: "/appointments" },
-      // { name: "Medical Records", path: "/records" },
+      { name: "Medical Records", path: "/records" },
       { name: "Family Members", path: "/members" },
       { name: "AI Assistant", path: "/ai-assistant" },
     ];

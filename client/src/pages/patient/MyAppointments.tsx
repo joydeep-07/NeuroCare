@@ -386,6 +386,20 @@ const MyAppointments = () => {
                           </div>
                         )}
 
+                        {/* AI Consultation Preparation */}
+                        <div className="flex items-center justify-between p-3.5 rounded-sm bg-purple-500/5 border border-purple-500/20 text-xs">
+                          <div className="flex items-center gap-2 text-[var(--text-main)]">
+                            <Stethoscope size={15} className="text-purple-600 dark:text-purple-400" />
+                            <span>Need consultation guidance or preparation tips?</span>
+                          </div>
+                          <Link
+                            to="/ai-assistant"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 transition-all shadow-xs"
+                          >
+                            Ask AI Assistant
+                          </Link>
+                        </div>
+
                         {/* Doctor Diagnosis & Prescription (if completed) */}
                         {appt.status === "Completed" && (
                           <div className="p-5 rounded-sm bg-emerald-500/10 border border-emerald-500/20 space-y-3 text-xs">

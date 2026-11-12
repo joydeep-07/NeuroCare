@@ -16,10 +16,15 @@ const DEFAULT_DOCTORS = [
       "Dr. Rajesh Sharma is a leading Neurologist with extensive expertise in stroke management, epilepsy, movement disorders, and neuro-rehabilitation.",
     avatar:
       "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400",
-    location: "New Delhi, India",
+    location: "New Delhi, Delhi, India",
+    city: "New Delhi",
+    state: "Delhi",
+    country: "India",
     rating: 4.9,
     reviewsCount: 42,
     role: "doctor",
+    isActive: true,
+    verificationStatus: "verified",
     isProfileComplete: true,
     availability: [
       { day: "Monday", slots: ["09:00 AM", "11:00 AM", "02:00 PM"] },
@@ -42,10 +47,15 @@ const DEFAULT_DOCTORS = [
       "Dr. Ananya Sen specializes in interventional cardiology, heart failure management, and preventive cardiac wellness.",
     avatar:
       "https://i.pinimg.com/736x/ad/6c/b0/ad6cb07e44a5e63ffc89d7723b181052.jpg",
-    location: "Mumbai, India",
+    location: "Mumbai, Maharashtra, India",
+    city: "Mumbai",
+    state: "Maharashtra",
+    country: "India",
     rating: 4.8,
     reviewsCount: 38,
     role: "doctor",
+    isActive: true,
+    verificationStatus: "verified",
     isProfileComplete: true,
     availability: [
       { day: "Tuesday", slots: ["10:00 AM", "02:00 PM", "05:00 PM"] },
@@ -68,10 +78,15 @@ const DEFAULT_DOCTORS = [
       "Dr. Vikram Patel is a renowned orthopedic surgeon specializing in robotic joint replacement, arthroscopy, and spine care.",
     avatar:
       "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400",
-    location: "Bengaluru, India",
+    location: "Bengaluru, Karnataka, India",
+    city: "Bengaluru",
+    state: "Karnataka",
+    country: "India",
     rating: 4.9,
     reviewsCount: 56,
     role: "doctor",
+    isActive: true,
+    verificationStatus: "verified",
     isProfileComplete: true,
     availability: [
       { day: "Monday", slots: ["10:00 AM", "02:00 PM", "04:00 PM"] },
@@ -93,10 +108,15 @@ const DEFAULT_DOCTORS = [
     biography:
       "Dr. Priya Nair provides expert clinical dermatology, trichology, and advanced aesthetic skin treatments.",
     avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",
-    location: "Chennai, India",
+    location: "Chennai, Tamil Nadu, India",
+    city: "Chennai",
+    state: "Tamil Nadu",
+    country: "India",
     rating: 4.7,
     reviewsCount: 29,
     role: "doctor",
+    isActive: true,
+    verificationStatus: "verified",
     isProfileComplete: true,
     availability: [
       { day: "Wednesday", slots: ["11:00 AM", "03:00 PM", "06:00 PM"] },
@@ -104,15 +124,136 @@ const DEFAULT_DOCTORS = [
       { day: "Saturday", slots: ["09:30 AM", "12:30 PM"] },
     ],
   },
+  {
+    fullName: "Dr. Kavita Rao",
+    email: "dr.kavita.rao@neurocare.com",
+    phone: "+91 98490 12345",
+    medicalRegNo: "MCI-2014-65432",
+    specialization: "General Medicine",
+    degree: "MBBS, MD (General Medicine)",
+    hospital: "NeuroCare Multispecialty Hospital, Hyderabad",
+    department: "Department of Internal Medicine",
+    yearsOfExperience: 14,
+    consultationFee: 700,
+    biography:
+      "Dr. Kavita Rao specializes in adult internal medicine, lifestyle illnesses, diabetic care, and comprehensive preventative health.",
+    avatar: "https://images.unsplash.com/photo-1594824813593-1b9a147a4697?w=400",
+    location: "Hyderabad, Telangana, India",
+    city: "Hyderabad",
+    state: "Telangana",
+    country: "India",
+    rating: 4.8,
+    reviewsCount: 35,
+    role: "doctor",
+    isActive: true,
+    verificationStatus: "verified",
+    isProfileComplete: true,
+    availability: [
+      { day: "Monday", slots: ["09:00 AM", "12:00 PM", "04:00 PM"] },
+      { day: "Tuesday", slots: ["10:00 AM", "02:00 PM", "05:00 PM"] },
+      { day: "Thursday", slots: ["09:00 AM", "01:00 PM"] },
+    ],
+  },
+  {
+    fullName: "Dr. Sameer Verma",
+    email: "dr.sameer.verma@neurocare.com",
+    phone: "+91 98230 67890",
+    medicalRegNo: "MCI-2016-87654",
+    specialization: "Psychiatry",
+    degree: "MBBS, MD (Psychiatry)",
+    hospital: "NeuroCare Behavioral & Mental Wellness Clinic, Pune",
+    department: "Department of Psychiatry & Behavioral Health",
+    yearsOfExperience: 10,
+    consultationFee: 1100,
+    biography:
+      "Dr. Sameer Verma offers empathetic, evidence-based psychiatric support for stress, mood disorders, insomnia, and cognitive wellness.",
+    avatar: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400",
+    location: "Pune, Maharashtra, India",
+    city: "Pune",
+    state: "Maharashtra",
+    country: "India",
+    rating: 4.9,
+    reviewsCount: 48,
+    role: "doctor",
+    isActive: true,
+    verificationStatus: "verified",
+    isProfileComplete: true,
+    availability: [
+      { day: "Tuesday", slots: ["11:00 AM", "03:00 PM", "06:00 PM"] },
+      { day: "Thursday", slots: ["10:00 AM", "02:00 PM"] },
+      { day: "Saturday", slots: ["10:00 AM", "01:00 PM"] },
+    ],
+  },
+  {
+    fullName: "Dr. Arishta Ganguly",
+    email: "dr.arishta.ganguly@neurocare.com",
+    phone: "+91 98300 24680",
+    medicalRegNo: "MCI-2017-31415",
+    specialization: "Pediatrics",
+    degree: "MBBS, MD (Pediatrics), DNB",
+    hospital: "NeuroCare Children & Adolescent Clinic, Kolkata",
+    department: "Department of Pediatrics",
+    yearsOfExperience: 9,
+    consultationFee: 900,
+    biography:
+      "Dr. Arishta Ganguly is dedicated to infant healthcare, pediatric neuro-development, childhood allergies, and adolescent well-being.",
+    avatar: "https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=400",
+    location: "Kolkata, West Bengal, India",
+    city: "Kolkata",
+    state: "West Bengal",
+    country: "India",
+    rating: 4.8,
+    reviewsCount: 31,
+    role: "doctor",
+    isActive: true,
+    verificationStatus: "verified",
+    isProfileComplete: true,
+    availability: [
+      { day: "Monday", slots: ["10:00 AM", "01:00 PM", "05:00 PM"] },
+      { day: "Wednesday", slots: ["10:00 AM", "02:00 PM"] },
+      { day: "Friday", slots: ["11:00 AM", "04:00 PM"] },
+    ],
+  },
 ];
 
 const seedInitialData = async () => {
   try {
-    const doctorCount = await User.countDocuments({ role: "doctor" });
-    if (doctorCount === 0) {
-      console.log("[NeuroCare Seed] Seeding initial doctor accounts...");
-      await User.insertMany(DEFAULT_DOCTORS);
-      console.log("[NeuroCare Seed] 4 doctors seeded successfully!");
+    for (const docData of DEFAULT_DOCTORS) {
+      const existing = await User.findOne({ email: docData.email });
+      if (!existing) {
+        await User.create(docData);
+        console.log(`[NeuroCare Seed] Seeded doctor: ${docData.fullName}`);
+      } else {
+        // Backfill city/state/verification if missing
+        let changed = false;
+        if (!existing.city && docData.city) {
+          existing.city = docData.city;
+          changed = true;
+        }
+        if (!existing.state && docData.state) {
+          existing.state = docData.state;
+          changed = true;
+        }
+        if (existing.verificationStatus !== "verified") {
+          existing.verificationStatus = "verified";
+          changed = true;
+        }
+        if (changed) {
+          await existing.save();
+        }
+      }
+    }
+
+    // Also backfill any other existing doctors who have empty city
+    const doctorsWithoutCity = await User.find({ role: "doctor", city: { $in: ["", null] } });
+    for (const d of doctorsWithoutCity) {
+      if (d.location) {
+        const parts = d.location.split(",").map((s) => s.trim());
+        if (parts[0]) d.city = parts[0];
+        if (parts[1]) d.state = parts[1];
+        d.verificationStatus = "verified";
+        await d.save();
+      }
     }
 
     const adminCount = await User.countDocuments({ role: "admin" });

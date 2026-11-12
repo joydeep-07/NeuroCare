@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Stethoscope, AlertCircle } from "lucide-react";
+import { X, Stethoscope, AlertCircle, Sparkles } from "lucide-react";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 
@@ -204,6 +204,14 @@ const AppointmentForm = ({
             required
             className={`${inputClassName} resize-none`}
           />
+        </div>
+
+        <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
+          <Sparkles size={14} className="text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-semibold text-[var(--text-main)]">AI Consultation Preparation: </span>
+            Dr. {doctor.fullName} specializes in <strong>{doctor.specialization}</strong>. Note symptom duration, severity, and attach recent test reports or current medicine prescriptions below for optimal clinical evaluation.
+          </div>
         </div>
 
         {/* Preferred Date */}

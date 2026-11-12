@@ -15,6 +15,11 @@ export const ENDPOINTS = {
     CONVERSATIONS: `${BASE_URL}/ai/conversations`,
     CONVERSATION: (id: string) => `${BASE_URL}/ai/conversations/${id}`,
     CHAT: `${BASE_URL}/ai/chat`,
+    RECOMMEND_DOCTORS: `${BASE_URL}/ai/recommend-doctors`,
+    PATIENT_SUMMARY: `${BASE_URL}/ai/patient-summary`,
+    CLINICAL_OVERVIEW: (appointmentId: string) => `${BASE_URL}/ai/clinical-overview/${appointmentId}`,
+    ANALYZE_DOCUMENT: (id: string) => `${BASE_URL}/ai/analyze-document/${id}`,
+    COMPARE_DOCUMENTS: `${BASE_URL}/ai/compare-documents`,
   },
 
   // ==========================

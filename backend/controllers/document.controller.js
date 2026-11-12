@@ -1,6 +1,7 @@
 const Document = require("../models/document.model");
 const User = require("../models/user.model");
 const FamilyMember = require("../models/familyMember.model");
+const { analyzeMedicalDocument } = require("../services/ai/reportAnalysis.service");
 
 const getManagedPatient = async (owner, patientId) => {
   if (!patientId || String(patientId) === String(owner._id)) return owner;
@@ -15,9 +16,26 @@ const uploadDocument = async (req, res) => {
     if (!title || !fileUrl) return res.status(400).json({ success: false, message: "Title and a file URL are required." });
     const patient = await getManagedPatient(req.user, patientId || familyMemberId);
     if (!patient) return res.status(403).json({ success: false, message: "You can only upload records for yourself or a family member you manage." });
-    const document = await Document.create({ patient: patient._id, title, description: description || "", documentType: documentType || "Other", fileUrl, fileType: fileType || "", uploadedBy: req.user._id });
+    
+    const document = await Document.create({
+      patient: patient._id,
+      title,
+      description: description || "",
+      documentType: documentType || "Other",
+      fileUrl,
+      fileType: fileType || "",
+      uploadedBy: req.user._id,
+    });
+
+    // Automatically trigger AI analysis to populate aiSummary
+    try {
+      await analyzeMedicalDocument({ requestingUser: req.user, documentId: document._id });
+    } catch (aiErr) {
+      console.warn("[uploadDocument] Initial AI summary error (non-fatal):", aiErr.message);
+    }
+
     const populated = await Document.findById(document._id).populate("patient", "fullName").populate("uploadedBy", "fullName");
-    return res.status(201).json({ success: true, message: "Medical record uploaded successfully.", document: populated });
+    return res.status(201).json({ success: true, message: "Medical record uploaded and analyzed successfully.", document: populated });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message || "Failed to upload medical record." });
   }

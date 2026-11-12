@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Stethoscope, X, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Stethoscope,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  MapPin,
+  RotateCcw,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import api from "../api/axios";
@@ -20,27 +28,35 @@ const SPECIALTIES = [
 
 const AllDoctors = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("All Specialties");
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
   const [selectedDoctorForBooking, setSelectedDoctorForBooking] =
     useState<Doctor | null>(null);
-
-    const [expandedDoctorId, setExpandedDoctorId] = useState<string | null>(
-      null,
-    );
+  const [expandedDoctorId, setExpandedDoctorId] = useState<string | null>(null);
 
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const fetchDoctors = async () => {
+  // Unified Search & AI Recommendation State
+  const [searchInput, setSearchInput] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiRecommendationMeta, setAiRecommendationMeta] = useState<any | null>(
+    null,
+  );
+
+  const fetchDoctors = async (
+    query = searchInput,
+    specialty = selectedSpecialty,
+    location = locationInput,
+  ) => {
     try {
       setLoading(true);
-      setShowAll(false); // Reset show all on new search/filter
+      setShowAll(false);
       const params: any = {};
-      if (searchQuery.trim()) params.query = searchQuery;
-      if (selectedSpecialty !== "All Specialties")
-        params.specialty = selectedSpecialty;
+      if (query.trim()) params.query = query.trim();
+      if (specialty !== "All Specialties") params.specialty = specialty;
+      if (location.trim()) params.location = location.trim();
 
       const res = await api.get(ENDPOINTS.DOCTOR.GET_ALL, { params });
       if (res.data.success) {
@@ -54,12 +70,72 @@ const AllDoctors = () => {
   };
 
   useEffect(() => {
-    fetchDoctors();
+    setAiRecommendationMeta(null);
+    fetchDoctors(searchInput, selectedSpecialty, locationInput);
   }, [selectedSpecialty]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchDoctors();
+  const handleSearchOrAI = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmedQuery = searchInput.trim();
+    const trimmedLocation = locationInput.trim();
+
+    if (!trimmedQuery && !trimmedLocation) {
+      setAiRecommendationMeta(null);
+      fetchDoctors("", selectedSpecialty, "");
+      return;
+    }
+
+    // Direct name/specialization match check first (e.g., "Dr. ...", exact specialty, or short 1-2 word name/hospital lookup)
+    const matchedSpecialty = SPECIALTIES.find(
+      (s) => s.toLowerCase() === trimmedQuery.toLowerCase(),
+    );
+    const looksLikeDoctorName = /^dr\.?\s/i.test(trimmedQuery);
+
+    if (
+      matchedSpecialty ||
+      looksLikeDoctorName ||
+      (!trimmedQuery && trimmedLocation)
+    ) {
+      setAiRecommendationMeta(null);
+      if (matchedSpecialty) setSelectedSpecialty(matchedSpecialty);
+      await fetchDoctors(
+        matchedSpecialty ? "" : trimmedQuery,
+        matchedSpecialty || selectedSpecialty,
+        trimmedLocation,
+      );
+      return;
+    }
+
+    // Use AI Recommendation when symptoms or natural language are entered, falling back to standard query search
+    setAiLoading(true);
+    try {
+      const res = await api.post(ENDPOINTS.AI.RECOMMEND_DOCTORS, {
+        symptoms: trimmedQuery,
+        preferredLocation: trimmedLocation,
+      });
+      if (res.data.success && res.data.doctors?.length > 0) {
+        setDoctors(res.data.doctors);
+        setAiRecommendationMeta(res.data);
+        setShowAll(true);
+      } else {
+        setAiRecommendationMeta(null);
+        await fetchDoctors(trimmedQuery, selectedSpecialty, trimmedLocation);
+      }
+    } catch {
+      // Fallback to standard name/specialty/hospital search if AI endpoint fails or query is a doctor name
+      setAiRecommendationMeta(null);
+      await fetchDoctors(trimmedQuery, selectedSpecialty, trimmedLocation);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setAiRecommendationMeta(null);
+    setSearchInput("");
+    setLocationInput("");
+    setSelectedSpecialty("All Specialties");
+    fetchDoctors("", "All Specialties", "");
   };
 
   // GSAP animation when toggling "Show All" / "Show Less"
@@ -78,12 +154,17 @@ const AllDoctors = () => {
     }
   };
 
-  // Sliced list for default vs expanded view
   const displayedDoctors = showAll ? doctors : doctors.slice(0, 3);
+  const isBusy = loading || aiLoading;
+  const hasActiveFilters =
+    Boolean(searchInput.trim()) ||
+    Boolean(locationInput.trim()) ||
+    selectedSpecialty !== "All Specialties" ||
+    Boolean(aiRecommendationMeta);
 
   return (
     <div
-      className=" font-sans transition-colors duration-300"
+      className="font-sans transition-colors duration-300"
       style={{
         backgroundColor: "var(--bg-main)",
         color: "var(--text-main)",
@@ -110,24 +191,24 @@ const AllDoctors = () => {
           </div>
         </div>
 
-        {/* Search & Specialty Bar */}
-        <div className="space-y-6">
+        {/* Unified AI + Name/Specialization Search Bar */}
+        <div className="space-y-4">
           <form
-            onSubmit={handleSearchSubmit}
+            onSubmit={handleSearchOrAI}
             className="flex flex-col md:flex-row gap-2"
           >
-            <div className="flex-1 relative">
-              <Search
+            <div className="flex-2 relative">
+              <Sparkles
                 className="absolute left-4 top-1/2 -translate-y-1/2"
-                style={{ color: "var(--text-secondary)" }}
-                size={20}
+                style={{ color: "var(--accent-primary)" }}
+                size={18}
               />
               <input
                 type="text"
-                placeholder="Search by doctor name, symptoms (e.g. migraine, chest pain), or hospital..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 rounded-sm border text-sm outline-none transition-all shadow-sm"
+                placeholder="Search by doctor name, specialization, or describe your symptoms..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full pl-11 pr-4 py-3.5 rounded-sm border text-sm outline-none transition-all shadow-sm"
                 style={{
                   backgroundColor: "var(--input-bg)",
                   borderColor: "var(--border-light)",
@@ -135,22 +216,61 @@ const AllDoctors = () => {
                 }}
               />
             </div>
+
+            <div className="flex-1 relative">
+              <MapPin
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                style={{ color: "var(--text-secondary)" }}
+                size={18}
+              />
+              <input
+                type="text"
+                placeholder="City or location (optional)"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                className="w-full pl-11 pr-4 py-3.5 rounded-sm border text-sm outline-none transition-all shadow-sm"
+                style={{
+                  backgroundColor: "var(--input-bg)",
+                  borderColor: "var(--border-light)",
+                  color: "var(--text-main)",
+                }}
+              />
+            </div>
+
             <button
               type="submit"
-              className="px-8 py-3.5 rounded-sm text-white text-sm font-semibold hover:opacity-90 shadow-md transition-all cursor-pointer"
+              disabled={aiLoading}
+              className="px-8 py-3.5 rounded-sm text-white text-sm font-semibold hover:opacity-90 shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-60"
               style={{
                 backgroundColor: "var(--accent-primary)",
               }}
             >
-              Search Doctors
+              <Sparkles size={16} />
+              {aiLoading ? "Searching..." : "Search Doctors"}
             </button>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="px-4 py-3.5 rounded-sm border text-xs font-semibold hover:opacity-80 transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
+                style={{
+                  backgroundColor: "var(--card-bg)",
+                  borderColor: "var(--border-light)",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                <RotateCcw size={14} /> Reset
+              </button>
+            )}
           </form>
 
-          {/* Specialty Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {/* Specialty Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {SPECIALTIES.map((spec) => (
               <button
                 key={spec}
+                type="button"
                 onClick={() => setSelectedSpecialty(spec)}
                 className={`px-4 py-2 rounded-sm text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
                   selectedSpecialty === spec
@@ -176,11 +296,45 @@ const AllDoctors = () => {
               </button>
             ))}
           </div>
+
+          {/* Subtle AI Match Result Strip */}
+          {aiRecommendationMeta && (
+            <div
+              className="px-4 py-3 rounded-sm border text-xs flex flex-wrap items-center justify-between gap-2"
+              style={{
+                backgroundColor: "var(--card-bg)",
+                borderColor: "var(--border-light)",
+              }}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className="px-2.5 py-0.5 rounded-sm text-white font-semibold text-[11px]"
+                  style={{ backgroundColor: "var(--accent-primary)" }}
+                >
+                  AI Matched: {aiRecommendationMeta.suggestedSpecialty}
+                </span>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {aiRecommendationMeta.locationSearched
+                    ? `${aiRecommendationMeta.locationSearched} • `
+                    : ""}
+                  {aiRecommendationMeta.isLocationExactMatch
+                    ? "Exact Location Match"
+                    : "Top Network Specialists"}
+                </span>
+              </div>
+              <span
+                className="text-[11px] italic"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {aiRecommendationMeta.clinicalDisclaimer}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Doctors Grid */}
         <div>
-          {loading ? (
+          {isBusy ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <div
@@ -210,8 +364,8 @@ const AllDoctors = () => {
                 className="text-sm mt-1"
                 style={{ color: "var(--text-secondary)" }}
               >
-                Try refining your search query or selecting a different medical
-                specialty.
+                Try searching by a different name, specialty, or symptom
+                description.
               </p>
             </div>
           ) : (
@@ -334,7 +488,7 @@ const AllDoctors = () => {
                   doctor={selectedDoctorForBooking}
                   onClose={() => setSelectedDoctorForBooking(null)}
                   onSuccess={() => {
-                    fetchDoctors();
+                    handleSearchOrAI();
                     setSelectedDoctorForBooking(null);
                   }}
                   embedded={true}

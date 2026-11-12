@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
@@ -7,7 +8,7 @@ const connectDB = require("./db/connectDB");
 const seedInitialData = require("./utils/seedDoctors");
 const { notFound, errorHandler } = require("./middlewares/error.middleware");
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 connectDB().then(() => {
   seedInitialData();

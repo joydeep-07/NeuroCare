@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FileText, Upload, Sparkles, Trash2, Eye, ExternalLink, Search } from "lucide-react";
+import { FileText, Upload, Sparkles, Trash2, Eye, ExternalLink, Search, RefreshCw, GitCompare, CheckSquare, Square } from "lucide-react";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 
@@ -41,8 +41,61 @@ const MedicalRecords = () => {
   const [fileUrl, setFileUrl] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  // AI Summary Modal
+  // AI Summary & Comparison States
   const [selectedDocForSummary, setSelectedDocForSummary] = useState<DocumentItem | null>(null);
+  const [reanalyzing, setReanalyzing] = useState(false);
+  const [selectedForComparison, setSelectedForComparison] = useState<string[]>([]);
+  const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
+  const [comparisonData, setComparisonData] = useState<any | null>(null);
+  const [comparing, setComparing] = useState(false);
+
+  const handleReanalyze = async (docId: string) => {
+    try {
+      setReanalyzing(true);
+      const res = await api.post(ENDPOINTS.AI.ANALYZE_DOCUMENT(docId));
+      if (res.data.success) {
+        setDocuments((prev) =>
+          prev.map((d) => (d._id === docId ? { ...d, aiSummary: res.data.aiSummary } : d))
+        );
+        if (selectedDocForSummary && selectedDocForSummary._id === docId) {
+          setSelectedDocForSummary((prev) => (prev ? { ...prev, aiSummary: res.data.aiSummary } : null));
+        }
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to analyze document.");
+    } finally {
+      setReanalyzing(false);
+    }
+  };
+
+  const toggleSelectForComparison = (docId: string) => {
+    setSelectedForComparison((prev) =>
+      prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId]
+    );
+  };
+
+  const handleRunComparison = async () => {
+    if (selectedForComparison.length < 2) {
+      alert("Please select at least 2 medical records to compare.");
+      return;
+    }
+    setComparisonModalOpen(true);
+    setComparisonData(null);
+    setComparing(true);
+    try {
+      const res = await api.post(ENDPOINTS.AI.COMPARE_DOCUMENTS, {
+        documentIds: selectedForComparison,
+      });
+      if (res.data.success) {
+        setComparisonData(res.data);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to compare documents.");
+      setComparisonModalOpen(false);
+    } finally {
+      setComparing(false);
+    }
+  };
 
   const fetchDocuments = async () => {
     try {
@@ -230,13 +283,67 @@ const MedicalRecords = () => {
               >
                 <ExternalLink size={14} /> Open Original File
               </a>
-              <button
-                onClick={() => setSelectedDocForSummary(null)}
-                className="px-5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-xs font-semibold text-[var(--text-main)]"
-              >
-                Close Summary
-              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleReanalyze(selectedDocForSummary._id)}
+                  disabled={reanalyzing}
+                  className="px-3.5 py-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 text-xs font-semibold flex items-center gap-1.5 hover:bg-cyan-500/20"
+                >
+                  <RefreshCw size={14} className={reanalyzing ? "animate-spin" : ""} />
+                  {reanalyzing ? "Analyzing..." : "Re-Analyze with AI"}
+                </button>
+                <button
+                  onClick={() => setSelectedDocForSummary(null)}
+                  className="px-5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-xs font-semibold text-[var(--text-main)]"
+                >
+                  Close Summary
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Historical Report Comparison Modal */}
+      {comparisonModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="w-full max-w-2xl bg-[var(--card-bg)] rounded-3xl border border-[var(--border-light)] shadow-2xl p-6 md:p-8 space-y-4 max-h-[85vh] overflow-y-auto text-xs">
+            <div className="flex justify-between items-start pb-3 border-b border-[var(--border-light)]">
+              <div>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-primary)] mb-1">
+                  <GitCompare size={16} /> Historical Report Comparison
+                </span>
+                <h3 className="text-xl font-bold font-heading text-[var(--text-main)]">
+                  Longitudinal AI Analysis ({selectedForComparison.length} Records)
+                </h3>
+              </div>
+              <button onClick={() => setComparisonModalOpen(false)} className="text-[var(--text-secondary)] font-bold text-base">✕</button>
+            </div>
+
+            {comparing ? (
+              <div className="py-16 text-center space-y-3">
+                <div className="w-10 h-10 mx-auto rounded-full border-4 border-cyan-500 border-t-transparent animate-spin" />
+                <p className="text-sm font-semibold text-[var(--text-main)]">
+                  Comparing chronological test results and tracking clinical trends...
+                </p>
+              </div>
+            ) : comparisonData ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-light)] leading-relaxed whitespace-pre-wrap font-sans text-xs text-[var(--text-main)]">
+                  {comparisonData.comparison}
+                </div>
+
+                <div className="pt-3 border-t border-[var(--border-light)] flex justify-end">
+                  <button
+                    onClick={() => setComparisonModalOpen(false)}
+                    className="px-5 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white font-semibold"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       )}
@@ -318,12 +425,31 @@ const MedicalRecords = () => {
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-[var(--border-light)] text-xs">
-                <button
-                  onClick={() => setSelectedDocForSummary(doc)}
-                  className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 font-semibold flex items-center gap-1 hover:bg-cyan-500/20 transition-all"
-                >
-                  <Sparkles size={14} /> AI Summary
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedDocForSummary(doc)}
+                    className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 font-semibold flex items-center gap-1 hover:bg-cyan-500/20 transition-all"
+                  >
+                    <Sparkles size={14} /> AI Summary
+                  </button>
+
+                  <button
+                    onClick={() => toggleSelectForComparison(doc._id)}
+                    className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 transition-all ${
+                      selectedForComparison.includes(doc._id)
+                        ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]"
+                        : "border-[var(--border-light)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"
+                    }`}
+                    title="Select to compare chronologically"
+                  >
+                    {selectedForComparison.includes(doc._id) ? (
+                      <CheckSquare size={13} />
+                    ) : (
+                      <Square size={13} />
+                    )}
+                    <span className="text-[11px]">Compare</span>
+                  </button>
+                </div>
 
                 <div className="flex items-center gap-3">
                   <a
@@ -341,6 +467,27 @@ const MedicalRecords = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Floating Comparison Action Bar */}
+      {selectedForComparison.length >= 2 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[var(--card-bg)] border border-[var(--accent-primary)] shadow-2xl rounded-2xl p-4 flex items-center gap-4 text-xs animate-bounce-subtle">
+          <span className="font-semibold text-[var(--text-main)]">
+            📊 {selectedForComparison.length} reports selected for longitudinal tracking
+          </span>
+          <button
+            onClick={handleRunComparison}
+            className="px-4 py-2 rounded-xl bg-[var(--accent-primary)] text-white font-semibold flex items-center gap-2 shadow-md hover:opacity-90 transition-all"
+          >
+            <GitCompare size={15} /> Run Historical AI Comparison
+          </button>
+          <button
+            onClick={() => setSelectedForComparison([])}
+            className="text-[var(--text-secondary)] hover:text-[var(--text-main)] text-xs underline"
+          >
+            Clear
+          </button>
         </div>
       )}
     </div>

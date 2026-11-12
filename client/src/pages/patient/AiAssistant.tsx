@@ -35,6 +35,7 @@ interface DoctorRecommendation {
   consultationFee: number;
   location: string;
   availability: { day: string; slots: string[] }[];
+  recommendationReason?: string;
 }
 
 interface ChatSession {
@@ -52,22 +53,22 @@ const PRESET_PILLS = [
     mode: "symptom_checker",
   },
   {
-    label: "💊 Prescription Explainer",
+    label: "📋 My Medical Profile",
     prompt:
-      "Explain how to safely take Amoxicillin 500mg tablets and common side effects.",
+      "Summarize my documented medical history, active conditions, and recent appointments.",
+    mode: "profile_summary",
+  },
+  {
+    label: "💊 Prescriptions & Meds",
+    prompt:
+      "What medications and prescriptions are recorded in my NeuroCare file?",
     mode: "prescription_explainer",
   },
   {
-    label: "📊 Lab Report Summarizer",
+    label: "👨‍⚕️ Find Specialists",
     prompt:
-      "Summarize a Blood Report showing Hemoglobin 11.2 g/dL and Fasting Glucose 110 mg/dL.",
-    mode: "report_summarizer",
-  },
-  {
-    label: "🌿 Lifestyle & Wellness",
-    prompt:
-      "Suggest daily habits to improve sleep quality and reduce work stress.",
-    mode: "lifestyle",
+      "Recommend suitable doctors for persistent headaches and neurological symptoms near my location.",
+    mode: "doctor_finder",
   },
 ];
 
@@ -364,17 +365,23 @@ const AiAssistant = () => {
       {/* Main Chat Interface */}
       <div className="flex-1 flex flex-col h-full bg-[var(--card-bg)] overflow-hidden relative w-full">
         {/* Top Toggle Bar */}
-        <div className="flex items-center px-4 py-2.5 border-b border-[var(--border-light)] bg-[var(--bg-secondary)]/50 shrink-0 z-10 gap-3">
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-lg hover:bg-[var(--bg-main)] text-[var(--text-main)] transition-colors"
-            title="Toggle Sidebar"
-          >
-            <Menu size={18} />
-          </button>
-          <span className="text-xs font-semibold text-[var(--text-main)] truncate">
-            {activeSession.title}
-          </span>
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border-light)] bg-[var(--bg-secondary)]/50 shrink-0 z-10 gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 rounded-lg hover:bg-[var(--bg-main)] text-[var(--text-main)] transition-colors"
+              title="Toggle Sidebar"
+            >
+              <Menu size={18} />
+            </button>
+            <span className="text-xs font-semibold text-[var(--text-main)] truncate">
+              {activeSession.title}
+            </span>
+          </div>
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Live Database Intelligence
+          </div>
         </div>
 
         {/* Preset Pills Header Bar */}
@@ -478,6 +485,12 @@ const AiAssistant = () => {
                             ? `${doctor.availability[0].day}: ${doctor.availability[0].slots.join(", ")}`
                             : "Availability on request"}
                         </p>
+                        {doctor.recommendationReason && (
+                          <div className="mt-2 p-2 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] leading-relaxed">
+                            <span className="font-bold">✨ AI Match Reason: </span>
+                            {doctor.recommendationReason}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

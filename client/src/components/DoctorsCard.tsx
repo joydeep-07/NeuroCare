@@ -23,6 +23,7 @@ export interface Doctor {
   reviewsCount: number;
   location: string;
   availability?: Array<{ day: string; slots: string[] }>;
+  recommendationReason?: string;
 }
 
 interface DoctorsCardProps {
@@ -150,6 +151,15 @@ const CardBodyContent: React.FC<CardBodyContentProps> = ({
 }) => {
   return (
     <>
+      {doctor.recommendationReason && (
+        <div className="mb-3 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] leading-relaxed">
+          <span className="font-bold flex items-center gap-1 mb-0.5">
+            ✨ AI Recommendation Reason:
+          </span>
+          {doctor.recommendationReason}
+        </div>
+      )}
+
       <p
         className="text-[11px] md:text-xs mb-3 md:mb-4 line-clamp-3 text-justify leading-relaxed pt-2 md:pt-0"
         style={{ color: "var(--text-secondary)" }}

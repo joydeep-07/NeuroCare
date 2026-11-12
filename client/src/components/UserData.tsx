@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { isAxiosError } from "axios";
+import { Sparkles, RefreshCw } from "lucide-react";
 import api from "../api/axios";
 import ENDPOINTS from "../api/endPoints";
 import { updateUser } from "../redux/authSlice";
@@ -30,7 +31,23 @@ const UserData = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [aiSummary, setAiSummary] = useState<any | null>(null);
+  const [loadingAiSummary, setLoadingAiSummary] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+
+  const fetchAiSummary = useCallback(async () => {
+    try {
+      setLoadingAiSummary(true);
+      const res = await api.get(ENDPOINTS.AI.PATIENT_SUMMARY);
+      if (res.data.success) {
+        setAiSummary(res.data);
+      }
+    } catch (err) {
+      console.warn("Could not fetch AI patient summary:", err);
+    } finally {
+      setLoadingAiSummary(false);
+    }
+  }, []);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -47,10 +64,9 @@ const UserData = () => {
   }, []);
 
   useEffect(() => {
-    // The request is intentionally initiated when this profile view mounts.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProfile();
-  }, [fetchProfile]);
+    fetchAiSummary();
+  }, [fetchProfile, fetchAiSummary]);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -126,6 +142,64 @@ const UserData = () => {
           <p className="mt-1 text-xs text-[var(--text-secondary)]">JPG, PNG, or WEBP. Maximum 5 MB.</p>
           {uploadError && <p role="alert" className="mt-1 text-xs text-red-500">{uploadError}</p>}
         </div>
+      </section>
+
+      {/* AI Health Profile & Clinical Insights Card */}
+      <section className="rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-500/5 via-cyan-500/5 to-transparent p-6 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[var(--border-light)]">
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+              <Sparkles size={18} />
+            </span>
+            <div>
+              <h2 className="text-base font-bold font-heading text-[var(--text-main)]">
+                AI Health Profile & Clinical Summary
+              </h2>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Synthesized dynamically from your MongoDB medical records, BMI, and consultation history
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={fetchAiSummary}
+            disabled={loadingAiSummary}
+            className="px-3 py-1.5 rounded-xl border border-[var(--border-light)] hover:bg-[var(--bg-main)] text-xs font-semibold text-[var(--text-main)] flex items-center gap-1.5 transition-all"
+          >
+            <RefreshCw size={13} className={loadingAiSummary ? "animate-spin" : ""} />
+            {loadingAiSummary ? "Analyzing..." : "Refresh Insights"}
+          </button>
+        </div>
+
+        {loadingAiSummary ? (
+          <div className="py-6 text-center text-xs text-[var(--text-secondary)] space-y-2">
+            <div className="w-6 h-6 mx-auto rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
+            <p>Evaluating medical history and chronic conditions with AI...</p>
+          </div>
+        ) : aiSummary ? (
+          <div className="space-y-3 text-xs leading-relaxed text-[var(--text-main)]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-[11px]">
+              <div>
+                <span className="text-[var(--text-secondary)] block">BMI Calculation</span>
+                <strong className="text-[var(--accent-primary)] font-semibold">{aiSummary.patient?.bmi || "N/A"}</strong>
+              </div>
+              <div>
+                <span className="text-[var(--text-secondary)] block">Past Consultations</span>
+                <strong className="text-[var(--text-main)]">{aiSummary.appointmentsCount || 0} visits</strong>
+              </div>
+              <div>
+                <span className="text-[var(--text-secondary)] block">Stored Documents</span>
+                <strong className="text-[var(--text-main)]">{aiSummary.documentsCount || 0} records</strong>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-light)] whitespace-pre-wrap font-sans text-xs">
+              {aiSummary.summary}
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs text-[var(--text-secondary)]">
+            Click &quot;Refresh Insights&quot; to generate your personalized AI health analysis.
+          </p>
+        )}
       </section>
 
       <div>
