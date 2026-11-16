@@ -11,6 +11,7 @@ interface Doctor {
   department: string;
   consultationFee: number;
   avatar?: string;
+  location?: string;
   availability?: Array<{ day: string; slots: string[] }>;
 }
 
@@ -131,6 +132,7 @@ const BookAppointmentModal = ({ doctor, onClose, onSuccess }: Props) => {
             </h2>
             <p className="text-sm text-cyan-100/90">
               {doctor.specialization} • {doctor.hospital}
+              {doctor.location ? ` • ${doctor.location}` : ""}
             </p>
           </div>
           <button

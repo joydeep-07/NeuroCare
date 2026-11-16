@@ -11,6 +11,7 @@ interface Doctor {
   department: string;
   consultationFee: number;
   avatar?: string;
+  location?: string;
   availability?: Array<{ day: string; slots: string[] }>;
 }
 
@@ -145,7 +146,7 @@ const AppointmentForm = ({
               {doctor.fullName}
             </h2>
             <p className="text-sm text-cyan-100/90">
-              {doctor.specialization} • {doctor.hospital}
+              {doctor.specialization} • {doctor.hospital}{doctor.location ? ` • ${doctor.location}` : ""}
             </p>
           </div>
           <button

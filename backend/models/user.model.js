@@ -198,6 +198,7 @@ const userSchema = new mongoose.Schema(
     location: {
       type: String,
       default: "New Delhi, India",
+      trim: true,
     },
 
     city: { type: String, default: "", trim: true },

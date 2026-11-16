@@ -51,6 +51,7 @@ interface Appointment {
     hospital: string;
     consultationFee: number;
     avatar?: string;
+    location?: string;
   };
   familyMember?: {
     fullName: string;
@@ -248,7 +249,7 @@ const MyAppointments = () => {
                         </span>
                       </div>
                       <p className="text-xs font-semibold text-[var(--accent-primary)]">
-                        {appt.doctor.specialization} • {appt.hospital}
+                        {appt.doctor.specialization} • {appt.hospital}{appt.doctor.location ? ` • ${appt.doctor.location}` : ""}
                       </p>
                     </div>
                   </div>

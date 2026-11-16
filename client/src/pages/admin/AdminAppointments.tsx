@@ -27,6 +27,7 @@ interface Appointment {
     fullName: string;
     specialization: string;
     hospital: string;
+    location?: string;
   };
   familyMember?: {
     fullName: string;
@@ -273,7 +274,7 @@ const AdminAppointments = () => {
                 </div>
 
                 <p className="text-[var(--text-secondary)]">
-                  Doctor: <strong>Dr. {appt.doctor.fullName}</strong> ({appt.doctor.specialization}) • {appt.hospital}
+                  Doctor: <strong>Dr. {appt.doctor.fullName}</strong> ({appt.doctor.specialization}) • {appt.hospital}{appt.doctor.location ? ` • ${appt.doctor.location}` : ""}
                 </p>
                 <p className="text-[var(--text-main)]">
                   🩺 <strong>Symptoms</strong>: {appt.symptoms}

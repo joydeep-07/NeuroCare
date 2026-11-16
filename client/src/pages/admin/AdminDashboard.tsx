@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ShieldCheck, Calendar, AlertCircle, UserPlus, ArrowRight } from "lucide-react";
+import { ShieldCheck, Calendar, AlertCircle, UserPlus, UserCog, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
@@ -59,12 +59,18 @@ const AdminDashboard = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               to="/admin/add-doctor"
               className="px-5 py-2.5 rounded-2xl bg-amber-600 text-white text-xs font-semibold hover:bg-amber-700 shadow-md transition-all flex items-center gap-1.5"
             >
               <UserPlus size={16} /> Add Doctor Account
+            </Link>
+            <Link
+              to="/admin/edit-doctor"
+              className="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md text-white text-xs font-semibold border border-white/20 hover:bg-white/20 transition-all flex items-center gap-1.5"
+            >
+              <UserCog size={16} /> Edit Doctors
             </Link>
             <Link
               to="/admin/appointments"

@@ -15,6 +15,7 @@ import AiAssistant from "./pages/patient/AiAssistant";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AddDoctor from "./pages/admin/AddDoctor";
+import EditDoctor from "./pages/admin/EditDoctor";
 import AdminAppointments from "./pages/admin/AdminAppointments";
 
 import type { RootState } from "./redux/store";
@@ -76,6 +77,14 @@ const router = createBrowserRouter([
       {
         path: "admin/add-doctor",
         element: <AddDoctor />,
+      },
+      {
+        path: "admin/edit-doctor",
+        element: <EditDoctor />,
+      },
+      {
+        path: "admin/edit-doctor/:id",
+        element: <EditDoctor />,
       },
       {
         path: "admin/appointments",

@@ -17,7 +17,7 @@ const getAdminDashboard = async (req, res) => {
     const recentAppointments = await Appointment.find()
       .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone")
       .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship")
-      .populate("doctor", "fullName specialization hospital")
+      .populate("doctor", "fullName specialization hospital location")
       .sort({ createdAt: -1 })
       .limit(10);
 
@@ -71,6 +71,13 @@ const createDoctor = async (req, res) => {
       });
     }
 
+    if (location !== undefined && typeof location !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Location must be a valid text string.",
+      });
+    }
+
     const cleanEmail = email.toLowerCase().trim();
 
     const existingUser = await User.findOne({ email: cleanEmail });
@@ -80,6 +87,19 @@ const createDoctor = async (req, res) => {
         message: `An account with email ${cleanEmail} already exists.`,
       });
     }
+
+    const cleanLocation =
+      typeof location === "string" && location.trim()
+        ? location.trim()
+        : "New Delhi, India";
+
+    const parts = cleanLocation
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const city = parts[0] || cleanLocation;
+    const state = parts[1] || "";
+    const country = parts[2] || "India";
 
     const defaultAvailability = availability || [
       { day: "Monday", slots: ["09:00 AM", "11:00 AM", "02:00 PM", "04:00 PM"] },
@@ -107,7 +127,11 @@ const createDoctor = async (req, res) => {
       avatar:
         avatar ||
         "https://i.pinimg.com/1200x/5d/90/30/5d90305c3e338f4b17a52fd8dccf83b8.jpg",
-      location: location || "New Delhi, India",
+      location: cleanLocation,
+      city,
+      state,
+      country,
+      verificationStatus: "verified",
       availability: defaultAvailability,
       provider: "otp",
       role: "doctor",
@@ -144,7 +168,7 @@ const getAllAppointments = async (req, res) => {
     const appointments = await Appointment.find(filter)
       .populate("patient", "fullName firstName lastName dob dateOfBirth gender avatar email phone bloodGroup height weight illness medicalHistory")
       .populate("familyMember", "fullName firstName lastName dob dateOfBirth gender avatar relationship phone bloodGroup height weight illness medicalHistory")
-      .populate("doctor", "fullName email phone specialization hospital department consultationFee avatar")
+      .populate("doctor", "fullName email phone specialization hospital department consultationFee avatar location")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -261,9 +285,150 @@ const toggleUserStatus = async (req, res) => {
   }
 };
 
+// =======================================
+// Get All Doctors (Admin Only)
+// =======================================
+const getDoctorsAdmin = async (req, res) => {
+  try {
+    const doctors = await User.find({ role: "doctor" })
+      .select("-password -__v")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: doctors.length,
+      doctors,
+    });
+  } catch (error) {
+    console.error("getDoctorsAdmin error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load doctors list.",
+    });
+  }
+};
+
+// =======================================
+// Get Doctor By ID (Admin Only)
+// =======================================
+const getDoctorByIdAdmin = async (req, res) => {
+  try {
+    const doctor = await User.findOne({ _id: req.params.id, role: "doctor" }).select("-password -__v");
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: "Doctor profile not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      doctor,
+    });
+  } catch (error) {
+    console.error("getDoctorByIdAdmin error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching doctor details.",
+    });
+  }
+};
+
+// =======================================
+// Update Doctor Account (Admin Only)
+// =======================================
+const updateDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      fullName,
+      email,
+      phone,
+      medicalRegNo,
+      specialization,
+      degree,
+      hospital,
+      department,
+      yearsOfExperience,
+      consultationFee,
+      biography,
+      avatar,
+      availability,
+      location,
+      isActive,
+    } = req.body;
+
+    const doctor = await User.findOne({ _id: id, role: "doctor" });
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: "Doctor profile not found.",
+      });
+    }
+
+    if (email && email.toLowerCase().trim() !== doctor.email) {
+      const cleanEmail = email.toLowerCase().trim();
+      const existingUser = await User.findOne({ email: cleanEmail, _id: { $ne: id } });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: `An account with email ${cleanEmail} already exists.`,
+        });
+      }
+      doctor.email = cleanEmail;
+    }
+
+    if (location !== undefined) {
+      if (typeof location !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Location must be a valid text string.",
+        });
+      }
+      const cleanLocation = location.trim() || doctor.location || "New Delhi, India";
+      doctor.location = cleanLocation;
+      const parts = cleanLocation.split(",").map((s) => s.trim()).filter(Boolean);
+      doctor.city = parts[0] || cleanLocation;
+      doctor.state = parts[1] || "";
+      doctor.country = parts[2] || "India";
+    }
+
+    if (fullName !== undefined) doctor.fullName = fullName.trim();
+    if (phone !== undefined) doctor.phone = phone.trim();
+    if (medicalRegNo !== undefined) doctor.medicalRegNo = medicalRegNo.trim();
+    if (specialization !== undefined) doctor.specialization = specialization.trim();
+    if (degree !== undefined) doctor.degree = degree.trim();
+    if (hospital !== undefined) doctor.hospital = hospital.trim();
+    if (department !== undefined) doctor.department = department.trim();
+    if (yearsOfExperience !== undefined) doctor.yearsOfExperience = Number(yearsOfExperience) || 0;
+    if (consultationFee !== undefined) doctor.consultationFee = Number(consultationFee) || 0;
+    if (biography !== undefined) doctor.biography = biography;
+    if (avatar !== undefined) doctor.avatar = avatar;
+    if (availability !== undefined && Array.isArray(availability)) doctor.availability = availability;
+    if (isActive !== undefined) doctor.isActive = Boolean(isActive);
+
+    await doctor.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Doctor Dr. ${doctor.fullName} updated successfully.`,
+      doctor,
+    });
+  } catch (error) {
+    console.error("updateDoctor error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update doctor profile.",
+    });
+  }
+};
+
 module.exports = {
   getAdminDashboard,
   createDoctor,
+  getDoctorsAdmin,
+  getDoctorByIdAdmin,
+  updateDoctor,
   getAllAppointments,
   scheduleAppointment,
   toggleUserStatus,

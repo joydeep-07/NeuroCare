@@ -1,13 +1,17 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Building,
   MapPin,
   Calendar,
   ArrowRight,
   ChevronDown,
+  UserCog,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UserAvatar from "./UserAvatar";
+import type { RootState } from "../redux/store";
 
 export interface Doctor {
   _id: string;
@@ -148,6 +152,8 @@ const CardBodyContent: React.FC<CardBodyContentProps> = ({
   doctor,
   onBookAppointment,
 }) => {
+  const { user } = useSelector((state: RootState) => state.auth);
+
   return (
     <>
       {doctor.recommendationReason && (
@@ -220,18 +226,30 @@ const CardBodyContent: React.FC<CardBodyContentProps> = ({
           </span>
         </div>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onBookAppointment(doctor);
-          }}
-          className="px-3.5 py-2 md:px-5 md:py-2.5 rounded-sm text-white text-[11px] md:text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 hover:opacity-90 cursor-pointer"
-          style={{
-            backgroundColor: "var(--accent-primary)",
-          }}
-        >
-          Request Appointment <ArrowRight size={13} />
-        </button>
+        <div className="flex items-center gap-2">
+          {user?.role === "admin" && (
+            <Link
+              to={`/admin/edit-doctor/${doctor._id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="px-3 py-2 md:px-4 md:py-2.5 rounded-sm bg-amber-600 hover:bg-amber-700 text-white text-[11px] md:text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
+            >
+              <UserCog size={13} /> Edit
+            </Link>
+          )}
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onBookAppointment(doctor);
+            }}
+            className="px-3.5 py-2 md:px-5 md:py-2.5 rounded-sm text-white text-[11px] md:text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 hover:opacity-90 cursor-pointer"
+            style={{
+              backgroundColor: "var(--accent-primary)",
+            }}
+          >
+            Request Appointment <ArrowRight size={13} />
+          </button>
+        </div>
       </div>
     </>
   );

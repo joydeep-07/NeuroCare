@@ -38,6 +38,7 @@ const Navbar = () => {
         { name: "Admin Dashboard", path: "/admin/dashboard" },
         { name: "Appointment Queue", path: "/admin/appointments" },
         { name: "Add Doctor", path: "/admin/add-doctor" },
+        { name: "Edit Doctors", path: "/admin/edit-doctor" },
         { name: "Platform Users", path: "/admin/users" },
       ];
     }

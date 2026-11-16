@@ -110,6 +110,8 @@ export const ENDPOINTS = {
     DASHBOARD: `${BASE_URL}/admin/dashboard`,
     USERS: `${BASE_URL}/admin/users`,
     DOCTORS: `${BASE_URL}/admin/doctors`,
+    DOCTOR_BY_ID: (id: string) => `${BASE_URL}/admin/doctors/${id}`,
+    UPDATE_DOCTOR: (id: string) => `${BASE_URL}/admin/doctors/${id}`,
     APPOINTMENTS: `${BASE_URL}/admin/appointments`,
   },
 };

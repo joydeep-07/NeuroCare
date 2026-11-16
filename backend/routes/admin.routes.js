@@ -2,6 +2,9 @@ const express = require("express");
 const {
   getAdminDashboard,
   createDoctor,
+  getDoctorsAdmin,
+  getDoctorByIdAdmin,
+  updateDoctor,
   getAllAppointments,
   scheduleAppointment,
   toggleUserStatus,
@@ -14,7 +17,11 @@ const router = express.Router();
 router.use(protect, authorize("admin"));
 
 router.get("/dashboard", getAdminDashboard);
+router.get("/doctors", getDoctorsAdmin);
 router.post("/doctors", createDoctor);
+router.get("/doctors/:id", getDoctorByIdAdmin);
+router.put("/doctors/:id", updateDoctor);
+router.patch("/doctors/:id", updateDoctor);
 router.get("/appointments", getAllAppointments);
 router.put("/appointments/:id/schedule", scheduleAppointment);
 router.patch("/users/:userId/toggle-status", toggleUserStatus);

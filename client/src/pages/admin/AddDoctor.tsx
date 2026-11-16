@@ -17,7 +17,7 @@ const AddDoctor = () => {
   const [department, setDepartment] = useState("Department of Neurosciences");
   const [yearsOfExperience, setYearsOfExperience] = useState("10");
   const [consultationFee, setConsultationFee] = useState("1000");
-  const [location] = useState("New Delhi, India");
+  const [location, setLocation] = useState("New Delhi, India");
   const [avatar, setAvatar] = useState("");
   const [biography, setBiography] = useState("");
 
@@ -27,8 +27,8 @@ const AddDoctor = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName || !email || !medicalRegNo || !specialization || !hospital) {
-      setErrorMsg("Full Name, Email, Medical Registration Number, Specialization, and Hospital are required.");
+    if (!fullName || !email || !medicalRegNo || !specialization || !hospital || !location.trim()) {
+      setErrorMsg("Full Name, Email, Medical Registration Number, Specialization, Hospital, and Location are required.");
       return;
     }
 
@@ -47,7 +47,7 @@ const AddDoctor = () => {
         department,
         yearsOfExperience: Number(yearsOfExperience),
         consultationFee: Number(consultationFee),
-        location,
+        location: location.trim(),
         avatar: avatar || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400",
         biography,
       });
@@ -184,6 +184,18 @@ const AddDoctor = () => {
                   placeholder="Hospital Name"
                   value={hospital}
                   onChange={(e) => setHospital(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Location *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. New Delhi, Delhi, India"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] outline-none"
                   required
                 />
