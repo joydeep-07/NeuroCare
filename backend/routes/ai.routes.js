@@ -11,6 +11,8 @@ const {
   listConversations,
   createConversation,
   getConversation,
+  updateConversation,
+  deleteConversation,
 } = require("../controllers/aiConversation.controller");
 const { protect, authorize } = require("../middlewares/auth.middleware");
 
@@ -22,6 +24,9 @@ router.use(protect);
 router.get("/conversations", listConversations);
 router.post("/conversations", createConversation);
 router.get("/conversations/:id", getConversation);
+router.patch("/conversations/:id", updateConversation);
+router.put("/conversations/:id", updateConversation);
+router.delete("/conversations/:id", deleteConversation);
 
 // Core AI endpoints
 router.post("/chat", handleAIChat);

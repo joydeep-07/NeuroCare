@@ -8,6 +8,11 @@ import {
   MessageSquarePlus,
   Menu,
   X,
+  MoreVertical,
+  Pencil,
+  Check,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../api/axios";
@@ -102,6 +107,17 @@ const AiAssistant = () => {
   const [selectedLanguage] = useState("english");
   const [loading, setLoading] = useState(false);
 
+  // Chat management state: Menu, Inline Rename, Modal Rename, and Delete Confirmation
+  const [menuOpenSessionId, setMenuOpenSessionId] = useState<string | null>(null);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [editTitleValue, setEditTitleValue] = useState("");
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [deleteModalSession, setDeleteModalSession] = useState<ChatSession | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isHeaderRenameModalOpen, setIsHeaderRenameModalOpen] = useState(false);
+  const [headerRenameValue, setHeaderRenameValue] = useState("");
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeSession =
@@ -111,6 +127,37 @@ const AiAssistant = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // Auto-dismiss action feedback toasts after 3 seconds
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), 3000);
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
+  // Handle outside clicks and keyboard shortcuts (Escape key)
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-chat-menu]")) {
+        setMenuOpenSessionId(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOpenSessionId(null);
+        if (!isRenaming) setEditingSessionId(null);
+        if (!isDeleting) setDeleteModalSession(null);
+        if (!isRenaming) setIsHeaderRenameModalOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleGlobalClick);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleGlobalClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isRenaming, isDeleting]);
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -164,7 +211,7 @@ const AiAssistant = () => {
     };
     try {
       const response = await api.post(ENDPOINTS.AI.CONVERSATIONS);
-      if (response.data.success) {
+      if (response.data.success && response.data.conversation?._id) {
         newSession.id = response.data.conversation._id;
       }
     } catch {
@@ -175,15 +222,88 @@ const AiAssistant = () => {
     if (window.innerWidth < 768) setIsSidebarOpen(false);
   };
 
-  const handleDeleteSession = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (sessions.length === 1) {
-      handleNewChat();
+  const handleStartRename = (session: ChatSession, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setMenuOpenSessionId(null);
+    setEditingSessionId(session.id);
+    setEditTitleValue(session.title);
+  };
+
+  const handleCancelRename = () => {
+    setEditingSessionId(null);
+    setEditTitleValue("");
+  };
+
+  const handleSaveRename = async (sessionId: string, newTitleToSave?: string) => {
+    const titleVal = (newTitleToSave !== undefined ? newTitleToSave : editTitleValue).trim();
+    if (!titleVal) {
+      setFeedback({ type: "error", message: "Chat title cannot be empty." });
+      return;
     }
-    const filtered = sessions.filter((s) => s.id !== id);
-    setSessions(filtered);
-    if (activeSessionId === id && filtered.length > 0) {
-      setActiveSessionId(filtered[0].id);
+
+    const currentSession = sessions.find((s) => s.id === sessionId);
+    if (currentSession && currentSession.title === titleVal) {
+      setEditingSessionId(null);
+      setIsHeaderRenameModalOpen(false);
+      return;
+    }
+
+    setIsRenaming(true);
+    try {
+      if (!sessionId.startsWith("session-")) {
+        await api.patch(ENDPOINTS.AI.CONVERSATION(sessionId), { title: titleVal });
+      }
+
+      setSessions((prev) =>
+        prev.map((s) => (s.id === sessionId ? { ...s, title: titleVal } : s))
+      );
+      setFeedback({ type: "success", message: "Chat renamed successfully." });
+      setEditingSessionId(null);
+      setIsHeaderRenameModalOpen(false);
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message || "Failed to rename chat. Please try again.";
+      setFeedback({ type: "error", message: msg });
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
+  const handleOpenDeleteModal = (session: ChatSession, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setMenuOpenSessionId(null);
+    setDeleteModalSession(session);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModalSession) return;
+    const targetId = deleteModalSession.id;
+    setIsDeleting(true);
+
+    try {
+      if (!targetId.startsWith("session-")) {
+        await api.delete(ENDPOINTS.AI.CONVERSATION(targetId));
+      }
+
+      const filtered = sessions.filter((s) => s.id !== targetId);
+      setSessions(filtered);
+
+      if (activeSessionId === targetId) {
+        if (filtered.length > 0) {
+          setActiveSessionId(filtered[0].id);
+        } else {
+          await handleNewChat();
+        }
+      }
+
+      setFeedback({ type: "success", message: "Conversation deleted successfully." });
+      setDeleteModalSession(null);
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message || "Failed to delete conversation. Please try again.";
+      setFeedback({ type: "error", message: msg });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -202,8 +322,9 @@ const AiAssistant = () => {
     };
 
     const updatedMessages = [...messages, userMessage];
+    const isDefaultTitle = activeSession.title === "New Health Consultation";
     const updatedTitle =
-      messages.length <= 1
+      isDefaultTitle && messages.length <= 1
         ? textToSend.slice(0, 30) + (textToSend.length > 30 ? "..." : "")
         : activeSession.title;
 
@@ -327,35 +448,161 @@ const AiAssistant = () => {
                   </button>
                 </div>
               </div>
-              <div className="space-y-1 overflow-y-auto flex-1">
-                {sessions.map((session) => (
-                  <div
-                    key={session.id}
-                    onClick={() => {
-                      setActiveSessionId(session.id);
-                      if (window.innerWidth < 768) setIsSidebarOpen(false);
-                    }}
-                    className={`group flex items-center justify-between p-2.5 rounded-lg text-xs cursor-pointer transition-all ${
-                      session.id === activeSessionId
-                        ? "bg-[var(--bg-main)] text-[var(--text-main)] font-semibold shadow-xs"
-                        : "text-[var(--text-main)] hover:bg-[var(--bg-main)]/50"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 truncate">
-                      <MessageSquare
-                        size={14}
-                        className="shrink-0 opacity-70"
-                      />
-                      <span className="truncate">{session.title}</span>
-                    </div>
-                    <button
-                      onClick={(e) => handleDeleteSession(e, session.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+              <div className="space-y-1.5 overflow-y-auto flex-1 pr-1">
+                {sessions.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center p-6 text-center text-[var(--text-secondary)] space-y-2">
+                    <MessageSquare size={24} className="opacity-40" />
+                    <p className="text-xs font-medium">No chat history</p>
+                    <p className="text-[10px] opacity-70">
+                      Start a new consultation to begin
+                    </p>
                   </div>
-                ))}
+                ) : (
+                  sessions.map((session) => {
+                    const isActive = session.id === activeSessionId;
+                    const isEditing = editingSessionId === session.id;
+                    const isMenuOpen = menuOpenSessionId === session.id;
+
+                    return (
+                      <div
+                        key={session.id}
+                        onClick={() => {
+                          if (isEditing) return;
+                          setActiveSessionId(session.id);
+                          if (window.innerWidth < 768) setIsSidebarOpen(false);
+                        }}
+                        className={`group relative flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all duration-150 border ${
+                          isActive
+                            ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/30 font-semibold shadow-xs"
+                            : "text-[var(--text-main)] border-transparent hover:bg-[var(--surface-hover)] hover:border-[var(--border-light)]/60"
+                        }`}
+                      >
+                        {isEditing ? (
+                          <div
+                            className="flex items-center gap-1.5 w-full"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="text"
+                              autoFocus
+                              disabled={isRenaming}
+                              value={editTitleValue}
+                              maxLength={80}
+                              onChange={(e) => setEditTitleValue(e.target.value)}
+                              onFocus={(e) => e.target.select()}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleSaveRename(session.id);
+                                } else if (e.key === "Escape") {
+                                  e.preventDefault();
+                                  handleCancelRename();
+                                }
+                              }}
+                              className="flex-1 min-w-0 px-2.5 py-1 bg-[var(--bg-main)] border border-[var(--accent-primary)] rounded-lg text-xs text-[var(--text-main)] outline-none shadow-xs"
+                            />
+                            <button
+                              type="button"
+                              disabled={isRenaming}
+                              onClick={() => handleSaveRename(session.id)}
+                              title="Save title (Enter)"
+                              className="p-1.5 rounded-lg hover:bg-[var(--bg-main)] text-emerald-600 dark:text-emerald-400 transition-colors disabled:opacity-50 shrink-0"
+                            >
+                              {isRenaming ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : (
+                                <Check size={13} />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isRenaming}
+                              onClick={handleCancelRename}
+                              title="Cancel (Esc)"
+                              className="p-1.5 rounded-lg hover:bg-[var(--bg-main)] text-[var(--text-secondary)] hover:text-red-500 transition-colors disabled:opacity-50 shrink-0"
+                            >
+                              <X size={13} />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-1">
+                              <MessageSquare
+                                size={14}
+                                className={`shrink-0 transition-opacity ${
+                                  isActive
+                                    ? "text-[var(--accent-primary)] opacity-100"
+                                    : "opacity-60 group-hover:opacity-100 text-[var(--text-secondary)]"
+                                }`}
+                              />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="truncate" title={session.title}>
+                                  {session.title}
+                                </span>
+                                {session.createdAt && (
+                                  <span className="text-[10px] text-[var(--text-secondary)] font-normal opacity-60 truncate">
+                                    {session.createdAt}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Three-dot action menu */}
+                            <div className="relative shrink-0" data-chat-menu>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setMenuOpenSessionId(isMenuOpen ? null : session.id);
+                                }}
+                                aria-label="Conversation options"
+                                title="More options"
+                                className={`p-1.5 rounded-md transition-all ${
+                                  isMenuOpen
+                                    ? "bg-[var(--bg-main)] text-[var(--text-main)] opacity-100"
+                                    : "opacity-80 md:opacity-0 md:group-hover:opacity-100 text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)]"
+                                }`}
+                              >
+                                <MoreVertical size={14} />
+                              </button>
+
+                              {/* Dropdown Menu */}
+                              <AnimatePresence>
+                                {isMenuOpen && (
+                                  <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                                    transition={{ duration: 0.12 }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="absolute right-0 top-full mt-1 w-32 bg-[var(--card-bg)] border border-[var(--border-light)] rounded-xl shadow-xl py-1 z-30 overflow-hidden"
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleStartRename(session, e)}
+                                      className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--text-main)] hover:bg-[var(--surface-hover)] transition-colors text-left"
+                                    >
+                                      <Pencil size={13} className="text-[var(--text-secondary)]" />
+                                      <span>Rename</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleOpenDeleteModal(session, e)}
+                                      className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors text-left"
+                                    >
+                                      <Trash2 size={13} />
+                                      <span>Delete</span>
+                                    </button>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           </motion.div>
@@ -366,19 +613,34 @@ const AiAssistant = () => {
       <div className="flex-1 flex flex-col h-full bg-[var(--card-bg)] overflow-hidden relative w-full">
         {/* Top Toggle Bar */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border-light)] bg-[var(--bg-secondary)]/50 shrink-0 z-10 gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg hover:bg-[var(--bg-main)] text-[var(--text-main)] transition-colors"
+              className="p-2 rounded-lg hover:bg-[var(--bg-main)] text-[var(--text-main)] transition-colors shrink-0"
               title="Toggle Sidebar"
             >
               <Menu size={18} />
             </button>
-            <span className="text-xs font-semibold text-[var(--text-main)] truncate">
-              {activeSession.title}
-            </span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                className="text-xs font-semibold text-[var(--text-main)] truncate"
+                title={activeSession.title}
+              >
+                {activeSession.title}
+              </span>
+              <button
+                onClick={() => {
+                  setHeaderRenameValue(activeSession.title);
+                  setIsHeaderRenameModalOpen(true);
+                }}
+                title="Rename conversation"
+                className="p-1 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors shrink-0"
+              >
+                <Pencil size={12} />
+              </button>
+            </div>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold">
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Live Database Intelligence
           </div>
@@ -548,6 +810,193 @@ const AiAssistant = () => {
           </button>
         </form>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteModalSession && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+            onClick={() => {
+              if (!isDeleting) setDeleteModalSession(null);
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.15 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm bg-[var(--card-bg)] rounded-2xl border border-[var(--border-light)] shadow-2xl p-6 space-y-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
+                  <Trash2 size={20} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[var(--text-main)]">
+                    Delete Conversation?
+                  </h3>
+                  <p className="text-[11px] text-[var(--text-secondary)]">
+                    This action cannot be undone.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                Are you sure you want to delete{" "}
+                <span className="font-semibold text-[var(--text-main)]">
+                  "{deleteModalSession.title}"
+                </span>
+                ? This conversation and all associated messages will be permanently removed from your database.
+              </p>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setDeleteModalSession(null)}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-[var(--border-light)] text-[var(--text-secondary)] hover:bg-[var(--bg-main)] transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={handleConfirmDelete}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-sm"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={13} />
+                      Delete Chat
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Rename Modal (Header / Triggered) */}
+      <AnimatePresence>
+        {isHeaderRenameModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+            onClick={() => {
+              if (!isRenaming) setIsHeaderRenameModalOpen(false);
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.15 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm bg-[var(--card-bg)] rounded-2xl border border-[var(--border-light)] shadow-2xl p-6 space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Pencil size={16} className="text-[var(--accent-primary)]" />
+                  <h3 className="text-sm font-bold text-[var(--text-main)]">
+                    Rename Conversation
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  disabled={isRenaming}
+                  onClick={() => setIsHeaderRenameModalOpen(false)}
+                  className="p-1 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSaveRename(activeSession.id, headerRenameValue);
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-[11px] font-medium text-[var(--text-secondary)] mb-1">
+                    Conversation Title
+                  </label>
+                  <input
+                    type="text"
+                    autoFocus
+                    maxLength={80}
+                    disabled={isRenaming}
+                    value={headerRenameValue}
+                    onChange={(e) => setHeaderRenameValue(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-light)] focus:border-[var(--accent-primary)] rounded-xl text-xs text-[var(--text-main)] outline-none transition-all shadow-inner"
+                    placeholder="Enter conversation title..."
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    disabled={isRenaming}
+                    onClick={() => setIsHeaderRenameModalOpen(false)}
+                    className="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-[var(--border-light)] text-[var(--text-secondary)] hover:bg-[var(--bg-main)] transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isRenaming || !headerRenameValue.trim()}
+                    className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-[var(--accent-primary)] hover:opacity-90 text-white flex items-center gap-1.5 transition-opacity disabled:opacity-50 shadow-sm"
+                  >
+                    {isRenaming ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={13} />
+                        Save
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Action Feedback Banner */}
+      <AnimatePresence>
+        {feedback && (
+          <motion.div
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className={`fixed bottom-20 right-6 md:bottom-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-xl border text-xs font-medium backdrop-blur-md ${
+              feedback.type === "success"
+                ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                : "bg-red-500/15 border-red-500/30 text-red-700 dark:text-red-300"
+            }`}
+          >
+            {feedback.type === "success" ? (
+              <Check size={14} className="shrink-0" />
+            ) : (
+              <AlertCircle size={14} className="shrink-0" />
+            )}
+            <span>{feedback.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
