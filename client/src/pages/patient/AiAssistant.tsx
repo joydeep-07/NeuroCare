@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import api from "../../api/axios";
 import ENDPOINTS from "../../api/endPoints";
 import { BiSolidSend } from "react-icons/bi";
+import { FiArrowUp, FiCircle, FiMic } from "react-icons/fi";
 
 interface ChatMessage {
   id: string;
@@ -488,7 +489,9 @@ const AiAssistant = () => {
                               disabled={isRenaming}
                               value={editTitleValue}
                               maxLength={80}
-                              onChange={(e) => setEditTitleValue(e.target.value)}
+                              onChange={(e) =>
+                                setEditTitleValue(e.target.value)
+                              }
                               onFocus={(e) => e.target.select()}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -536,7 +539,10 @@ const AiAssistant = () => {
                                 }`}
                               />
                               <div className="flex flex-col min-w-0 flex-1">
-                                <span className="truncate" title={session.title}>
+                                <span
+                                  className="truncate"
+                                  title={session.title}
+                                >
                                   {session.title}
                                 </span>
                                 {session.createdAt && (
@@ -553,7 +559,9 @@ const AiAssistant = () => {
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setMenuOpenSessionId(isMenuOpen ? null : session.id);
+                                  setMenuOpenSessionId(
+                                    isMenuOpen ? null : session.id,
+                                  );
                                 }}
                                 aria-label="Conversation options"
                                 title="More options"
@@ -579,15 +587,22 @@ const AiAssistant = () => {
                                   >
                                     <button
                                       type="button"
-                                      onClick={(e) => handleStartRename(session, e)}
+                                      onClick={(e) =>
+                                        handleStartRename(session, e)
+                                      }
                                       className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--text-main)] hover:bg-[var(--surface-hover)] transition-colors text-left"
                                     >
-                                      <Pencil size={13} className="text-[var(--text-secondary)]" />
+                                      <Pencil
+                                        size={13}
+                                        className="text-[var(--text-secondary)]"
+                                      />
                                       <span>Rename</span>
                                     </button>
                                     <button
                                       type="button"
-                                      onClick={(e) => handleOpenDeleteModal(session, e)}
+                                      onClick={(e) =>
+                                        handleOpenDeleteModal(session, e)
+                                      }
                                       className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors text-left"
                                     >
                                       <Trash2 size={13} />
@@ -612,39 +627,7 @@ const AiAssistant = () => {
       {/* Main Chat Interface */}
       <div className="flex-1 flex flex-col h-full bg-[var(--card-bg)] overflow-hidden relative w-full">
         {/* Top Toggle Bar */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border-light)] bg-[var(--bg-secondary)]/50 shrink-0 z-10 gap-3">
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg hover:bg-[var(--bg-main)] text-[var(--text-main)] transition-colors shrink-0"
-              title="Toggle Sidebar"
-            >
-              <Menu size={18} />
-            </button>
-            <div className="flex items-center gap-2 min-w-0">
-              <span
-                className="text-xs font-semibold text-[var(--text-main)] truncate"
-                title={activeSession.title}
-              >
-                {activeSession.title}
-              </span>
-              <button
-                onClick={() => {
-                  setHeaderRenameValue(activeSession.title);
-                  setIsHeaderRenameModalOpen(true);
-                }}
-                title="Rename conversation"
-                className="p-1 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors shrink-0"
-              >
-                <Pencil size={12} />
-              </button>
-            </div>
-          </div>
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live Database Intelligence
-          </div>
-        </div>
+       
 
         {/* Preset Pills Header Bar */}
         {messages.length <= 2 && (
@@ -749,7 +732,9 @@ const AiAssistant = () => {
                         </p>
                         {doctor.recommendationReason && (
                           <div className="mt-2 p-2 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] leading-relaxed">
-                            <span className="font-bold">✨ AI Match Reason: </span>
+                            <span className="font-bold">
+                              ✨ AI Match Reason:{" "}
+                            </span>
                             {doctor.recommendationReason}
                           </div>
                         )}
@@ -786,29 +771,72 @@ const AiAssistant = () => {
         </div>
 
         {/* Input Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-          className="absolute bottom-0 left-0 right-0 p-3 md:p-4 bg-[var(--bg-secondary)] border-t border-[var(--border-light)] flex items-center gap-3 z-20 shadow-lg"
-        >
-          <input
-            type="text"
-            placeholder="Ask about symptoms, medicines, lab reports, or health habits..."
-            value={inputPrompt}
-            onChange={(e) => setInputPrompt(e.target.value)}
-            className="flex-1 px-4 py-2.5 md:py-3 rounded-full border border-[var(--border-light)] bg-[var(--bg-main)] text-[var(--text-main)] text-xs outline-none focus:border-[var(--accent-primary)] transition-all"
-          />
+        {/* Make sure to import these icons at the top of your file: */}
+        {/* import { FiMic, FiCircle, FiArrowUp } from "react-icons/fi"; */}
 
-          <button
-            type="submit"
-            disabled={loading || !inputPrompt.trim()}
-            className="p-2.5 md:p-3 rounded-full bg-[var(--accent-primary)] text-white shadow-md hover:opacity-95 transition-all disabled:opacity-50 shrink-0"
+        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 z-20 pointer-events-none">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+            className="pointer-events-auto mx-auto rounded-xl bg-[var(--bg-main)]/50 border border-[var(--border-light)] p-3.5 md:p-4 flex flex-col justify-between gap-4 shadow-xl focus-within:border-[var(--border-light)] transition-all"
           >
-            <BiSolidSend size={15} />
-          </button>
-        </form>
+            {/* Top Row: Text Input (or Textarea for multi-line support) */}
+            <textarea
+              rows={1}
+              placeholder="Ask about symptoms, medicines, lab reports, or health habits..."
+              value={inputPrompt}
+              onChange={(e) => setInputPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (!loading && inputPrompt.trim()) {
+                    handleSendMessage();
+                  }
+                }
+              }}
+              className="w-full bg-transparent text-white placeholder-neutral-500 text-sm outline-none resize-none px-1"
+            />
+
+            {/* Bottom Row: Left Utility Icons & Right Submit Button */}
+            <div className="flex items-center justify-between pt-1">
+              {/* Left Side Icons (Mic & Circle/Action) */}
+              <div className="flex items-center gap-3.5 text-neutral-400 px-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    /* Add voice input handler here */
+                  }}
+                  className="hover:text-white transition-colors"
+                  title="Voice input"
+                >
+                  <FiMic size={18} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    /* Add attachment/mode handler here */
+                  }}
+                  className="hover:text-white transition-colors"
+                  title="Options"
+                >
+                  <FiCircle size={18} />
+                </button>
+              </div>
+
+              {/* Right Side Circular Up-Arrow Submit Button */}
+              <button
+                type="submit"
+                disabled={loading || !inputPrompt.trim()}
+                className="w-9 h-9 rounded-full bg-neutral-600 text-[#141414] flex items-center justify-center hover:bg-neutral-200 disabled:bg-neutral-700/70 disabled:text-[#141414] disabled:cursor-not-allowed transition-all shrink-0"
+              >
+                <FiArrowUp size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -847,7 +875,8 @@ const AiAssistant = () => {
                 <span className="font-semibold text-[var(--text-main)]">
                   "{deleteModalSession.title}"
                 </span>
-                ? This conversation and all associated messages will be permanently removed from your database.
+                ? This conversation and all associated messages will be
+                permanently removed from your database.
               </p>
 
               <div className="flex justify-end gap-2 pt-2">
